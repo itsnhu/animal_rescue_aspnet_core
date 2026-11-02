@@ -1,0 +1,239 @@
+﻿@model HeThongCuuHo.Models.CuuHo
+
+@{
+    ViewData["Title"] = "Vị trí hiện trường";
+}
+
+<!-- Nhúng CSS Leaflet Map & FontAwesome -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+    /* 2. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, 
+    .card, .btn, .badge, table, th, td, p, span, div, input, select, a {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+        font-size: 1rem;
+    }
+
+    .card-custom {
+        background: #ffffff;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        margin-bottom: 0; 
+    }
+
+    .card-header-custom {
+        padding: 10px 15px;
+        border-bottom: 1px solid #f1f5f9;
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #ffffff;
+    }
+
+    /* Danh sách thông tin thu gọn */
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-row {
+        display: flex;
+        padding: 6px 0; /* Giảm padding để gọn hơn */
+        border-bottom: 1px dashed #e2e8f0;
+        align-items: center; 
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .info-row:first-child {
+        padding-top: 0;
+    }
+
+    .info-label {
+        width: 110px;
+        flex-shrink: 0;
+        font-weight: 700;
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+
+    .info-val {
+        flex-grow: 1;
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.9rem;
+        word-wrap: break-word;
+    }
+
+    /* Nút bấm thu gọn */
+    .btn-custom {
+        border-radius: 6px;
+        font-weight: 700;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .btn-maps {
+        background: #e0f2fe;
+        color: #0284c7;
+        border: 1px solid #bae6fd;
+    }
+    .btn-maps:hover { background: #bae6fd; color: #0369a1; }
+
+    .btn-back {
+        background: #ffffff;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+        margin-bottom: 0;
+    }
+    .btn-back:hover { background: #f1f5f9; color: #0f172a; }
+
+    /* 1. Bản đồ - Giảm chiều cao để vừa 1 màn hình */
+    #map {
+        height: 260px; 
+        width: 100%;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        z-index: 1;
+    }
+</style>
+
+<div class="container-fluid py-2 px-md-3">
+
+    <!-- 3. HEADER (Bỏ icon) -->
+    <div class="d-flex justify-content-between align-items-center mb-2 bg-white px-3 py-2 rounded-lg shadow-sm border">
+        <h6 class="font-weight-bold text-dark mb-0">
+            Vị trí hiện trường cứu hộ
+        </h6>
+        <span class="text-muted" style="font-size: 0.9rem;">Mã nhiệm vụ: <span class="font-weight-bold text-dark">#@Model.MaCuuHo</span></span>
+    </div>
+
+    <div class="row">
+        <!-- CỘT TRÁI: THÔNG TIN & NÚT BẤM -->
+        <div class="col-lg-4 col-md-5">
+            <div class="card-custom h-100">
+                <div class="card-header-custom">
+                    <i class="fas fa-info-circle text-primary"></i> Thông tin chi tiết
+                </div>
+                <div class="card-body p-3 d-flex flex-column">
+                    
+                    <ul class="info-list mb-3">
+                        <li class="info-row">
+                            <div class="info-label">Loại động vật</div>
+                            <div class="info-val">
+                                <span class="badge badge-primary px-2 py-1" style="font-size: 0.8rem;">
+                                    <i class="fas fa-paw mr-1"></i> @(Model.BaoCao?.LoaiDongVat ?? "Chưa rõ")
+                                </span>
+                            </div>
+                        </li>
+                        <li class="info-row">
+                            <div class="info-label">Địa chỉ</div>
+                            <div class="info-val text-muted font-weight-normal" style="line-height: 1.4; font-size: 0.85rem;">
+                                <i class="fas fa-map-marker-alt text-danger mr-1"></i> @(Model.BaoCao?.DiaChi ?? "Chưa cập nhật")
+                            </div>
+                        </li>
+                        <li class="info-row">
+                            <div class="info-label">Tình nguyện viên</div>
+                            <div class="info-val">
+                                @if (Model.TinhNguyenVien != null)
+                                {
+                                    <span class="text-primary" style="font-size: 0.9rem;"><i class="fas fa-user-circle mr-1"></i> @Model.TinhNguyenVien.HoTen</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-warning px-2 py-1" style="font-size: 0.75rem;">Chưa phân công</span>
+                                }
+                            </div>
+                        </li>
+                        <li class="info-row">
+                            <div class="info-label">Trạng thái</div>
+                            <div class="info-val">
+                                @if(Model.TrangThai == "Hoàn thành")
+                                {
+                                    <span class="badge badge-success px-2 py-1" style="font-size: 0.75rem;">
+                                        <i class="fas fa-check-circle mr-1"></i> Hoàn thành
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-warning px-2 py-1" style="font-size: 0.75rem;">
+                                        <i class="fas fa-spinner fa-spin mr-1"></i> Đang cứu hộ
+                                    </span>
+                                }
+                            </div>
+                        </li>
+                    </ul>
+
+                    <!-- Nút thao tác -->
+                    <div class="mt-auto">
+                        <a class="btn btn-custom btn-maps" 
+                           target="_blank" 
+                           href="https://www.google.com/maps?q=@(Model.BaoCao?.ViDo ?? 0),@(Model.BaoCao?.KinhDo ?? 0)">
+                            <i class="fas fa-globe-asia"></i> Mở trên Google Maps
+                        </a>
+                        <a asp-action="Index" class="btn btn-custom btn-back">
+                            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: BẢN ĐỒ -->
+        <div class="col-lg-8 col-md-7">
+            <div class="card-custom h-100">
+                <div class="card-header-custom">
+                    <i class="fas fa-map text-success"></i> Bản đồ chỉ đường
+                </div>
+                <div class="card-body p-2">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        $(document).ready(function () {
+            var lat = @(Model.BaoCao?.ViDo ?? 10.7769);
+            var lng = @(Model.BaoCao?.KinhDo ?? 106.7009);
+
+            var map = L.map('map').setView([lat, lng], 15);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            var marker = L.marker([lat, lng]).addTo(map);
+            
+            var popupContent = "<div class='text-center'><b>@Model.BaoCao?.LoaiDongVat</b><br><small>@Model.BaoCao?.DiaChi</small></div>";
+            marker.bindPopup(popupContent).openPopup();
+
+            setTimeout(function(){ map.invalidateSize(); }, 200);
+        });
+    </script>
+}

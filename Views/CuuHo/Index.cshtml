@@ -1,0 +1,415 @@
+﻿@model IEnumerable<HeThongCuuHo.Models.CuuHo>
+
+@{
+    ViewData["Title"] = "Quản lý nhiệm vụ cứu hộ";
+}
+
+<style>
+    /* 1. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, 
+    .card, .btn, .badge, table, th, td, p, span, div, input, select, a {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+        font-size: 1rem; 
+    }
+
+    /* TÙY CHỈNH BẢNG */
+    .table-custom {
+        table-layout: fixed;
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    .table-custom th {
+        background-color: #f8fafc;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-top: none;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: middle;
+        white-space: nowrap;
+        padding: 10px 5px;
+        text-align: center;
+    }
+    
+    .table-custom td {
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.85rem;
+        color: #334155;
+        padding: 8px 5px;
+    }
+
+    .table-custom tbody tr {
+        transition: background-color 0.2s;
+    }
+    .table-custom tbody tr:hover {
+        background-color: #fcfcfd;
+    }
+
+    /* 2. BADGE TRẠNG THÁI */
+    .badge-status {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 90px;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+        cursor: default;
+    }
+    .badge-status:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        filter: brightness(0.95);
+    }
+
+    .status-pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .status-in-progress { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .status-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
+    /* 3. NÚT THAO TÁC */
+    .action-group {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        flex-wrap: nowrap;
+    }
+
+    .btn-action {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s;
+        white-space: nowrap;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        color: #475569;
+        text-decoration: none !important;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-1px); 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .btn-action-primary { color: #0284c7; border-color: #bae6fd; background: #f0f9ff; }
+    .btn-action-primary:hover { background: #e0f2fe; color: #0369a1; }
+    
+    .btn-action-warning { color: #d97706; border-color: #fde68a; background: #fffbeb; }
+    .btn-action-warning:hover { background: #fef3c7; color: #b45309; }
+    
+    .btn-action-success { color: #16a34a; border-color: #bbf7d0; background: #f0fdf4; }
+    .btn-action-success:hover { background: #dcfce7; color: #15803d; }
+
+    .avatar-thumb {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .text-truncate-custom {
+        max-width: 180px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    /* 4. PHÂN TRANG */
+    .pagination .page-link {
+        color: #0f172a;
+        border: 1px solid #e2e8f0;
+        margin: 0 2px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 4px 10px;
+        transition: all 0.2s;
+    }
+    .pagination .page-link:hover { background-color: #f1f5f9; color: #0f172a; }
+    .pagination .page-item.active .page-link { background-color: #0284c7; border-color: #0284c7; color: #ffffff; }
+    .pagination .page-item.disabled .page-link { color: #94a3b8; pointer-events: none; background-color: #f8fafc; }
+</style>
+
+<div class="container-fluid py-2 px-md-3">
+
+    <!-- TIÊU ĐỀ TRANG -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-2 bg-white p-2 rounded-lg shadow-sm border">
+        <div>
+            <h5 class="font-weight-bold text-dark mb-1" style="font-size: 1.2rem;">
+                Quản lý nhiệm vụ cứu hộ
+            </h5>
+            <p class="text-muted small mb-0" style="font-size: 0.85rem;">Theo dõi, phân công và cập nhật trạng thái các ca cứu hộ.</p>
+        </div>
+    </div>
+
+    <!-- THÔNG BÁO LỖI -->
+    @if (TempData["Loi"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-lg mb-2 py-2" role="alert" style="font-size: 0.9rem;">
+            <i class="fas fa-exclamation-circle mr-2"></i> @TempData["Loi"]
+            <button type="button" class="close py-2" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <!-- KHUNG CHỨA BẢNG DỮ LIỆU -->
+    <div class="card border-0 shadow-sm rounded-lg overflow-hidden">
+        
+        <div class="card-header bg-white border-bottom py-2 px-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <h6 class="font-weight-bold text-secondary mb-2 mb-md-0 d-flex align-items-center" style="font-size: 1rem;">
+                <i class="fas fa-list-ul text-primary mr-1"></i> Danh sách nhiệm vụ
+            </h6>
+            <div class="input-group input-group-sm" style="max-width: 220px;">
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm nhanh..." style="font-size: 0.85rem;">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom" id="cuuHoTable">
+                    <thead>
+                        <tr>
+                            <!-- Phân bổ lại tỷ lệ cột để nhường chỗ cho Thao tác -->
+                            <th style="width: 5%;">Mã</th>
+                            <th style="width: 7%;">Ảnh</th>
+                            <th style="width: 9%;">Động vật</th>
+                            <th style="width: 18%; text-align: left;">Địa chỉ</th>
+                            <th style="width: 13%; text-align: left;">Tình nguyện viên</th>
+                            <th style="width: 11%;">Thời gian</th>
+                            <th style="width: 12%;">Trạng thái</th>
+                            <th style="width: 25%;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr class="data-row">
+                                <td class="text-center font-weight-bold text-primary">@item.MaCuuHo</td>
+                                
+                                <td class="text-center">
+                                    @if (!string.IsNullOrEmpty(item.BaoCao?.HinhAnh))
+                                    {
+                                        <img src="~/uploads/@item.BaoCao.HinhAnh" alt="Ảnh" class="avatar-thumb shadow-sm" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light text-muted rounded d-inline-flex align-items-center justify-content-center border" style="width: 36px; height: 36px;">
+                                            <i class="fas fa-paw" style="font-size: 0.8rem;"></i>
+                                        </div>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    <span class="font-weight-bold text-dark text-nowrap">
+                                        @(item.BaoCao?.LoaiDongVat ?? "Không rõ")
+                                    </span>
+                                </td>
+
+                                <td style="text-align: left;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-map-marker-alt text-danger mr-1 flex-shrink-0" style="font-size: 0.75rem;"></i>
+                                        <span class="text-truncate-custom text-secondary" title="@item.BaoCao?.DiaChi">
+                                            @(item.BaoCao?.DiaChi ?? "--")
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td style="text-align: left;">
+                                    @if (item.TinhNguyenVien != null)
+                                    {
+                                        <span class="text-dark text-truncate-custom font-weight-bold" title="@item.TinhNguyenVien.HoTen">
+                                            <i class="fas fa-user-circle text-muted mr-1"></i>@item.TinhNguyenVien.HoTen
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-warning px-2 py-1" style="font-size: 0.7rem; white-space: nowrap;">Chưa phân công</span>
+                                    }
+                                </td>
+
+                                <td class="text-center text-muted font-weight-bold" style="font-size: 0.85rem;">
+                                    @(item.ThoiGianNhan?.ToString("dd/MM/yyyy HH:mm") ?? "--")
+                                </td>
+
+                                <td class="text-center">
+                                    @if (item.TrangThai == "Đang cứu hộ")
+                                    {
+                                        <span class="badge-status status-in-progress">Đang cứu hộ</span>
+                                    }
+                                    else if (item.TrangThai == "Chờ xử lý")
+                                    {
+                                        <span class="badge-status status-pending">Chờ xử lý</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status status-done">Hoàn thành</span>
+                                    }
+                                </td>
+
+                                <!-- CỘT THAO TÁC -->
+                                <td class="text-center">
+                                    <div class="action-group">
+                                        <a asp-action="ChiTiet" asp-route-id="@item.MaCuuHo" class="btn-action btn-action-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i> Xem
+                                        </a>
+
+                                        <a asp-action="ViTri" asp-route-id="@item.MaCuuHo" class="btn-action" title="Xem vị trí">
+                                            <i class="fas fa-map-marker-alt"></i> Vị trí
+                                        </a>
+
+                                        @if (item.TinhNguyenVien == null)
+                                        {
+                                            <a asp-action="PhanCong" asp-route-maBaoCao="@item.MaBaoCao" class="btn-action btn-action-warning" title="Phân công TNV">
+                                                <i class="fas fa-user-plus"></i> Phân công
+                                            </a>
+                                            <a asp-action="TuDongPhanCong" asp-route-id="@item.MaBaoCao" class="btn-action" title="Tự động phân công">
+                                                <i class="fas fa-robot"></i> Tự động
+                                            </a>
+                                        }
+
+                                        @if (item.TrangThai != "Hoàn thành")
+                                        {
+                                            <form asp-action="CapNhatTrangThai" asp-route-id="@item.MaCuuHo" method="post" style="display:inline; margin:0; padding:0;">
+                                                <button type="submit" class="btn-action btn-action-success" title="Đánh dấu hoàn thành" onclick="return confirm('Xác nhận hoàn thành nhiệm vụ?')">
+                                                    <i class="fas fa-check"></i> Xong
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                <div class="py-3">
+                                    <i class="fas fa-folder-open fa-2x mb-2 text-secondary opacity-50"></i>
+                                    <p class="mb-0 font-weight-bold">Chưa có nhiệm vụ cứu hộ nào.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- FOOTER PHÂN TRANG -->
+        <div class="card-footer bg-white border-0 py-2 px-3 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <span class="text-muted" style="font-size: 0.85rem;">Tổng số: <strong class="text-dark">@(Model != null ? Model.Count() : 0)</strong> nhiệm vụ</span>
+            
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0" id="pagination">
+                    <!-- Nút phân trang -->
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const rowsPerPage = 10;
+            let currentPage = 1;
+            let filteredRows = []; 
+
+            const allRows = $('#tableBody .data-row').toArray();
+
+            function setupPagination(rows) {
+                filteredRows = rows;
+                const pageCount = Math.ceil(filteredRows.length / rowsPerPage);
+                
+                $('#pagination').empty();
+                if (pageCount <= 1) return; 
+
+                $('#pagination').append(`
+                    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">&laquo;</a>
+                    </li>
+                `);
+
+                for (let i = 1; i <= pageCount; i++) {
+                    $('#pagination').append(`
+                        <li class="page-item ${currentPage === i ? 'active' : ''}">
+                            <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
+                        </li>
+                    `);
+                }
+
+                $('#pagination').append(`
+                    <li class="page-item ${currentPage === pageCount ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">&raquo;</a>
+                    </li>
+                `);
+            }
+
+            window.changePage = function(page) {
+                const pageCount = Math.ceil(filteredRows.length / rowsPerPage);
+                if (page < 1 || page > pageCount) return;
+                
+                currentPage = page;
+                displayRows();
+                setupPagination(filteredRows); 
+            }
+
+            function displayRows() {
+                const start = (currentPage - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+
+                $(allRows).hide();
+                $(filteredRows.slice(start, end)).show();
+            }
+
+            setupPagination(allRows);
+            displayRows();
+
+            $('#searchInput').on('input', function () {
+                let filter = $(this).val().toLowerCase().trim();
+                
+                let resultRows = allRows.filter(row => {
+                    let text = $(row).text().toLowerCase();
+                    return text.includes(filter);
+                });
+
+                currentPage = 1;
+                setupPagination(resultRows);
+                
+                if (resultRows.length > 0) {
+                    displayRows();
+                } else {
+                    $(allRows).hide();
+                }
+            });
+        });
+    </script>
+}

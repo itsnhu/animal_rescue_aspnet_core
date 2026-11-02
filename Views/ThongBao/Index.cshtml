@@ -1,0 +1,423 @@
+﻿@model IEnumerable<HeThongCuuHo.Models.ThongBao>
+
+@{
+    ViewData["Title"] = "Thông báo";
+    var danhSach = Model != null ? Model.OrderByDescending(x => x.NgayGui).ToList() : new List<HeThongCuuHo.Models.ThongBao>();
+    int tongSo = danhSach.Count;
+    int chuaDoc = danhSach.Count(x => !x.DaDoc);
+    int daDoc = tongSo - chuaDoc;
+    
+    var today = DateTime.Today;
+    var yesterday = today.AddDays(-1);
+}
+
+<style>
+    /* 1. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .card, .btn, .badge, p, span, div, label, input, a, button {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+        font-size: 1rem;
+    }
+
+    /* TÙY CHỈNH HEADER & BỘ LỌC */
+    .page-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 2px;
+    }
+    
+    .page-desc {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+    .stat-box {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-bar {
+        background: #ffffff;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        padding: 10px 15px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .tab-group {
+        display: flex;
+        gap: 5px;
+    }
+
+    .tab-btn {
+        background: transparent;
+        border: none;
+        padding: 6px 15px;
+        border-radius: 6px;
+        font-weight: 700;
+        color: #64748b;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+        background: #f1f5f9;
+    }
+
+    .tab-btn.active {
+        background: #0ea5e9;
+        color: #ffffff;
+        box-shadow: 0 2px 5px rgba(14, 165, 233, 0.3);
+    }
+
+    .search-input {
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        padding: 6px 12px;
+        font-size: 0.9rem;
+        min-width: 250px;
+        transition: all 0.2s;
+    }
+
+    .search-input:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
+        outline: none;
+    }
+
+    /* TÙY CHỈNH DANH SÁCH THÔNG BÁO */
+    .group-title {
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 20px 0 10px 5px;
+    }
+
+    .notification-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .noti-item {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .noti-item:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border-color: #cbd5e1;
+    }
+
+    /* Thông báo chưa đọc: Có nền xanh nhạt, vạch xanh bên trái */
+    .noti-item.unread {
+        background: #f0f9ff;
+        border-left: 4px solid #0ea5e9;
+    }
+    
+    .noti-item.unread .noti-title {
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .noti-item.read .noti-title {
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .noti-icon-box {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    
+    /* Màu icon theo loại */
+    .icon-report { background: #e0f2fe; color: #0284c7; }
+    .icon-rescue { background: #fee2e2; color: #dc2626; }
+    .icon-adopt { background: #fce7f3; color: #be185d; }
+    .icon-medical { background: #dcfce7; color: #16a34a; }
+    .icon-default { background: #f1f5f9; color: #475569; }
+
+    .noti-content {
+        flex-grow: 1;
+    }
+
+    .noti-title {
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+        line-height: 1.4;
+    }
+
+    .noti-meta {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .badge-code {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+
+    .noti-status {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #0ea5e9;
+        box-shadow: 0 0 6px rgba(14, 165, 233, 0.6);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        background: #ffffff;
+        border-radius: 10px;
+        border: 1px dashed #cbd5e1;
+    }
+</style>
+
+<div class="container-fluid py-3 px-md-4">
+
+    <!-- HEADER -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+        <div>
+            <h1 class="page-title">Thông báo</h1>
+            <p class="page-desc">Theo dõi các hoạt động và cập nhật mới nhất từ hệ thống.</p>
+        </div>
+        <div class="d-flex align-items-center mt-2 mt-md-0" style="gap: 10px;">
+            <div class="stat-box d-none d-sm-flex">
+                <span class="text-muted font-weight-bold">Tổng số:</span>
+                <span class="font-weight-bold text-dark" style="font-size: 1.1rem;">@tongSo</span>
+                <span class="text-muted mx-1">|</span>
+                <span class="text-muted font-weight-bold">Chưa đọc:</span>
+                <span class="font-weight-bold text-primary" style="font-size: 1.1rem;">@chuaDoc</span>
+            </div>
+            @if (chuaDoc > 0)
+            {
+                <a asp-action="DaDocTatCa" class="btn btn-sm btn-outline-success font-weight-bold px-3" style="border-radius: 6px;">
+                    <i class="fas fa-check-double mr-1"></i> Đánh dấu tất cả đã đọc
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+        <div class="tab-group mb-2 mb-md-0">
+            <button class="tab-btn active" data-filter="all">Tất cả (@tongSo)</button>
+            <button class="tab-btn" data-filter="unread">Chưa đọc (@chuaDoc)</button>
+            <button class="tab-btn" data-filter="read">Đã đọc (@daDoc)</button>
+        </div>
+        <div>
+            <input type="text" id="searchInput" class="search-input" placeholder="Tìm kiếm thông báo..." />
+        </div>
+    </div>
+
+    <!-- DANH SÁCH THÔNG BÁO -->
+    <div id="notificationContainer">
+        @if (tongSo == 0)
+        {
+            <div class="empty-state">
+                <i class="fas fa-bell-slash fa-3x text-muted mb-3" style="opacity: 0.5;"></i>
+                <h5 class="font-weight-bold text-dark">Bạn chưa có thông báo nào.</h5>
+                <p class="text-muted mb-0">Các thông báo mới sẽ xuất hiện tại đây.</p>
+            </div>
+        }
+        else
+        {
+            string currentGroup = "";
+            
+            foreach (var item in danhSach)
+            {
+                // Xác định nhóm thời gian
+                var itemDate = item.NgayGui.Date;
+                var groupName = itemDate == today ? "Hôm nay" : (itemDate == yesterday ? "Hôm qua" : "Trước đó");
+
+                // Nếu bắt đầu nhóm mới, in tiêu đề nhóm và mở thẻ bao
+                if (groupName != currentGroup)
+                {
+                    if (currentGroup != "") { @Html.Raw("</div>") } // Đóng nhóm cũ
+                    currentGroup = groupName;
+                    
+                    <div class="group-title group-header">@currentGroup</div>
+                    @Html.Raw("<div class='notification-list group-container'>")
+                }
+
+                // Logic phân loại Icon
+                string iconClass = "icon-default";
+                string iconFa = "fa-bell";
+                if (item.NoiDung.Contains("phân công", StringComparison.OrdinalIgnoreCase) || item.NoiDung.Contains("cứu hộ", StringComparison.OrdinalIgnoreCase))
+                {
+                    iconClass = "icon-rescue"; iconFa = "fa-ambulance";
+                }
+                else if (item.NoiDung.Contains("báo cáo", StringComparison.OrdinalIgnoreCase))
+                {
+                    iconClass = "icon-report"; iconFa = "fa-file-alt";
+                }
+                else if (item.NoiDung.Contains("nhận nuôi", StringComparison.OrdinalIgnoreCase) || item.NoiDung.Contains("duyệt", StringComparison.OrdinalIgnoreCase))
+                {
+                    iconClass = "icon-adopt"; iconFa = "fa-heart";
+                }
+                else if (item.NoiDung.Contains("điều trị", StringComparison.OrdinalIgnoreCase) || item.NoiDung.Contains("y tế", StringComparison.OrdinalIgnoreCase))
+                {
+                    iconClass = "icon-medical"; iconFa = "fa-stethoscope";
+                }
+
+                string readStatus = item.DaDoc ? "read" : "unread";
+
+                <!-- THẺ THÔNG BÁO -->
+                <div class="noti-item @readStatus notification-item" data-read="@item.DaDoc.ToString().ToLower()">
+                    
+                    <!-- Icon -->
+                    <div class="noti-icon-box @iconClass">
+                        <i class="fas @iconFa"></i>
+                    </div>
+                    
+                    <!-- Nội dung -->
+                    <div class="noti-content">
+                        <div class="noti-title">@item.NoiDung</div>
+                        <div class="noti-meta mt-1">
+                            <span><i class="far fa-clock mr-1"></i> @item.NgayGui.ToString("HH:mm - dd/MM/yyyy")</span>
+                            <span class="badge-code">Mã: @item.MaThongBao</span>
+                        </div>
+                    </div>
+
+                    <!-- Trạng thái -->
+                    <div class="noti-status">
+                        @if (!item.DaDoc)
+                        {
+                            <div class="status-dot" title="Chưa đọc"></div>
+                        }
+                        else
+                        {
+                            <i class="fas fa-check-circle text-muted" title="Đã đọc" style="font-size: 1.1rem; opacity: 0.5;"></i>
+                        }
+                    </div>
+                </div>
+            }
+            
+            if (currentGroup != "") { @Html.Raw("</div>") } // Đóng nhóm cuối cùng
+        }
+    </div>
+
+    <!-- KẾT QUẢ TÌM KIẾM RỖNG -->
+    <div id="noResultState" class="empty-state" style="display: none;">
+        <i class="fas fa-search fa-3x text-muted mb-3" style="opacity: 0.5;"></i>
+        <h5 class="font-weight-bold text-dark">Không tìm thấy kết quả</h5>
+        <p class="text-muted mb-0">Vui lòng thử lại với từ khóa hoặc bộ lọc khác.</p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let currentFilter = 'all';
+            let searchTerm = '';
+
+            // Hàm lọc thông báo
+            function filterNotifications() {
+                let totalVisible = 0;
+
+                // 1. Lọc từng item
+                $('.notification-item').each(function () {
+                    let isRead = $(this).data('read') === true;
+                    let text = $(this).text().toLowerCase();
+
+                    let matchesFilter = (currentFilter === 'all') ||
+                                        (currentFilter === 'unread' && !isRead) ||
+                                        (currentFilter === 'read' && isRead);
+                    
+                    let matchesSearch = text.includes(searchTerm);
+
+                    if (matchesFilter && matchesSearch) {
+                        $(this).show();
+                        totalVisible++;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+
+                // 2. Ẩn/hiện tiêu đề nhóm (Hôm nay, Hôm qua...) nếu nhóm đó rỗng
+                $('.group-container').each(function () {
+                    let visibleItemsInGroup = $(this).find('.notification-item:visible').length;
+                    let $header = $(this).prev('.group-header'); // Tiêu đề nằm ngay trước container
+
+                    if (visibleItemsInGroup === 0) {
+                        $(this).hide();
+                        $header.hide();
+                    } else {
+                        $(this).show();
+                        $header.show();
+                    }
+                });
+
+                // 3. Hiển thị trạng thái "Không tìm thấy"
+                if (totalVisible === 0 && @tongSo > 0) {
+                    $('#noResultState').show();
+                } else {
+                    $('#noResultState').hide();
+                }
+            }
+
+            // Sự kiện click Tab
+            $('.tab-btn').click(function () {
+                $('.tab-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                currentFilter = $(this).data('filter');
+                filterNotifications();
+            });
+
+            // Sự kiện gõ tìm kiếm
+            $('#searchInput').on('input', function () {
+                searchTerm = $(this).val().toLowerCase().trim();
+                filterNotifications();
+            });
+        });
+    </script>
+}

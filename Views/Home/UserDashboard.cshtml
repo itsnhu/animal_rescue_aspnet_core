@@ -1,0 +1,312 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ người dùng";
+    Layout = "_AdminLayout";
+    string? tenDangNhap = Context.Session.GetString("TenDangNhap");
+}
+
+<!-- Nhúng FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+    /* Tiêu đề trang */
+    .page-header-title {
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 1.5rem;
+        letter-spacing: -0.025em;
+    }
+
+    /* Thẻ thống kê số liệu (Metric Card) tinh tế hơn */
+    .metric-card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        padding: 22px;
+        transition: all 0.25s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border-color: #cbd5e1;
+    }
+
+    .metric-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    /* Banner chào mừng phong cách SaaS hiện đại */
+    .dashboard-welcome {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-radius: 20px;
+        color: white;
+        padding: 36px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+    }
+
+    .dashboard-welcome::after {
+        content: '\f6d3';
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        right: -15px;
+        bottom: -35px;
+        font-size: 11rem;
+        color: rgba(255, 255, 255, 0.03);
+        pointer-events: none;
+    }
+
+    /* Card nội dung chung */
+    .custom-card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
+        height: 100%;
+    }
+
+    /* Nút hành động chính */
+    .btn-action-primary {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        border-radius: 12px;
+        padding: 10px 20px;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        transition: all 0.2s;
+    }
+
+    .btn-action-primary:hover {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        color: white;
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        transform: translateY(-1px);
+    }
+
+    /* Hộp lối tắt chức năng */
+    .quick-link-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #0f172a;
+        transition: all 0.2s ease;
+    }
+
+    .quick-link-box:hover {
+        background: #ffffff;
+        border-color: #2563eb;
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.08);
+        transform: translateY(-2px);
+    }
+
+    /* Các bước quy trình nhỏ */
+    .step-box {
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        height: 100%;
+        transition: all 0.2s;
+    }
+    
+    .step-box:hover {
+        background: #ffffff;
+        border-color: #e2e8f0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+</style>
+
+<div class="container-fluid py-2 px-2">
+
+    <!-- 1. Header Trang & Nút Thêm Nhanh -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="page-header-title mb-1">
+                Bảng điều khiển
+            </h1>
+            <p class="text-muted small mb-0">Hệ thống quản lý và tiếp nhận thông tin cứu hộ động vật đường phố.</p>
+        </div>
+        <div>
+            <a href="/BaoCao/Them" class="btn btn-action-primary btn-sm">
+                <i class="fas fa-plus-circle me-1"></i> Gửi báo cáo cứu hộ
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. Banner Chào Mừng Phong Cách Mới -->
+    <div class="dashboard-welcome mb-4">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-inline-flex align-items-center bg-success bg-opacity-25 text-success border border-success border-opacity-25 px-3 py-1 rounded-pill mb-3 fw-semibold small">
+                    <span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true" style="width: 8px; height: 8px;"></span>
+                    Hệ thống trực tuyến 24/7 sẵn sàng tiếp nhận
+                </div>
+                <h2 class="fw-bold text-white mb-2" style="font-size: 1.75rem;">
+                    Xin chào, @(string.IsNullOrEmpty(tenDangNhap) ? "Thành viên" : tenDangNhap)! 👋
+                </h2>
+                <p class="mb-4" style="font-size: 0.95rem; max-width: 600px; color: #94a3b8 !important; line-height: 1.6;">
+                    Mỗi thông tin báo cáo bạn gửi đi là cơ hội để cứu giúp một sinh linh bé nhỏ đang gặp nạn. Cảm ơn bạn đã đồng hành cùng cộng đồng bảo vệ động vật.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="/BaoCao/Index" class="btn btn-light btn-sm fw-bold px-3 py-2 rounded-3 text-dark shadow-sm">
+                        <i class="fas fa-clipboard-list text-primary me-1"></i> Theo dõi danh sách báo cáo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Các Thẻ Chỉ Số Nổi Bật (Metrics Cards) -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="metric-card d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold d-block mb-1">Trạng thái tài khoản</span>
+                    <h5 class="fw-bold text-success mb-0"><i class="fas fa-circle text-success me-1" style="font-size: 8px;"></i> Đang hoạt động</h5>
+                </div>
+                <div class="metric-icon bg-success bg-opacity-10 text-success">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-card d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold d-block mb-1">Phạm vi hỗ trợ</span>
+                    <h5 class="fw-bold text-primary mb-0">Toàn quốc & 24/7</h5>
+                </div>
+                <div class="metric-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="fas fa-globe-asia"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-card d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold d-block mb-1">Đội ngũ trực ban</span>
+                    <h5 class="fw-bold text-warning mb-0">Phản hồi nhanh</h5>
+                </div>
+                <div class="metric-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="fas fa-headset"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Phần Nội Dung Chi Tiết Chia 2 Cột -->
+    <div class="row g-4">
+        <!-- Cột Trái: Lối tắt chức năng & Quy trình -->
+        <div class="col-lg-8">
+            <div class="custom-card p-4">
+                <h5 class="fw-bold text-dark mb-2">
+                    <i class="fas fa-bolt text-warning me-2"></i> Lối tắt chức năng nhanh
+                </h5>
+                <p class="text-muted small mb-4">Truy cập nhanh các thao tác thường xuyên sử dụng trong hệ thống cứu hộ.</p>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <a href="/BaoCao/Index" class="quick-link-box h-100">
+                            <div class="bg-primary text-white rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="fas fa-list-check fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark">Danh sách báo cáo</h6>
+                                <p class="text-muted small mb-0">Xem danh sách, kiểm tra tiến độ.</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="/DongVat/DanhSach" class="quick-link-box h-100">
+                            <div class="bg-success text-white rounded-3 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="fas fa-circle-plus fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark">Nhận nuôi</h6>
+                                <p class="text-muted small mb-0">Ngừng mua bán, bắt đầu nhận nuôi.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quy trình cứu hộ minh họa -->
+                <div class="pt-3 border-top">
+                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-route text-primary me-2"></i> Quy trình tiếp nhận cứu hộ</h6>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="step-box">
+                                <span class="badge bg-primary rounded-circle mb-2 px-2 py-1">1</span>
+                                <h6 class="fw-bold small mb-1 text-dark">Gửi Báo Cáo</h6>
+                                <p class="text-muted mb-0" style="font-size: 0.75rem;">Chụp ảnh & định vị hiện trường.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="step-box">
+                                <span class="badge bg-warning text-dark rounded-circle mb-2 px-2 py-1">2</span>
+                                <h6 class="fw-bold small mb-1 text-dark">Xác Thực</h6>
+                                <p class="text-muted mb-0" style="font-size: 0.75rem;">Đội ngũ kiểm tra thông tin.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="step-box">
+                                <span class="badge bg-success rounded-circle mb-2 px-2 py-1">3</span>
+                                <h6 class="fw-bold small mb-1 text-dark">Triển Khai</h6>
+                                <p class="text-muted mb-0" style="font-size: 0.75rem;">Tình nguyện viên tiếp cận.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Cột Phải: Lưu ý quan trọng & Hỗ trợ khẩn cấp -->
+        <div class="col-lg-4">
+            <div class="custom-card p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="fas fa-circle-info text-info me-2"></i> Lưu ý khi báo cáo
+                    </h5>
+                    <ul class="list-unstyled text-muted small mb-4" style="line-height: 1.8;">
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                            <span>Cung cấp hình ảnh thực tế, rõ nét để đội ngũ đánh giá đúng tình trạng cấp bách.</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                            <span>Ghi rõ địa chỉ hoặc các mốc định vị dễ tìm xung quanh khu vực hiện trường.</span>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                            <span>Thường xuyên theo dõi trạng thái xử lý trên hệ thống danh sách báo cáo.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Đã tinh chỉnh màu sắc đoạn chữ mô tả bên dưới để hiển thị rõ và dễ đọc hơn trên nền xanh -->
+                <div class="p-3 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-25 text-center mt-2">
+                    <i class="fas fa-headset text-primary fa-2x mb-2"></i>
+                    <h6 class="fw-bold text-dark mb-1">Cần hỗ trợ khẩn cấp?</h6>
+                    <p class="small mb-3" style="color: #334155;">Liên hệ đường dây nóng trực ban để được hỗ trợ nhanh nhất.</p>
+                    <span class="badge bg-primary text-white px-3 py-2 rounded-pill fw-bold"><i class="fas fa-phone-alt me-1"></i> 0971 xxxx</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

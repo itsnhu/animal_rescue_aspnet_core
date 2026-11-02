@@ -1,0 +1,151 @@
+﻿@model HeThongCuuHo.Models.TinTuc
+
+@{
+    Layout = null; // Tắt Layout Admin để tránh bị dính 2 Navbar và Sidebar Admin
+    ViewData["Title"] = Model.TieuDe;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RescuePets</title>
+
+    <!-- Bootstrap 5 & FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-cream: #faf7f2;
+            --color-primary: #e07a5f;
+            --color-dark: #1d2d44;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-cream);
+            color: var(--color-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Sidebar bài viết */
+        .sidebar-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid #eee;
+        }
+
+        .recent-post-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            text-decoration: none;
+            color: var(--color-dark);
+            transition: all 0.2s ease;
+        }
+        .recent-post-item:hover {
+            color: var(--color-primary);
+        }
+        .recent-post-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nhúng thanh Header Công Khai -->
+    @await Html.PartialAsync("_PublicHeader")
+
+    <!-- NỘI DUNG CHÍNH (Bố cục 2 Cột: Bài viết + Sidebar Tin Tức) -->
+    <div class="container my-5">
+        <div class="row g-4">
+            
+            <!-- CỘT BÊN TRÁI: NỘI DUNG BÀI VIẾT CHI TIẾT (col-lg-8) -->
+            <div class="col-lg-8">
+                <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border">
+                    <a asp-action="Index" class="btn btn-outline-danger mb-4 rounded-pill px-3 shadow-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+                    </a>
+
+                    <h1 class="fw-bold mb-3 text-dark">@Model.TieuDe</h1>
+                    
+                    <div class="text-muted small mb-4 d-flex align-items-center gap-2">
+                        <i class="far fa-calendar-alt"></i> Ngày đăng: @(Model.NgayDang?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy"))
+                    </div>
+
+                    <div class="mb-4 text-center">
+                        <img src="@Model.HinhAnh" class="img-fluid rounded-4 shadow-sm w-100" style="max-height: 420px; object-fit: cover;" alt="@Model.TieuDe" onerror="this.onerror=null;this.src='https://via.placeholder.com/800x400?text=Tin+Tuc+Cuu+Ho';" />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.TomTat))
+                    {
+                        <div class="p-3 bg-light rounded-3 mb-4 border-start border-danger border-4 fw-medium text-secondary">
+                            @Model.TomTat
+                        </div>
+                    }
+
+                    <div class="lh-lg text-dark fs-5" style="text-align: justify;">
+                        @Html.Raw(Model.NoiDung)
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT BÊN PHẢI: SIDEBAR THÔNG TIN & CỨU HỘ KHẨN CẤP (col-lg-4) -->
+            <div class="col-lg-4">
+                <div class="d-flex flex-column gap-4">
+                    
+                    <!-- Box Cứu Hộ Khẩn Cấp -->
+                    <div class="sidebar-card bg-dark text-white text-center">
+                        <i class="fas fa-phone-volume fs-1 text-warning mb-3"></i>
+                        <h5 class="fw-bold">Bạn Phát Hiện Động Vật Cần Cứu Hộ?</h5>
+                        <p class="small text-light opacity-75">Gửi ngay thông tin vị trí và hình ảnh để đội ngũ tiếp nhận kịp thời.</p>
+                        <a asp-controller="Home" asp-action="BaoCao" class="btn btn-warning rounded-pill fw-bold w-100">
+                            Báo Cáo Ngay 🐾
+                        </a>
+                    </div>
+
+                    <!-- Box Bài Viết Liên Quan / Nổi Bật -->
+                    <div class="sidebar-card">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-fire text-danger me-2"></i>Tin Nổi Bật</h5>
+                        <hr class="mt-0 mb-3">
+                        <div class="d-flex flex-column gap-3">
+                            <a href="#" class="recent-post-item">
+                                <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=200" class="recent-post-img" alt="Blog">
+                                <div>
+                                    <h6 class="fw-bold mb-1" style="font-size: 0.95rem;">5 Cách sơ cứu nhanh cho chó mèo</h6>
+                                    <small class="text-muted">12/08/2026</small>
+                                </div>
+                            </a>
+                            <a href="#" class="recent-post-item">
+                                <img src="https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=200" class="recent-post-img" alt="Blog">
+                                <div>
+                                    <h6 class="fw-bold mb-1" style="font-size: 0.95rem;">Hành trình hồi phục của Miu</h6>
+                                    <small class="text-muted">08/08/2026</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-4 border-top bg-white mt-5">
+        <p class="text-muted mb-0 small">© 2026 Hệ Thống Cứu Hộ Động Vật Đường Phố - RescuePets.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

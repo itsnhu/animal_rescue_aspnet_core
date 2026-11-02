@@ -1,0 +1,35 @@
+﻿@model IEnumerable<HeThongCuuHo.Models.DonNhanNuoi>
+
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <h3 class="card-title">Đơn đăng ký nhận nuôi của tôi</h3>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Động vật</th>
+                    <th>Ngày đăng ký</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td>@item.DongVat.Ten</td>
+                        <td>@item.NgayDangKy.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            @if(item.TrangThai == "Chờ duyệt") {
+                                <span class="badge badge-warning">@item.TrangThai</span>
+                            } else if(item.TrangThai == "Đã duyệt") {
+                                <span class="badge badge-success">@item.TrangThai</span>
+                            } else {
+                                <span class="badge badge-danger">@item.TrangThai</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

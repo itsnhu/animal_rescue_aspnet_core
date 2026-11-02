@@ -1,0 +1,524 @@
+@{
+    Layout = "_LoginLayout";
+    ViewData["Title"] = "Đăng nhập hệ thống";
+}
+
+<style>
+    /* 1. ÉP FONT TIMES NEW ROMAN CHO TOÀN BỘ TRANG */
+    body, h1, h2, h3, h4, h5, h6, p, span, div, a, input, button, label, i {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    /* =========================================================================
+       2. CHỈ THU NHỎ CỘT BÊN TRÁI (GIỮ NGUYÊN CỘT BÊN PHẢI)
+       ========================================================================= */
+    /* Ép toàn bộ trang vừa vặn 100vh, không cho cuộn */
+    .login-wrapper {
+        height: 100vh !important;
+        overflow: hidden !important;
+    }
+
+    .login-brand-panel {
+        padding: 1.5rem 2rem !important;
+    }
+
+    /* Thu nhỏ ảnh minh họa */
+    .brand-hero-image {
+        margin-bottom: 1rem !important;
+    }
+    .brand-hero-image img {
+        width: 180px !important;
+        height: 180px !important;
+    }
+    .brand-hero-image::before {
+        width: 196px !important;
+        height: 196px !important;
+        top: -8px !important;
+    }
+
+    /* Thu nhỏ Logo & Tiêu đề */
+    .brand-logo {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 24px !important;
+        margin-bottom: 0.5rem !important;
+        border-radius: 14px !important;
+    }
+    .brand-title {
+        font-size: 1.8rem !important;
+        margin-bottom: 0.2rem !important;
+    }
+    .brand-subtitle {
+        font-size: 0.85rem !important;
+        line-height: 1.4 !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Thu nhỏ các khung tính năng */
+    .brand-features {
+        margin-top: 1rem !important;
+        gap: 0.5rem !important;
+    }
+    .brand-feature {
+        padding: 6px 12px !important;
+        font-size: 0.8rem !important;
+    }
+    .brand-feature-icon {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Thu nhỏ phần thống kê (500+, 320+, 50+) */
+    .brand-stats {
+        margin-top: 1rem !important;
+        padding-top: 1rem !important;
+        gap: 1rem !important;
+    }
+    .brand-stat-number {
+        font-size: 1.2rem !important;
+    }
+    .brand-stat-label {
+        font-size: 0.65rem !important;
+    }
+
+
+    /* =========================================================================
+       3. GIỮ NGUYÊN GIAO DIỆN BÊN PHẢI (FORM ĐĂNG NHẬP)
+       ========================================================================= */
+    .form-welcome {
+        margin-bottom: 1rem;
+    }
+
+    .form-welcome-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #EAF2EF, #d1fae5);
+        color: #0F3832;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 50px;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .form-welcome h2 {
+        color: #071D2A;
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+    }
+
+    .form-welcome p {
+        color: #5A6D77;
+        font-size: 0.85rem;
+        margin-bottom: 0;
+    }
+
+    /* ===== INPUTS ===== */
+    .form-floating-group {
+        position: relative;
+        margin-bottom: 0.8rem;
+    }
+
+    .form-floating-group .form-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 0.9rem;
+        z-index: 3;
+        transition: color 0.3s;
+    }
+
+    .form-floating-group input {
+        width: 100%;
+        height: 46px;
+        padding: 0 14px 0 40px;
+        border: 2px solid #E1E7E5;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #122129;
+        background: #F9FAF9;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .form-floating-group input::placeholder {
+        color: #94a3b8;
+        font-weight: 400;
+    }
+
+    .form-floating-group input:focus {
+        border-color: #0F3832;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(15,56,50,0.08);
+    }
+
+    .form-floating-group input:focus ~ .form-icon {
+        color: #0F3832;
+    }
+
+    /* Toggle Password */
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        cursor: pointer;
+        z-index: 3;
+        padding: 4px;
+        transition: color 0.2s;
+    }
+
+    .toggle-password:hover {
+        color: #0F3832;
+    }
+
+    /* ===== CHECKBOX + LINKS ROW ===== */
+    .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .form-options label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: #5A6D77;
+        font-weight: 500;
+        cursor: pointer;
+        margin-bottom: 0;
+    }
+
+    .form-options input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #0F3832;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .form-options a {
+        font-size: 0.85rem;
+        color: #D4A373;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .form-options a:hover {
+        color: #C08B5C;
+        text-decoration: underline;
+    }
+
+    /* ===== SUBMIT BUTTON ===== */
+    .btn-login {
+        width: 100%;
+        height: 46px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #0F3832, #071D2A);
+        color: #ffffff;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.35s ease;
+        box-shadow: 0 4px 15px rgba(7,29,42,0.2);
+        position: relative;
+        overflow: hidden;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-login:hover {
+        background: linear-gradient(135deg, #071D2A, #0F3832);
+        box-shadow: 0 8px 20px rgba(7,29,42,0.3);
+        transform: translateY(-1px);
+    }
+
+    .btn-login:hover::before {
+        left: 100%;
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    /* ===== DIVIDER ===== */
+    .login-divider {
+        display: flex;
+        align-items: center;
+        margin: 1rem 0;
+        gap: 12px;
+    }
+
+    .login-divider::before,
+    .login-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #E1E7E5;
+    }
+
+    .login-divider span {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    /* ===== REGISTER BUTTON ===== */
+    .btn-register {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        height: 46px;
+        border: 2px solid #E1E7E5;
+        border-radius: 10px;
+        background: transparent;
+        color: #122129;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-register:hover {
+        border-color: #D4A373;
+        color: #D4A373;
+        background: rgba(212,163,115,0.05);
+        text-decoration: none;
+    }
+
+    .btn-register i {
+        color: #D4A373;
+    }
+
+    /* ===== BACK LINK ===== */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 0.8rem;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.25s;
+    }
+
+    .back-link:hover {
+        color: #0F3832;
+        gap: 10px;
+    }
+
+    /* ===== FOOTER ===== */
+    .form-footer {
+        text-align: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .form-footer span {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    /* ===== ALERT ===== */
+    .alert-custom {
+        background: linear-gradient(135deg, #FEF2F2, #FECACA);
+        border: 1px solid #FECACA;
+        color: #991B1B;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .alert-custom i {
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    /* Success message */
+    .alert-success-custom {
+        background: linear-gradient(135deg, #ECFDF5, #A7F3D0);
+        border: 1px solid #A7F3D0;
+        color: #065F46;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* ===== MOBILE BRAND (LG hidden) ===== */
+    .mobile-brand {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .mobile-brand .brand-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #D4A373, #C08B5C);
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        color: #071D2A;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 8px 20px rgba(212,163,115,0.25);
+    }
+
+    @@media (min-width: 992px) {
+        .mobile-brand { display: none; }
+    }
+</style>
+
+<!-- Mobile brand header (visible on small screens only) -->
+<div class="mobile-brand d-lg-none">
+    <div class="brand-icon">
+        <i class="fas fa-paw"></i>
+    </div>
+    <h2 style="font-size:1.4rem; color:#071D2A; font-weight:700;">
+        Rescue<span style="color:#D4A373;">Pets</span>
+    </h2>
+</div>
+
+<!-- Welcome text -->
+<div class="form-welcome">
+    <div class="form-welcome-badge">
+        <i class="fas fa-sparkles"></i> Chào mừng trở lại
+    </div>
+    <h2>Đăng nhập</h2>
+    <p>Vui lòng đăng nhập để tiếp tục sử dụng hệ thống</p>
+</div>
+
+<!-- Error message -->
+@if (ViewBag.Loi != null)
+{
+    <div class="alert-custom">
+        <i class="fas fa-circle-exclamation"></i>
+        <span>@ViewBag.Loi</span>
+    </div>
+}
+
+<!-- Success message -->
+@if (TempData["ThongBao"] != null)
+{
+    <div class="alert-success-custom">
+        <i class="fas fa-check-circle"></i>
+        <span>@TempData["ThongBao"]</span>
+    </div>
+}
+
+<!-- Login Form -->
+<form asp-action="Index" method="post">
+
+    <!-- Username -->
+    <div class="form-floating-group">
+        <i class="fas fa-user form-icon"></i>
+        <input type="text" name="tenDangNhap" placeholder="Tên đăng nhập" autocomplete="username" required />
+    </div>
+
+    <!-- Password -->
+    <div class="form-floating-group">
+        <i class="fas fa-lock form-icon"></i>
+        <input type="password" name="matKhau" id="inputPassword" placeholder="Mật khẩu" autocomplete="current-password" required />
+        <button type="button" class="toggle-password" onclick="togglePassword()">
+            <i class="fas fa-eye" id="eyeIcon"></i>
+        </button>
+    </div>
+
+    <!-- Options row -->
+    <div class="form-options">
+        <label>
+            <input type="checkbox" name="remember" value="true" />
+            Ghi nhớ đăng nhập
+        </label>
+        <a asp-action="QuenMatKhau">Quên mật khẩu?</a>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn-login">
+        <i class="fas fa-arrow-right-to-bracket" style="margin-right: 6px;"></i>Đăng nhập
+    </button>
+
+</form>
+
+<!-- Divider -->
+<div class="login-divider">
+    <span>Chưa có tài khoản?</span>
+</div>
+
+<!-- Register button -->
+<a asp-action="DangKy" class="btn-register">
+    <i class="fas fa-user-plus"></i>
+    Đăng ký tài khoản mới
+</a>
+
+<!-- Back to home -->
+<div class="text-center">
+    <a asp-controller="Home" asp-action="Welcome" class="back-link">
+        <i class="fas fa-arrow-left"></i> Quay lại trang chủ
+    </a>
+</div>
+
+<!-- Footer -->
+<div class="form-footer">
+    <span>© 2026 RescuePets — Hệ thống cứu hộ & bảo trợ động vật</span>
+</div>
+
+@section Scripts {
+<script>
+    function togglePassword() {
+        const input = document.getElementById('inputPassword');
+        const icon = document.getElementById('eyeIcon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>
+}

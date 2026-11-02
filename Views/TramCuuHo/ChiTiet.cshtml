@@ -1,0 +1,86 @@
+﻿@model HeThongCuuHo.Models.TramCuuHo
+
+<h2>Chi tiết Trạm cứu hộ</h2>
+
+<table class="table table-bordered">
+
+<tr>
+
+<th>Mã</th>
+
+<td>@Model.MaTram</td>
+
+</tr>
+
+<tr>
+
+<th>Tên trạm</th>
+
+<td>@Model.TenTram</td>
+
+</tr>
+
+<tr>
+
+<th>Địa chỉ</th>
+
+<td>@Model.DiaChi</td>
+
+</tr>
+
+<tr>
+
+<th>Số điện thoại</th>
+
+<td>@Model.SoDienThoai</td>
+
+</tr>
+
+<tr>
+
+<th>Sức chứa</th>
+
+<td>@Model.SucChua</td>
+
+</tr>
+
+<tr>
+
+<th>Vĩ độ</th>
+
+<td>@Model.ViDo</td>
+
+</tr>
+
+<tr>
+
+<th>Kinh độ</th>
+
+<td>@Model.KinhDo</td>
+
+</tr>
+
+<tr>
+
+<th>Số động vật</th>
+
+<td>@(Model.DongVats?.Count ?? 0)</td>
+
+</tr>
+
+<tr>
+
+<th>Chỗ còn trống</th>
+
+<td>@(Model.SucChua - (Model.DongVats?.Count ?? 0))</td>
+
+</tr>
+
+</table>
+
+<a asp-action="Index"
+class="btn btn-secondary">
+
+Quay lại
+
+</a>

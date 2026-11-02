@@ -1,0 +1,50 @@
+﻿@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow border-0" style="border-radius: 12px;">
+                <div class="card-header bg-primary text-white text-center py-3" style="border-radius: 12px 12px 0 0;">
+                    <h4 class="mb-0"><i class="fas fa-sign-in-alt mr-2"></i>Đăng Nhập</h4>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <h5 class="text-center mb-4 text-muted" style="font-size: 1rem;">Hệ thống cứu hộ động vật</h5>
+
+                    @if (ViewBag.Loi != null)
+                    {
+                        <div class="alert alert-danger py-2" style="font-size: 0.9rem;">
+                            <i class="fas fa-exclamation-circle mr-1"></i> @ViewBag.Loi
+                        </div>
+                    }
+
+                    <form asp-action="DangNhap" method="post">
+                        
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold text-secondary" style="font-size: 0.9rem;">Tên đăng nhập</label>
+                            <!-- Sử dụng name="tenDangNhap" để khớp với tham số Controller -->
+                            <input type="text" name="tenDangNhap" class="form-control" placeholder="Nhập tên đăng nhập" required />
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="font-weight-bold text-secondary" style="font-size: 0.9rem;">Mật khẩu</label>
+                            <!-- Sử dụng name="matKhau" để khớp với tham số Controller -->
+                            <input type="password" name="matKhau" class="form-control" placeholder="Nhập mật khẩu" required />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 font-weight-bold" style="border-radius: 6px; padding: 10px;">
+                            Đăng nhập
+                        </button>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

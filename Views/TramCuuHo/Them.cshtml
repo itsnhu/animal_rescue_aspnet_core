@@ -1,0 +1,68 @@
+﻿@model HeThongCuuHo.Models.TramCuuHo
+
+<h2>Thêm Trạm cứu hộ</h2>
+
+<form asp-action="Them" method="post">
+
+<div class="mb-3">
+
+<label>Tên trạm</label>
+
+<input asp-for="TenTram" class="form-control"/>
+
+</div>
+
+<div class="mb-3">
+
+<label>Địa chỉ</label>
+
+<input asp-for="DiaChi" class="form-control"/>
+
+</div>
+
+<div class="mb-3">
+
+<label>Số điện thoại</label>
+
+<input asp-for="SoDienThoai" class="form-control"/>
+
+</div>
+
+<div class="mb-3">
+
+<label>Sức chứa</label>
+
+<input asp-for="SucChua" class="form-control"/>
+
+</div>
+
+<div class="mb-3">
+
+<label>Vĩ độ</label>
+
+<input asp-for="ViDo" class="form-control"/>
+
+</div>
+
+<div class="mb-3">
+
+<label>Kinh độ</label>
+
+<input asp-for="KinhDo" class="form-control"/>
+
+</div>
+
+<button class="btn btn-success">
+
+Lưu
+
+</button>
+
+<a asp-action="Index"
+class="btn btn-secondary">
+
+Quay lại
+
+</a>
+
+</form>

@@ -1,0 +1,179 @@
+﻿@model HeThongCuuHo.Models.HoSoDieuTri
+
+@{
+    ViewData["Title"] = "Chỉnh sửa hồ sơ điều trị";
+}
+
+<style>
+    /* 2. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .card, .btn, .badge, p, span, div, label, input, select, textarea {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+    }
+
+    .card-custom {
+        max-width: 850px;
+        margin: 0 auto;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        overflow: hidden;
+    }
+
+    /* 1. THU GỌN HEADER */
+    .card-header-custom {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        padding: 15px 20px;
+        border-bottom: none;
+    }
+
+    /* 4. KHẮC PHỤC KHOẢNG TRỐNG - THU GỌN FORM */
+    .form-label {
+        font-weight: 700;
+        color: #334155;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+
+    .form-control-custom {
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        font-size: 0.95rem;
+        padding: 6px 12px;
+        height: auto;
+        transition: all 0.2s;
+    }
+
+    .form-control-custom:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
+    }
+
+    /* Nút bấm đồng bộ */
+    .btn-action {
+        border-radius: 6px;
+        font-weight: 700;
+        padding: 8px 20px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+</style>
+
+<div class="container-fluid py-3 px-md-4">
+    <div class="card-custom">
+        
+        <!-- HEADER (3. Hiển thị rõ Mã Hồ Sơ và bỏ dấu #) -->
+        <div class="card-header-custom d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div>
+                <h4 class="mb-1 font-weight-bold" style="color: #1e293b;">Chỉnh Sửa Hồ Sơ Điều Trị</h4>
+                <p class="mb-0 small" style="color: #475569; opacity: 0.9;">Cập nhật thông tin y tế và phác đồ điều trị cho động vật</p>
+            </div>
+            <span class="badge badge-light text-dark px-3 py-2 mt-2 mt-md-0" style="font-size: 0.95rem; border-radius: 20px; font-weight: 700;">
+                Mã Hồ Sơ: @Model?.MaHoSo
+            </span>
+        </div>
+
+        <!-- BODY FORM (Thu gọn padding) -->
+        <div class="card-body p-3 p-md-4">
+            <form asp-action="Sua" method="post">
+                <!-- Ẩn mã hồ sơ -->
+                <input type="hidden" asp-for="MaHoSo" />
+
+                <div class="row">
+                    <!-- Động vật -->
+                    <div class="col-12 mb-2">
+                        <label asp-for="MaDongVat" class="form-label">
+                            Động vật cần điều trị <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="MaDongVat" class="form-control form-control-custom" required>
+                            <option value="">-- Chọn động vật --</option>
+                            @if (ViewBag.DongVat != null)
+                            {
+                                @foreach (var item in ViewBag.DongVat)
+                                {
+                                    <option value="@item.MaDongVat" selected="@(Model?.MaDongVat == item.MaDongVat ? "selected" : null)">
+                                        @item.Ten (Mã: @item.MaDongVat - @item.Loai)
+                                    </option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="MaDongVat" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- Ngày khám & Trạng thái (Gộp chung 1 hàng để tiết kiệm không gian) -->
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="NgayKham" class="form-label">
+                            Ngày khám <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="NgayKham" type="date" class="form-control form-control-custom" 
+                               value="@(Model?.NgayKham != default ? Model.NgayKham.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd"))" required />
+                        <span asp-validation-for="NgayKham" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="TrangThai" class="form-label">Trạng thái điều trị</label>
+                        <select asp-for="TrangThai" class="form-control form-control-custom">
+                            <option value="Đang điều trị">Đang điều trị</option>
+                            <option value="Hoàn thành">Hoàn thành</option>
+                            <option value="Tạm dừng">Tạm dừng</option>
+                        </select>
+                        <span asp-validation-for="TrangThai" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- Chẩn đoán -->
+                    <div class="col-12 mb-2">
+                        <label asp-for="ChanDoan" class="form-label">
+                            Chẩn đoán bệnh <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="ChanDoan" class="form-control form-control-custom" placeholder="Nhập chẩn đoán y tế chi tiết..." required />
+                        <span asp-validation-for="ChanDoan" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- Phương pháp / Phác đồ điều trị -->
+                    <div class="col-12 mb-2">
+                        <label asp-for="DieuTri" class="form-label">Phương pháp / Phác đồ điều trị</label>
+                        <textarea asp-for="DieuTri" class="form-control form-control-custom" rows="2" placeholder="Nhập phác đồ, thuốc hoặc cách thức điều trị..."></textarea>
+                        <span asp-validation-for="DieuTri" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- Chi phí -->
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="ChiPhi" class="form-label">Chi phí (VNĐ)</label>
+                        <div class="input-group">
+                            <input asp-for="ChiPhi" type="number" step="1000" class="form-control form-control-custom" placeholder="0" />
+                            <div class="input-group-append">
+                                <span class="input-group-text" style="border-radius: 0 6px 6px 0;">VNĐ</span>
+                            </div>
+                        </div>
+                        <span asp-validation-for="ChiPhi" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- Ghi chú / Kết quả -->
+                    <div class="col-12 mb-2">
+                        <label asp-for="GhiChu" class="form-label">Ghi chú / Kết quả theo dõi</label>
+                        <textarea asp-for="GhiChu" class="form-control form-control-custom" rows="2" placeholder="Nhập ghi chú thêm hoặc tình trạng tiến triển..."></textarea>
+                        <span asp-validation-for="GhiChu" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+
+                <!-- Khu vực nút bấm -->
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-action mb-2 mb-sm-0">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại danh sách
+                    </a>
+                    <button type="submit" class="btn btn-warning btn-action shadow-sm" style="color: #1e293b;">
+                        <i class="fas fa-save mr-1"></i> Cập Nhật Hồ Sơ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

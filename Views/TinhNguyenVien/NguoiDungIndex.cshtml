@@ -1,0 +1,50 @@
+﻿@model IEnumerable<HeThongCuuHo.Models.CuuHo>
+
+@{
+    ViewData["Title"] = "Tình nguyện viên nhận ca cứu hộ của bạn";
+    Layout = "_AdminLayout"; // Đổi lại thành layout đang có sidebar của hệ thống
+}
+
+<div class="container-fluid mt-4"> <!-- Dùng container-fluid để giao diện rộng rãi, khớp với khung admin -->
+    <h2>Tình nguyện viên phụ trách ca cứu hộ của bạn</h2>
+    <hr />
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <span>Mã cứu hộ: #@item.MaCuuHo</span>
+                            <span class="float-end badge bg-light text-dark">@item.TrangThai</span>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Loại động vật:</strong> @item.BaoCao?.LoaiDongVat</p>
+                            <p><strong>Địa điểm:</strong> @item.BaoCao?.DiaChi</p>
+                            <hr />
+                            <h5 class="text-success"><i class="fas fa-user-shield"></i> Thông tin Tình nguyện viên:</h5>
+                            @if (item.TinhNguyenVien != null)
+                            {
+                                <p><strong>Họ tên:</strong> @item.TinhNguyenVien.HoTen</p>
+                                <p><strong>Số điện thoại:</strong> @item.TinhNguyenVien.SoDienThoai</p>
+                                <p><strong>Thời gian nhận ca:</strong> @item.ThoiGianNhan?.ToString("dd/MM/yyyy HH:mm")</p>
+                            }
+                            else
+                            {
+                                <p class="text-muted">Ca này hiện chưa có tình nguyện viên nhận.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            Bạn chưa có báo cáo cứu hộ nào được tình nguyện viên tiếp nhận.
+        </div>
+    }
+</div>

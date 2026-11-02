@@ -1,0 +1,335 @@
+@{
+    Layout = "_LoginLayout";
+    ViewData["Title"] = "Đăng ký tài khoản";
+}
+
+<style>
+    /* 1. ÉP FONT TIMES NEW ROMAN CHO TOÀN BỘ TRANG */
+    body, h1, h2, h3, h4, h5, h6, p, span, div, a, input, button, label, i, small {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    /* =========================================================================
+       2. THU NHỎ CỘT BÊN TRÁI (ĐỒNG BỘ VỚI TRANG ĐĂNG NHẬP)
+       ========================================================================= */
+    .login-wrapper {
+        height: 100vh !important;
+        overflow: hidden !important;
+    }
+    .login-brand-panel { padding: 1.5rem 2rem !important; }
+    .brand-hero-image { margin-bottom: 1rem !important; }
+    .brand-hero-image img { width: 180px !important; height: 180px !important; }
+    .brand-hero-image::before { width: 196px !important; height: 196px !important; top: -8px !important; }
+    .brand-logo { width: 50px !important; height: 50px !important; font-size: 24px !important; margin-bottom: 0.5rem !important; border-radius: 14px !important; }
+    .brand-title { font-size: 1.8rem !important; margin-bottom: 0.2rem !important; }
+    .brand-subtitle { font-size: 0.85rem !important; line-height: 1.4 !important; margin-bottom: 1rem !important; }
+    .brand-features { margin-top: 1rem !important; gap: 0.5rem !important; }
+    .brand-feature { padding: 6px 12px !important; font-size: 0.8rem !important; }
+    .brand-feature-icon { width: 28px !important; height: 28px !important; font-size: 0.8rem !important; }
+    .brand-stats { margin-top: 1rem !important; padding-top: 1rem !important; gap: 1rem !important; }
+    .brand-stat-number { font-size: 1.2rem !important; }
+    .brand-stat-label { font-size: 0.65rem !important; }
+
+    /* =========================================================================
+       3. THU GỌN FORM ĐĂNG KÝ (CỘT BÊN PHẢI)
+       ========================================================================= */
+    .login-form-panel { padding: 1rem !important; }
+    
+    /* Container bọc form, căn giữa theo chiều dọc */
+    .register-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+    }
+
+    /* Tiêu đề */
+    .form-welcome { margin-bottom: 0.5rem; }
+    .form-welcome-badge {
+        padding: 3px 10px; font-size: 0.7rem; margin-bottom: 0.3rem;
+    }
+    .form-welcome h2 { font-size: 1.4rem; margin-bottom: 0.1rem; }
+    .form-welcome p { font-size: 0.8rem; }
+
+    /* Nhãn phần (Thông tin cá nhân / Tài khoản) */
+    .section-label {
+        font-size: 0.7rem; margin-bottom: 0.3rem; margin-top: 0.2rem;
+    }
+
+    /* Ô nhập liệu */
+    .form-floating-group { position: relative; margin-bottom: 0.4rem; }
+    .form-floating-group .form-icon {
+        position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+        color: #94a3b8; font-size: 0.85rem; z-index: 3; transition: color 0.3s;
+    }
+    .form-floating-group input {
+        width: 100%; height: 38px; padding: 0 12px 0 34px;
+        border: 1px solid #E1E7E5; border-radius: 6px; font-size: 0.9rem; font-weight: 500;
+        color: #122129; background: #F9FAF9; outline: none; transition: all 0.2s ease;
+    }
+    .form-floating-group input::placeholder { color: #94a3b8; font-weight: 400; }
+    .form-floating-group input:focus {
+        border-color: #0F3832; background: #ffffff; box-shadow: 0 0 0 2px rgba(15, 56, 50, 0.08);
+    }
+    .form-floating-group input:focus ~ .form-icon { color: #0F3832; }
+    .form-floating-group input.is-valid { border-color: #10b981; }
+    .form-floating-group input.is-invalid { border-color: #ef4444; }
+
+    /* Hai cột (Họ tên & SĐT) */
+    .form-row { display: flex; gap: 0.5rem; }
+    .form-row .form-floating-group { flex: 1; }
+
+    /* Nút Đăng ký */
+    .btn-register-submit {
+        width: 100%; height: 40px; border: none; border-radius: 6px;
+        background: linear-gradient(135deg, #D4A373, #C08B5C); color: #071D2A;
+        font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+        margin-top: 0.2rem;
+    }
+    .btn-register-submit:hover {
+        background: linear-gradient(135deg, #C08B5C, #A97650);
+        transform: translateY(-1px); color: #ffffff;
+    }
+
+    /* Thông báo lỗi/Validation */
+    .validation-msg {
+        font-size: 0.75rem; font-weight: 600; margin-top: 0; margin-bottom: 0.2rem;
+        min-height: 16px; display: flex; align-items: center; gap: 4px;
+    }
+    .validation-msg.error { color: #ef4444; }
+    .validation-msg.success { color: #10b981; }
+
+    /* Dòng kẻ & Nút Đăng nhập */
+    .register-divider { display: flex; align-items: center; margin: 0.5rem 0; gap: 8px; }
+    .register-divider::before, .register-divider::after { content: ''; flex: 1; height: 1px; background: #E1E7E5; }
+    .register-divider span { font-size: 0.75rem; color: #5A6D77; font-weight: 500; white-space: nowrap; }
+
+    .login-link {
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        width: 100%; height: 38px; border: 1px solid #E1E7E5; border-radius: 6px;
+        background: transparent; color: #122129; font-size: 0.85rem; font-weight: 600;
+        text-decoration: none; transition: all 0.2s ease;
+    }
+    .login-link:hover { border-color: #0F3832; color: #0F3832; text-decoration: none; }
+
+    /* Footer */
+    .form-footer { text-align: center; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #f0f0f0; }
+    .form-footer span { font-size: 0.7rem; color: #94a3b8; }
+
+    /* Thanh độ mạnh mật khẩu */
+    .password-strength { display: flex; gap: 4px; margin-top: 2px; margin-bottom: 2px; }
+    .strength-bar { flex: 1; height: 3px; border-radius: 2px; background: #E1E7E5; transition: background 0.3s; }
+    .strength-bar.active-weak { background: #ef4444; }
+    .strength-bar.active-medium { background: #f59e0b; }
+    .strength-bar.active-strong { background: #10b981; }
+
+    /* Nút ẩn/hiện mật khẩu */
+    .toggle-password {
+        position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+        background: none; border: none; color: #94a3b8; font-size: 0.85rem;
+        cursor: pointer; z-index: 3; padding: 2px; transition: color 0.2s;
+    }
+    .toggle-password:hover { color: #0F3832; }
+
+    /* Mobile Brand */
+    .mobile-brand { text-align: center; margin-bottom: 0.5rem; }
+    .mobile-brand .brand-icon {
+        width: 40px; height: 40px; background: linear-gradient(135deg, #D4A373, #C08B5C);
+        border-radius: 10px; display: inline-flex; align-items: center; justify-content: center;
+        font-size: 18px; color: #071D2A; margin-bottom: 0.2rem;
+    }
+    @@media (min-width: 992px) { .mobile-brand { display: none; } }
+</style>
+
+<div class="register-container">
+    
+    <!-- Mobile brand header -->
+    <div class="mobile-brand d-lg-none">
+        <div class="brand-icon"><i class="fas fa-paw"></i></div>
+        <h2 style="font-size:1.2rem; color:#071D2A; font-weight:700;">Rescue<span style="color:#D4A373;">Pets</span></h2>
+    </div>
+
+    <!-- Welcome text -->
+    <div class="form-welcome">
+        <div class="form-welcome-badge"><i class="fas fa-heart"></i> Tạo tài khoản mới</div>
+        <h2>Đăng ký</h2>
+        <p>Tham gia cộng đồng yêu thương & bảo vệ động vật</p>
+    </div>
+
+    <!-- Error message -->
+    @if (ViewBag.Loi != null)
+    {
+        <div class="alert alert-danger rounded-2 py-2 px-3 small mb-2" style="font-size: 0.8rem;">
+            <i class="fas fa-exclamation-circle me-1"></i> @ViewBag.Loi
+        </div>
+    }
+
+    <!-- Register Form -->
+    <form asp-action="DangKy" method="post" id="registerForm">
+
+        <!-- Section: Thông tin cá nhân -->
+        <div class="section-label">Thông tin cá nhân</div>
+
+        <!-- Họ tên & SĐT -->
+        <div class="form-row">
+            <div class="form-floating-group">
+                <i class="fas fa-user form-icon"></i>
+                <input type="text" name="hoTen" placeholder="Họ và tên" required />
+            </div>
+            <div class="form-floating-group">
+                <i class="fas fa-phone form-icon"></i>
+                <input type="tel" name="soDienThoai" placeholder="Số điện thoại" required />
+            </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-floating-group">
+            <i class="fas fa-envelope form-icon"></i>
+            <input type="email" name="email" placeholder="Địa chỉ email" required />
+        </div>
+
+        <!-- Địa chỉ -->
+        <div class="form-floating-group">
+            <i class="fas fa-map-marker-alt form-icon"></i>
+            <input type="text" name="diaChi" placeholder="Địa chỉ (tùy chọn)" />
+        </div>
+
+        <!-- Section: Tài khoản -->
+        <div class="section-label" style="margin-top: 0.2rem;">Thông tin tài khoản</div>
+
+        <!-- Tên đăng nhập -->
+        <div class="form-floating-group">
+            <i class="fas fa-at form-icon"></i>
+            <input type="text" name="tenDangNhap" placeholder="Tên đăng nhập" autocomplete="username" required />
+        </div>
+
+        <!-- Mật khẩu -->
+        <div class="form-floating-group">
+            <i class="fas fa-lock form-icon"></i>
+            <input type="password" name="matKhau" id="password" placeholder="Mật khẩu" autocomplete="new-password" required />
+            <button type="button" class="toggle-password" onclick="togglePass('password', 'eyePass')">
+                <i class="fas fa-eye" id="eyePass"></i>
+            </button>
+        </div>
+
+        <!-- Password strength -->
+        <div class="password-strength" id="strengthBars">
+            <div class="strength-bar" id="bar1"></div>
+            <div class="strength-bar" id="bar2"></div>
+            <div class="strength-bar" id="bar3"></div>
+            <div class="strength-bar" id="bar4"></div>
+        </div>
+
+        <!-- Xác nhận mật khẩu -->
+        <div class="form-floating-group">
+            <i class="fas fa-shield-halved form-icon"></i>
+            <input type="password" name="xacNhanMatKhau" id="confirmPassword" placeholder="Xác nhận mật khẩu" autocomplete="new-password" required />
+            <button type="button" class="toggle-password" onclick="togglePass('confirmPassword', 'eyeConfirm')">
+                <i class="fas fa-eye" id="eyeConfirm"></i>
+            </button>
+        </div>
+
+        <!-- Validation message -->
+        <div class="validation-msg" id="matchMsg"></div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-register-submit" id="btnSubmit">
+            <i class="fas fa-user-plus me-1"></i>Đăng ký tài khoản
+        </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="register-divider">
+        <span>Đã có tài khoản?</span>
+    </div>
+
+    <!-- Login link -->
+    <a asp-action="Index" class="login-link">
+        <i class="fas fa-arrow-right-to-bracket"></i> Đăng nhập ngay
+    </a>
+
+    <!-- Footer -->
+    <div class="form-footer">
+        <span>© 2026 RescuePets — Hệ thống cứu hộ & bảo trợ động vật</span>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Toggle password visibility
+    function togglePass(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // Password strength indicator
+    const passInput = document.getElementById('password');
+    const bars = [document.getElementById('bar1'), document.getElementById('bar2'),
+                  document.getElementById('bar3'), document.getElementById('bar4')];
+
+    if (passInput) {
+        passInput.addEventListener('input', function () {
+            const val = this.value;
+            let strength = 0;
+            if (val.length >= 6) strength++;
+            if (val.length >= 8) strength++;
+            if (/[A-Z]/.test(val) && /[0-9]/.test(val)) strength++;
+            if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+            bars.forEach((bar, i) => {
+                bar.className = 'strength-bar';
+                if (i < strength) {
+                    if (strength <= 1) bar.classList.add('active-weak');
+                    else if (strength <= 2) bar.classList.add('active-medium');
+                    else bar.classList.add('active-strong');
+                }
+            });
+        });
+    }
+
+    // Confirm password match
+    const confirmInput = document.getElementById('confirmPassword');
+    const matchMsg = document.getElementById('matchMsg');
+
+    if (confirmInput) {
+        confirmInput.addEventListener('input', function () {
+            if (this.value === '') {
+                matchMsg.innerHTML = '';
+                matchMsg.className = 'validation-msg';
+            } else if (passInput.value !== this.value) {
+                matchMsg.innerHTML = '<i class="fas fa-circle-xmark"></i> Mật khẩu xác nhận chưa khớp';
+                matchMsg.className = 'validation-msg error';
+                this.classList.add('is-invalid');
+                this.classList.remove('is-valid');
+            } else {
+                matchMsg.innerHTML = '<i class="fas fa-circle-check"></i> Mật khẩu khớp';
+                matchMsg.className = 'validation-msg success';
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+    }
+
+    // Form validation before submit
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+        if (passInput.value !== confirmInput.value) {
+            e.preventDefault();
+            matchMsg.innerHTML = '<i class="fas fa-circle-xmark"></i> Mật khẩu xác nhận chưa khớp';
+            matchMsg.className = 'validation-msg error';
+            confirmInput.focus();
+        }
+    });
+</script>
+}

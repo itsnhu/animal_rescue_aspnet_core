@@ -1,0 +1,120 @@
+﻿<style>
+    /* 1. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, 
+    .card, .btn, p, span, div, small, b, strong, a, .list-group-item {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    /* 2. TỐI ƯU HÓA KHÔNG GIAN, THU GỌN KHOẢNG TRẮNG */
+    .medical-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        background-color: #ffffff;
+        height: auto; /* Bỏ h-100 để thẻ tự co giãn theo nội dung, không bị kéo dài */
+    }
+
+    .medical-header {
+        padding: 12px 15px;
+        border-bottom: 1px solid #f1f5f9;
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .list-group-item-custom {
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background-color: #f8fafc;
+        transition: all 0.2s;
+    }
+
+    .list-group-item-custom:hover {
+        background-color: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .list-group-item-custom:last-child {
+        margin-bottom: 0;
+    }
+
+    .record-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f766e; /* Màu xanh y tế */
+        margin-bottom: 4px;
+    }
+
+    .record-text {
+        font-size: 1rem;
+        margin-bottom: 2px;
+        line-height: 1.4;
+        color: #334155;
+    }
+
+    .record-date {
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 700;
+    }
+</style>
+
+<!-- Cột lịch sử y tế liên quan -->
+<!-- Mình đổi thành col-12 để lấp đầy khoảng trống. Nếu bạn đang chia 2 cột, hãy đổi lại thành col-md-7 -->
+<div class="col-12"> 
+    <div class="medical-card">
+        <div class="medical-header">
+            <i class="fas fa-hospital text-primary"></i> Lịch Sử Khám Chữa Bệnh / Y Tế
+        </div>
+        <div class="card-body p-3">
+            @if (Model.HoSoYTes != null && Model.HoSoYTes.Count > 0)
+            {
+                <div class="list-group">
+                    @foreach (var hs in Model.HoSoYTes)
+                    {
+                        <div class="list-group-item-custom">
+                            <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+                                <!-- 3 & 4. Bỏ dấu # ở Phiếu khám -->
+                                <div class="record-title">
+                                    <i class="fas fa-file-medical-alt mr-1"></i> Phiếu khám @hs.MaHoSo
+                                </div>
+                                <div class="record-date">
+                                    <i class="far fa-calendar-alt mr-1"></i>@hs.NgayKham.ToString("dd/MM/yyyy")
+                                </div>
+                            </div>
+                            <div class="record-text"><b>Chẩn đoán:</b> @hs.ChanDoan</div>
+                            <div class="record-text"><b>Điều trị:</b> @hs.DieuTri</div>
+                            
+                            @if (!string.IsNullOrEmpty(hs.GhiChu))
+                            {
+                                <div class="record-text text-muted mt-1"><b>Ghi chú:</b> @hs.GhiChu</div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-stethoscope fa-3x mb-3 text-secondary opacity-50"></i>
+                    <p class="font-weight-bold mb-2" style="font-size: 1.1rem;">Chưa có lịch sử điều trị y tế nào cho thú cưng này.</p>
+                    @if (Context.Session.GetString("VaiTro") == "Admin")
+                    {
+                        <a asp-action="ChuyenDieuTri" asp-route-id="@Model.MaDongVat" class="btn btn-sm btn-outline-success font-weight-bold" style="border-radius: 6px;">
+                            <i class="fas fa-plus-circle mr-1"></i> Thêm phiếu điều trị ngay
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mt-2">Chưa có lịch sử điều trị và Tình nguyện viên không có quyền thêm mới phiếu y tế.</p>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,204 @@
+﻿@model HeThongCuuHo.Models.TinhNguyenVien
+
+@{
+    ViewData["Title"] = "Cập nhật tình nguyện viên";
+}
+
+<!-- Nhúng thư viện Leaflet CSS để hiển thị bản đồ -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+    /* 2. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .card, .btn, .form-control, label, select, input, textarea, p, span, div {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+    }
+
+    .card-custom {
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        overflow: hidden;
+    }
+
+    .card-header-custom {
+        background: #ffffff;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 15px 20px;
+    }
+
+    /* THU GỌN FORM */
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-label {
+        font-weight: 700;
+        color: #334155;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .form-control-custom {
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        font-size: 0.95rem;
+        padding: 6px 12px;
+        height: auto;
+        transition: all 0.2s;
+    }
+
+    .form-control-custom:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
+    }
+
+    /* 1. THU NHỎ CHIỀU CAO BẢN ĐỒ ĐỂ VỪA MÀN HÌNH */
+    #map {
+        height: 320px; 
+        width: 100%;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        z-index: 1;
+    }
+
+    /* NÚT BẤM */
+    .btn-action {
+        border-radius: 6px;
+        font-weight: 700;
+        padding: 8px 20px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+</style>
+
+<div class="container-fluid py-3 px-md-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card card-custom">
+                
+                <!-- HEADER (Bỏ icon) -->
+                <div class="card-header-custom d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                    <div>
+                        <h4 class="mb-1 font-weight-bold" style="font-size: 1.25rem;">Cập nhật tình nguyện viên</h4>
+                        <p class="mb-0 text-muted small">Chỉnh sửa thông tin chi tiết và vị trí hoạt động</p>
+                    </div>
+                </div>
+                
+                <div class="card-body p-3 p-md-4">
+                    <form asp-action="Sua" method="post">
+                        <input type="hidden" asp-for="MaTinhNguyenVien" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+                        <div class="row">
+                            
+                            <!-- CỘT TRÁI: THÔNG TIN CƠ BẢN -->
+                            <div class="col-md-5">
+                                <h5 class="font-weight-bold text-dark mb-3" style="font-size: 1.1rem;">Thông tin chung</h5>
+
+                                <div class="form-group">
+                                    <label asp-for="HoTen" class="form-label">Họ tên <span class="text-danger">*</span></label>
+                                    <input asp-for="HoTen" class="form-control form-control-custom" placeholder="Nhập họ tên..." required />
+                                    <span asp-validation-for="HoTen" class="text-danger small mt-1 d-block"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="SoDienThoai" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                    <input asp-for="SoDienThoai" class="form-control form-control-custom" placeholder="Nhập số điện thoại..." required />
+                                    <span asp-validation-for="SoDienThoai" class="text-danger small mt-1 d-block"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="TrangThai" class="form-label">Trạng thái</label>
+                                    <select asp-for="TrangThai" class="form-control form-control-custom">
+                                        <option value="Sẵn sàng">Sẵn sàng</option>
+                                        <option value="Đang làm nhiệm vụ">Đang làm nhiệm vụ</option>
+                                    </select>
+                                    <span asp-validation-for="TrangThai" class="text-danger small mt-1 d-block"></span>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="ViDo" class="form-label">Vĩ độ</label>
+                                        <input asp-for="ViDo" id="ViDo" class="form-control form-control-custom bg-light" readonly />
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="KinhDo" class="form-label">Kinh độ</label>
+                                        <input asp-for="KinhDo" id="KinhDo" class="form-control form-control-custom bg-light" readonly />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CỘT PHẢI: BẢN ĐỒ TƯƠNG TÁC -->
+                            <div class="col-md-7">
+                                <h5 class="font-weight-bold text-dark mb-3" style="font-size: 1.1rem;">Chọn vị trí trên bản đồ</h5>
+                                <p class="text-muted small mb-2">
+                                    Kéo thả điểm đánh dấu (pin) hoặc click trực tiếp lên bản đồ để cập nhật vị trí mới.
+                                </p>
+
+                                <!-- Khung chứa bản đồ -->
+                                <div id="map"></div>
+                            </div>
+                        </div>
+
+                        <!-- NÚT BẤM (Đưa xuống dưới cùng, bỏ icon) -->
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-action">
+                                Quay lại danh sách
+                            </a>
+                            <button type="submit" class="btn btn-success btn-action shadow-sm">
+                                Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Lấy tọa độ từ model, nếu = 0 thì lấy mặc định
+            var defaultLat = @(Model.ViDo != 0 ? Model.ViDo.ToString(System.Globalization.CultureInfo.InvariantCulture) : "10.5255");
+            var defaultLng = @(Model.KinhDo != 0 ? Model.KinhDo.ToString(System.Globalization.CultureInfo.InvariantCulture) : "105.4255");
+
+            var map = L.map('map').setView([defaultLat, defaultLng], 14);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            var marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+            function updateInputs(lat, lng) {
+                document.getElementById('ViDo').value = lat.toFixed(6);
+                document.getElementById('KinhDo').value = lng.toFixed(6);
+            }
+
+            marker.on('dragend', function (e) {
+                var position = marker.getLatLng();
+                updateInputs(position.lat, position.lng);
+            });
+
+            map.on('click', function (e) {
+                var lat = e.latlng.lat;
+                var lng = e.latlng.lng;
+                marker.setLatLng([lat, lng]);
+                updateInputs(lat, lng);
+            });
+
+            // Fix lỗi bản đồ xám
+            setTimeout(function(){ map.invalidateSize(); }, 200);
+        });
+    </script>
+}

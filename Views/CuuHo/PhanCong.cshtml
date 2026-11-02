@@ -1,0 +1,193 @@
+﻿@model IEnumerable<HeThongCuuHo.Models.TinhNguyenVien>
+
+@{
+    ViewData["Title"] = "Phân công cứu hộ";
+
+    var baoCao = ViewBag.BaoCao as HeThongCuuHo.Models.BaoCao;
+}
+
+<h2 class="mb-4">
+    🚑 Phân công nhiệm vụ cứu hộ
+</h2>
+
+<div class="card shadow mb-4">
+
+    <div class="card-header bg-primary text-white">
+
+        <h5 class="mb-0">
+            Thông tin báo cáo
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <table class="table table-bordered">
+
+            <tr>
+                <th width="220">Mã báo cáo</th>
+                <td>@baoCao?.MaBaoCao</td>
+            </tr>
+
+            <tr>
+                <th>Loại động vật</th>
+                <td>@baoCao?.LoaiDongVat</td>
+            </tr>
+
+            <tr>
+                <th>Mức độ khẩn cấp</th>
+
+                <td>
+
+                    @if (baoCao?.MucDoKhanCap == "Rất khẩn cấp")
+                    {
+                        <span class="badge bg-danger">
+                            @baoCao.MucDoKhanCap
+                        </span>
+                    }
+                    else if (baoCao?.MucDoKhanCap == "Khẩn cấp")
+                    {
+                        <span class="badge bg-warning text-dark">
+                            @baoCao.MucDoKhanCap
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">
+                            @baoCao?.MucDoKhanCap
+                        </span>
+                    }
+
+                </td>
+
+            </tr>
+
+            <tr>
+                <th>Địa chỉ</th>
+                <td>@baoCao?.DiaChi</td>
+            </tr>
+
+            <tr>
+                <th>Mô tả</th>
+                <td>@baoCao?.MoTa</td>
+            </tr>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div class="card shadow">
+
+    <div class="card-header bg-success text-white">
+
+        <h5 class="mb-0">
+            Chọn tình nguyện viên
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-warning">
+
+                Không có tình nguyện viên nào đang ở trạng thái sẵn sàng.
+
+            </div>
+        }
+        else
+        {
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th width="80">Mã</th>
+
+                        <th>Họ tên</th>
+
+                        <th>Số điện thoại</th>
+
+                        <th>Trạng thái</th>
+
+                        <th width="150">Thao tác</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>@item.MaTinhNguyenVien</td>
+
+                        <td>@item.HoTen</td>
+
+                        <td>@item.SoDienThoai</td>
+
+                        <td>
+
+                            <span class="badge bg-success">
+
+                                @item.TrangThai
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <form asp-action="NhanNhiemVu"
+                                  method="post">
+
+                                <input type="hidden"
+                                       name="maBaoCao"
+                                       value="@baoCao?.MaBaoCao" />
+
+                                <input type="hidden"
+                                       name="maTinhNguyenVien"
+                                       value="@item.MaTinhNguyenVien" />
+
+                                <button type="submit"
+                                        class="btn btn-primary btn-sm"
+                                        onclick="return confirm('Xác nhận phân công tình nguyện viên này?')">
+
+                                    👤 Phân công
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+                }
+
+                </tbody>
+
+            </table>
+
+        }
+
+    </div>
+
+</div>
+
+<div class="mt-3">
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+
+        ← Quay lại
+
+    </a>
+
+</div>

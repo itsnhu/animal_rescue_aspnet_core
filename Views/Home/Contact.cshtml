@@ -1,0 +1,710 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Liên Hệ - RescuePets";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- Google Fonts: Dancing Script -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ri-navy: #071D2A;
+            --ri-navy-dark: #04121B;
+            --ri-teal: #0F3832;
+            --ri-gold: #D4A373;
+            --ri-bg: #F4F6F5;
+            --ri-text-dark: #122129;
+            --ri-muted: #5A6D77;
+            --ri-border: #E1E7E5;
+            --ri-red: #E11D48;
+            --ri-radius-card: 16px;
+            --ri-radius-pill: 50px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+            font-size: 13.5px; /* Thu nhỏ base size */
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: var(--ri-bg);
+            color: var(--ri-text-dark);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .script-accent {
+            font-family: 'Dancing Script', cursive;
+            color: var(--ri-gold);
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .serif-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 800;
+            color: var(--ri-text-dark);
+            letter-spacing: -0.5px;
+        }
+
+        /* ==================== TỐI ƯU NAVBAR MỚI (ĐÃ FIX OVERLAP) ==================== */
+        .ri-header {
+            background-color: var(--ri-navy);
+            color: white;
+            height: 72px;
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+        }
+
+        .ri-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+            flex-shrink: 0;
+            margin-right: 20px;
+        }
+
+        .ri-brand-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--ri-gold);
+            background: rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .ri-brand-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            line-height: 1;
+            color: white;
+        }
+
+        .ri-brand-title small {
+            display: block;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--ri-gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            white-space: nowrap;
+        }
+
+        .ri-nav-menu {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            flex-grow: 1;
+            flex-wrap: nowrap;
+        }
+
+        .ri-nav-link {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.85) !important;
+            padding: 10px 0;
+            position: relative;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ri-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--ri-gold);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            transform-origin: center;
+        }
+
+        .ri-nav-link:hover, .ri-nav-link.active {
+            color: var(--ri-gold) !important;
+        }
+
+        .ri-nav-link:hover::after, .ri-nav-link.active::after {
+            transform: scaleX(1);
+        }
+
+        .ri-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            margin-left: 20px;
+        }
+
+        .btn-ri-search {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .btn-ri-search:hover {
+            background: var(--ri-gold);
+            color: var(--ri-navy);
+        }
+
+        .btn-bao-cuuho {
+            background: #F5A623;
+            color: #071D2A !important;
+            border-radius: var(--ri-radius-pill);
+            height: 38px;
+            padding: 0 14px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 13.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(245, 166, 35, 0.2);
+            flex-shrink: 0;
+        }
+
+        .btn-bao-cuuho:hover {
+            background: #e0961d;
+            transform: translateY(-1px);
+        }
+
+        .btn-tai-khoan {
+            background: transparent;
+            color: white !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--ri-radius-pill);
+            height: 38px;
+            padding: 0 14px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-tai-khoan:hover, .btn-tai-khoan:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--ri-gold);
+            color: var(--ri-gold) !important;
+        }
+
+        .dropdown-menu {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-top: 10px !important;
+        }
+        .dropdown-item {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 10px 20px;
+        }
+        .dropdown-item:hover { background-color: #f8f9fa; color: var(--ri-teal); }
+
+        .btn-hamburger {
+            color: white;
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .offcanvas-menu { background-color: var(--ri-navy); color: white; }
+        .offcanvas-menu .offcanvas-header { border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .offcanvas-menu .offcanvas-body { padding: 20px; }
+        .mobile-nav-link {
+            display: block;
+            color: white;
+            text-decoration: none;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            text-transform: uppercase;
+        }
+        .mobile-nav-link:hover, .mobile-nav-link.active { color: var(--ri-gold); }
+
+        @@media (max-width: 1399.98px) {
+            .ri-nav-link { font-size: 13px; gap: 12px; }
+            .btn-bao-cuuho, .btn-tai-khoan { font-size: 12.5px; padding: 0 10px; }
+            .ri-brand-title { font-size: 1.3rem; }
+        }
+        @@media (max-width: 1199.98px) {
+            .ri-nav-menu { gap: 8px; }
+            .ri-nav-link { font-size: 12.5px; }
+            .btn-bao-cuuho span { display: none; }
+            .btn-bao-cuuho { padding: 0 12px; }
+        }
+        @@media (max-width: 991.98px) {
+            .ri-brand { margin-right: 0; }
+            .ri-nav-actions { margin-left: 0; }
+        }
+        /* ========================================================= */
+
+        /* CÁC THÀNH PHẦN CỦA TRANG LIÊN HỆ */
+        .contact-header { padding: 30px 0 20px 0; text-align: center; }
+
+        .contact-card {
+            background: white;
+            border-radius: var(--ri-radius-card);
+            padding: 25px;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            height: 100%;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .bg-blob-red { background-color: #fce8e6; color: #d93025; }
+        .bg-blob-green { background-color: #e6f4ea; color: #137333; }
+        .bg-blob-blue { background-color: #e8f0fe; color: #1a73e8; }
+        .bg-blob-yellow { background-color: #feefc3; color: #b06000; }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--ri-teal);
+            box-shadow: 0 0 0 0.25rem rgba(15, 56, 50, 0.15);
+            background-color: #fff;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--ri-teal) 0%, var(--ri-navy) 100%);
+            color: white;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(15, 56, 50, 0.3);
+        }
+
+        .btn-submit:hover {
+            background: var(--ri-gold);
+            color: var(--ri-navy);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 163, 115, 0.4);
+        }
+
+        .emergency-banner {
+            background: linear-gradient(135deg, #E11D48 0%, #BE123C 100%);
+            color: white;
+            border-radius: var(--ri-radius-card);
+            padding: 20px 25px;
+            box-shadow: 0 8px 25px rgba(225, 29, 72, 0.2);
+        }
+
+        .map-container {
+            border-radius: var(--ri-radius-card);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            height: 100%;
+            min-height: 350px;
+            border: 1px solid var(--ri-border);
+        }
+
+        .social-link {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background-color: #f1f5f9;
+            color: var(--ri-text-dark);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background-color: var(--ri-teal);
+            color: white;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= TOP HEADER / NAVBAR TỐI ƯU ================= -->
+    <header class="ri-header" id="mainHeader">
+        <div class="container-fluid px-xl-5 px-3">
+            <div class="d-flex align-items-center justify-content-between h-100">
+                
+                <!-- KHU VỰC 1: LOGO BÊN TRÁI -->
+                <a href="/Home/Welcome" class="ri-brand">
+                    <div class="ri-brand-logo">
+                        <i class="fas fa-paw"></i>
+                    </div>
+                    <div class="ri-brand-title">
+                        <span>RescuePets</span>
+                        <small>Cứu Hộ & Bảo Trợ Động Vật</small>
+                    </div>
+                </a>
+
+                <!-- KHU VỰC 2: MENU ĐIỀU HƯỚNG Ở GIỮA (DESKTOP) -->
+                <nav class="ri-nav-menu d-none d-lg-flex">
+                    <a href="/Home/Welcome#trang-chu" class="ri-nav-link">Trang Chủ</a>
+                    <a href="/Home/Welcome#ve-tram" class="ri-nav-link">Về Trạm</a>
+                    <a href="/Home/Welcome#thu-cung" class="ri-nav-link">Thú Cưng</a>
+                    <a href="/Home/TinTuc" class="ri-nav-link">Tin Tức & Tạp Chí</a>
+                    <a href="/Home/Welcome#quyen-gop" class="ri-nav-link">Quyên Góp</a>
+                    <!-- ĐÃ SỬA ĐƯỜNG DẪN SANG TRANG LIÊN HỆ -->
+                    <a asp-controller="Home" asp-action="Contact" class="ri-nav-link active">Liên Hệ</a>
+                </nav>
+
+                <!-- NÚT HAMBURGER (MOBILE) -->
+                <button class="btn-hamburger d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <!-- KHU VỰC 3: CHỨC NĂNG BÊN PHẢI -->
+                <div class="ri-nav-actions d-none d-lg-flex">
+                    <!-- Tìm kiếm -->
+                    <a href="/Home/Welcome#thu-cung" class="btn-ri-search" title="Tìm kiếm">
+                        <i class="fas fa-magnifying-glass"></i>
+                    </a>
+
+                    <!-- Báo cứu hộ -->
+                    <a asp-controller="Home" asp-action="BaoCao" class="btn-bao-cuuho">
+                        <i class="fas fa-truck-medical"></i> <span>Báo Cứu Hộ</span>
+                    </a>
+
+                    <!-- Tài khoản / Đăng nhập -->
+                    @if (Context.Session.GetString("TenDangNhap") != null)
+                    {
+                        <div class="dropdown">
+                            <button class="btn-tai-khoan dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fs-5"></i>
+                                <span class="text-truncate" style="max-width: 100px;">@Context.Session.GetString("TenDangNhap")</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item fw-semibold" href="/Home/Index"><i class="fas fa-gauge me-2 text-primary"></i>Giao Diện Hệ Thống</a></li>
+                                <li><a class="dropdown-item fw-semibold" href="/Profile/Index"><i class="fas fa-user-gear me-2 text-info"></i>Trang Cá Nhân</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item fw-semibold text-danger" href="/Login/DangXuat"><i class="fas fa-right-from-bracket me-2"></i>Đăng Xuất</a></li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dropdown">
+                            <button class="btn-tai-khoan dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user"></i> Tài Khoản
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item fw-semibold" href="/Login"><i class="fas fa-right-to-bracket me-2 text-warning"></i>Đăng Nhập</a></li>
+                                <li><a class="dropdown-item fw-semibold" href="/Login/DangKy"><i class="fas fa-user-plus me-2 text-success"></i>Đăng Ký</a></li>
+                            </ul>
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- OFFCANVAS MOBILE MENU -->
+    <div class="offcanvas offcanvas-end offcanvas-menu" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title serif-title text-white" id="mobileMenuLabel">Menu</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <a href="/Home/Welcome#trang-chu" class="mobile-nav-link" data-bs-dismiss="offcanvas">Trang Chủ</a>
+            <a href="/Home/Welcome#ve-tram" class="mobile-nav-link" data-bs-dismiss="offcanvas">Về Trạm</a>
+            <a href="/Home/Welcome#thu-cung" class="mobile-nav-link" data-bs-dismiss="offcanvas">Thú Cưng</a>
+            <a href="/Home/TinTuc" class="mobile-nav-link" data-bs-dismiss="offcanvas">Tin Tức & Tạp Chí</a>
+            <a href="/Home/Welcome#quyen-gop" class="mobile-nav-link" data-bs-dismiss="offcanvas">Quyên Góp</a>
+            <a asp-controller="Home" asp-action="Contact" class="mobile-nav-link active" data-bs-dismiss="offcanvas">Liên Hệ</a>
+            
+            <hr class="border-secondary my-3">
+            
+            <!-- Chức năng Mobile -->
+            <a href="/Home/Welcome#thu-cung" class="mobile-nav-link" data-bs-dismiss="offcanvas"><i class="fas fa-search me-2"></i> Tìm Kiếm</a>
+            <a asp-controller="Home" asp-action="BaoCao" class="btn btn-warning w-100 rounded-pill mt-2 fw-bold text-uppercase"><i class="fas fa-truck-medical me-2"></i>Báo Cứu Hộ</a>
+            
+            @if (Context.Session.GetString("TenDangNhap") == null)
+            {
+                <div class="d-flex gap-2 mt-3">
+                    <a href="/Login" class="btn btn-outline-light w-50 rounded-pill fw-bold">Đăng Nhập</a>
+                    <a href="/Login/DangKy" class="btn btn-gold w-50 rounded-pill fw-bold" style="background: var(--ri-gold); color: var(--ri-navy);">Đăng Ký</a>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-2 mt-3">
+                    <a href="/Home/Index" class="btn btn-outline-light w-100 rounded-pill fw-bold">Giao Diện Hệ Thống</a>
+                    <a href="/Profile/Index" class="btn btn-outline-light w-100 rounded-pill fw-bold">Trang Cá Nhân</a>
+                    <a href="/Login/DangXuat" class="btn btn-danger w-100 rounded-pill fw-bold">Đăng Xuất</a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- NỘI DUNG TRANG LIÊN HỆ -->
+    <div class="container my-4">
+
+        <!-- TIÊU ĐỀ TRANG -->
+        <div class="contact-header">
+            <span class="script-accent">Kết nối với RescuePets</span>
+            <h1 class="serif-title display-5 mb-3">Liên Hệ Với Chúng Tôi</h1>
+            <p class="text-muted mx-auto" style="max-width: 650px; font-size: 1rem; line-height: 1.6;">
+                Bạn có thắc mắc về quy trình nhận nuôi, muốn đóng góp tình nguyện hoặc cần hỗ trợ thông tin cứu hộ? Đừng ngần ngại gửi tin nhắn cho chúng tôi.
+            </p>
+        </div>
+
+        <!-- CẢNH BÁO CỨU HỘ KHẨN CẤP -->
+        <div class="emergency-banner d-flex flex-column flex-md-row align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center gap-3 mb-3 mb-md-0">
+                <i class="fas fa-ambulance fs-1 animate__animated animate__pulse animate__infinite"></i>
+                <div>
+                    <h5 class="fw-bold mb-1" style="font-size: 1.2rem;">Báo Ca Cứu Hộ Khẩn Cấp 24/7?</h5>
+                    <p class="mb-0 small opacity-90" style="font-size: 0.95rem;">Nếu phát hiện chó mèo bị thương, gặp tai nạn hoặc bị ngược đãi nghiêm trọng, vui lòng gọi đường dây nóng ngay lập tức.</p>
+                </div>
+            </div>
+            <a href="tel:0900123456" class="btn btn-light text-danger fw-bold rounded-pill px-4 py-2 text-nowrap" style="font-size: 1rem;">
+                <i class="fas fa-phone-alt me-2"></i> Hotline: 0900 123 456
+            </a>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <!-- CỘT 1: THÔNG TIN LIÊN HỆ -->
+            <div class="col-lg-5">
+                <div class="contact-card">
+                    <h3 class="serif-title mb-4" style="font-size: 1.4rem;">Thông Tin Trạm Cứu Hộ</h3>
+
+                    <div class="info-item">
+                        <div class="info-icon bg-blob-red">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1" style="font-size: 1.05rem;">Địa chỉ trạm</h6>
+                            <p class="text-muted small mb-0" style="font-size: 0.95rem;">Số 88 Đường Cứu Trợ, Hà Nội (Địa chỉ minh họa)</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon bg-blob-green">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1" style="font-size: 1.05rem;">Điện thoại / Zalo</h6>
+                            <p class="text-muted small mb-0" style="font-size: 0.95rem;">(+84) 0988 789 012 - Tư vấn nhận nuôi</p>
+                            <p class="text-muted small mb-0" style="font-size: 0.95rem;">(+84) 0988 789 013 - Tiếp nhận tài trợ</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon bg-blob-blue">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1" style="font-size: 1.05rem;">Email liên hệ</h6>
+                            <p class="text-muted small mb-0" style="font-size: 0.95rem;">hotro@rescuepets.vn</p>
+                            <p class="text-muted small mb-0" style="font-size: 0.95rem;">volunteers@rescuepets.vn</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon bg-blob-yellow">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1" style="font-size: 1.05rem;">Giờ mở cửa đón khách</h6>
+                            <p class="text-muted small mb-0" style="font-size: 0.95rem;">Thứ 2 - Thứ 7: 08:00 - 17:30</p>
+                            <p class="text-muted small mb-0" style="font-size: 0.95rem;">Chủ Nhật: 09:00 - 16:00 (Ưu tiên khách hẹn trước)</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- MẠNG XÃ HỘI -->
+                    <h6 class="fw-bold mb-3" style="font-size: 1.05rem;">Theo dõi chúng tôi</h6>
+                    <div class="d-flex gap-2">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT 2: FORM GỬI TIN NHẮN -->
+            <div class="col-lg-7">
+                <div class="contact-card">
+                    <h3 class="serif-title mb-2" style="font-size: 1.4rem;">Gửi Lời Nhắn</h3>
+                    <p class="text-muted small mb-4" style="font-size: 0.95rem;">Điền thông tin vào mẫu bên dưới, chúng tôi sẽ phản hồi bạn qua Email hoặc Số điện thoại trong vòng 24 giờ.</p>
+
+                    <form id="contactForm" onsubmit="handleContactSubmit(event)">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="fullName" class="form-label fw-bold small text-muted">Họ và Tên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="fullName" placeholder="Nguyễn Văn A" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phoneNumber" class="form-label fw-bold small text-muted">Số Điện Thoại <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="phoneNumber" placeholder="098x xxx xxx" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="emailAddress" class="form-label fw-bold small text-muted">Địa Chỉ Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="emailAddress" placeholder="name@example.com" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="topicSelect" class="form-label fw-bold small text-muted">Chủ Đề Cần Hỗ Trợ</label>
+                                <select class="form-select" id="topicSelect">
+                                    <option value="NhanNuoi">Tư vấn nhận nuôi chó/mèo</option>
+                                    <option value="TinhNguyen">Đăng ký Tình nguyện viên</option>
+                                    <option value="UngHo">Ủng hộ / Quyên góp vật tư</option>
+                                    <option value="Khac">Chủ đề khác</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="messageContent" class="form-label fw-bold small text-muted">Nội Dung Tin Nhắn <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="messageContent" rows="4" placeholder="Nhập nội dung chi tiết..." required></textarea>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="btn btn-submit w-100">
+                                    <i class="fas fa-paper-plane me-2"></i> Gửi Tin Nhắn
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- BẢN ĐỒ GOOGLE MAPS -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="map-container">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.954341381373!2d106.66601431533408!3d10.73799716283838!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752e8250000001%3A0x1b131553c3062!2zQuG6v24gQsOsbmggxJDDtG5n!5e0!3m2!1svi!2s!4v1620000000000!5m2!1svi!2s" 
+                        width="100%" 
+                        height="400" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-4 bg-dark text-white-50 small mt-5 border-top border-secondary border-opacity-25">
+        <div class="container">
+            <p class="mb-1">© 2026 RescuePets Vietnam · Hệ thống cứu hộ và bảo trợ động vật</p>
+            <p class="mb-0 text-white-50" style="font-size: 0.78rem;">Đường dây nóng hỗ trợ 24/7: <span class="text-warning fw-bold">+84 (0988) 789 012</span></p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script Xử Lý Form Liên Hệ -->
+    <script>
+        function handleContactSubmit(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('fullName').value;
+            
+            // Xử lý thông báo thành công đơn giản
+            alert('Cảm ơn ' + name + '! Tin nhắn của bạn đã được gửi thành công. Chúng tôi sẽ phản hồi sớm nhất.');
+            
+            // Reset form
+            document.getElementById('contactForm').reset();
+        }
+    </script>
+</body>
+</html>

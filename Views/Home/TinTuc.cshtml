@@ -1,0 +1,1421 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Tin Tức & Tạp Chí - RescuePets";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- Google Fonts: Chỉ giữ lại Dancing Script cho các tiêu đề phụ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ri-navy: #071D2A;
+            --ri-navy-dark: #04121B;
+            --ri-teal: #0F3832;
+            --ri-teal-light: #EAF2EF;
+            --ri-gold: #D4A373;
+            --ri-gold-hover: #FAEDCD;
+            --ri-bg: #F4F6F5;
+            --ri-white: #FFFFFF;
+            --ri-text-dark: #122129;
+            --ri-muted: #5A6D77;
+            --ri-border: #E1E7E5;
+            --ri-radius-card: 16px;
+            --ri-radius-pill: 50px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+            font-size: 13.5px; /* Thu nhỏ base size để vừa màn hình 100% */
+        }
+
+        * { box-sizing: border-box; }
+
+        /* ĐỒNG BỘ FONT CHỮ TIMES NEW ROMAN TOÀN TRANG */
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: var(--ri-bg);
+            color: var(--ri-text-dark);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* GIỮ NGUYÊN FONT CHỮ VIẾT TAY CHO CÁC TIÊU ĐỀ PHỤ */
+        .script-accent {
+            font-family: 'Dancing Script', cursive;
+            color: var(--ri-gold);
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .serif-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 800;
+            color: var(--ri-text-dark);
+            letter-spacing: -0.5px;
+        }
+
+        /* ==================== TỐI ƯU NAVBAR MỚI (ĐÃ FIX OVERLAP) ==================== */
+        .ri-header {
+            background-color: var(--ri-navy);
+            color: white;
+            height: 72px;
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+        }
+
+        /* Khu vực 1: Logo */
+        .ri-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+            flex-shrink: 0;
+            margin-right: 20px;
+        }
+
+        .ri-brand-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--ri-gold);
+            background: rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .ri-brand-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            line-height: 1;
+            color: white;
+        }
+
+        .ri-brand-title small {
+            display: block;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--ri-gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            white-space: nowrap;
+        }
+
+        /* Khu vực 2: Menu điều hướng ở giữa */
+        .ri-nav-menu {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            flex-grow: 1;
+            flex-wrap: nowrap;
+        }
+
+        .ri-nav-link {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.85) !important;
+            padding: 10px 0;
+            position: relative;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ri-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--ri-gold);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            transform-origin: center;
+        }
+
+        .ri-nav-link:hover, .ri-nav-link.active {
+            color: var(--ri-gold) !important;
+        }
+
+        .ri-nav-link:hover::after, .ri-nav-link.active::after {
+            transform: scaleX(1);
+        }
+
+        /* Khu vực 3: Chức năng bên phải */
+        .ri-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            margin-left: 20px;
+        }
+
+        .btn-ri-search {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .btn-ri-search:hover {
+            background: var(--ri-gold);
+            color: var(--ri-navy);
+        }
+
+        .btn-bao-cuuho {
+            background: #F5A623;
+            color: #071D2A !important;
+            border-radius: var(--ri-radius-pill);
+            height: 38px;
+            padding: 0 14px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 13.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(245, 166, 35, 0.2);
+            flex-shrink: 0;
+        }
+
+        .btn-bao-cuuho:hover {
+            background: #e0961d;
+            transform: translateY(-1px);
+        }
+
+        .btn-tai-khoan {
+            background: transparent;
+            color: white !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--ri-radius-pill);
+            height: 38px;
+            padding: 0 14px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-tai-khoan:hover, .btn-tai-khoan:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--ri-gold);
+            color: var(--ri-gold) !important;
+        }
+
+        /* Dropdown Menu Customization */
+        .dropdown-menu {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-top: 10px !important;
+        }
+        .dropdown-item {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 10px 20px;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: var(--ri-teal);
+        }
+
+        /* Hamburger Mobile */
+        .btn-hamburger {
+            color: white;
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Offcanvas Mobile Menu */
+        .offcanvas-menu {
+            background-color: var(--ri-navy);
+            color: white;
+        }
+        .offcanvas-menu .offcanvas-header {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .offcanvas-menu .offcanvas-body {
+            padding: 20px;
+        }
+        .mobile-nav-link {
+            display: block;
+            color: white;
+            text-decoration: none;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            text-transform: uppercase;
+        }
+        .mobile-nav-link:hover, .mobile-nav-link.active {
+            color: var(--ri-gold);
+        }
+
+        /* Responsive Fixes cho Navbar */
+        @@media (max-width: 1399.98px) {
+            .ri-nav-link { font-size: 13px; gap: 12px; }
+            .btn-bao-cuuho, .btn-tai-khoan { font-size: 12.5px; padding: 0 10px; }
+            .ri-brand-title { font-size: 1.3rem; }
+        }
+        @@media (max-width: 1199.98px) {
+            .ri-nav-menu { gap: 8px; }
+            .ri-nav-link { font-size: 12.5px; }
+            .btn-bao-cuuho span { display: none; }
+            .btn-bao-cuuho { padding: 0 12px; }
+        }
+        @@media (max-width: 991.98px) {
+            .ri-brand { margin-right: 0; }
+            .ri-nav-actions { margin-left: 0; }
+        }
+        /* ========================================================= */
+
+        /* HERO BANNER */
+        .news-hero-banner {
+            background: linear-gradient(135deg, var(--ri-navy-dark) 0%, var(--ri-navy) 60%, var(--ri-teal) 100%);
+            color: white;
+            padding: 60px 0 75px;
+            position: relative;
+            text-align: center;
+        }
+
+        .news-hero-banner::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 25px;
+            background: var(--ri-bg);
+            border-radius: 30px 30px 0 0;
+        }
+
+        /* SEARCH BAR */
+        .news-search-box {
+            max-width: 580px;
+            margin: 25px auto 0;
+            background: white;
+            border-radius: 50px;
+            padding: 6px 8px 6px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+        }
+
+        .news-search-box input {
+            border: none;
+            outline: none;
+            flex-grow: 1;
+            font-size: 0.95rem;
+            color: var(--ri-text-dark);
+            padding: 6px 10px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .news-search-box button {
+            background: linear-gradient(135deg, #0F3832 0%, #071D2A 100%);
+            color: var(--ri-gold);
+            border: 1px solid rgba(212,163,115,0.4);
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            padding: 10px 22px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .news-search-box button:hover {
+            background: var(--ri-gold);
+            color: var(--ri-navy);
+            border-color: var(--ri-gold);
+        }
+
+        /* CATEGORY FILTER PILLS */
+        .category-filter-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 35px;
+        }
+
+        .category-pill-btn {
+            background: white;
+            border: 1.5px solid #E2E8F0;
+            color: #475569;
+            padding: 9px 22px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .category-pill-btn:hover {
+            border-color: var(--ri-teal);
+            color: var(--ri-teal);
+            transform: translateY(-2px);
+        }
+
+        .category-pill-btn.active {
+            background: var(--ri-teal) !important;
+            color: white !important;
+            border-color: var(--ri-teal) !important;
+            box-shadow: 0 4px 14px rgba(15, 56, 50, 0.25);
+        }
+
+        /* FEATURED ARTICLE CARD */
+        .featured-news-card {
+            background: white;
+            border-radius: var(--ri-radius-card);
+            overflow: hidden;
+            box-shadow: 0 12px 35px rgba(7, 29, 42, 0.08);
+            border: 1px solid rgba(7, 29, 42, 0.06);
+            margin-bottom: 40px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .featured-news-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 45px rgba(7, 29, 42, 0.12);
+        }
+
+        .featured-img-wrap {
+            height: 380px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .featured-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .featured-news-card:hover .featured-img {
+            transform: scale(1.05);
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--ri-navy);
+            color: var(--ri-gold);
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid rgba(212,163,115,0.4);
+        }
+
+        /* ARTICLE GRID CARD */
+        .article-card {
+            background: white;
+            border-radius: var(--ri-radius-card);
+            overflow: hidden;
+            border: 1px solid rgba(7, 29, 42, 0.06);
+            box-shadow: 0 8px 24px rgba(7, 29, 42, 0.05);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .article-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 36px rgba(7, 29, 42, 0.1);
+            border-color: var(--ri-gold);
+        }
+
+        .article-img-wrap {
+            height: 220px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .article-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .article-card:hover .article-img {
+            transform: scale(1.06);
+        }
+
+        .article-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: var(--ri-navy);
+            color: var(--ri-gold);
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(212,163,115,0.3);
+        }
+
+        .article-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .article-date {
+            font-size: 0.82rem;
+            color: var(--ri-muted);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .article-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--ri-text-dark);
+            line-height: 1.45;
+            margin-bottom: 12px;
+        }
+
+        .article-desc {
+            font-size: 0.95rem;
+            color: var(--ri-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .btn-read-more {
+            color: var(--ri-teal);
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+        }
+
+        .article-card:hover .btn-read-more {
+            color: var(--ri-gold);
+            gap: 10px;
+        }
+
+        /* MAGAZINE BANNER */
+        .mag-banner-card {
+            background: linear-gradient(135deg, var(--ri-navy) 0%, var(--ri-teal) 100%);
+            color: white;
+            border-radius: var(--ri-radius-card);
+            padding: 45px 35px;
+            position: relative;
+            overflow: hidden;
+            margin: 50px 0 30px;
+            box-shadow: 0 15px 40px rgba(7, 29, 42, 0.12);
+        }
+
+        .btn-open-mag {
+            background: var(--ri-gold);
+            color: var(--ri-navy);
+            font-weight: 800;
+            border-radius: var(--ri-radius-pill);
+            padding: 13px 30px;
+            border: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(212, 163, 115, 0.35);
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .btn-open-mag:hover {
+            background: white;
+            color: var(--ri-navy);
+            transform: translateY(-2px);
+        }
+
+        /* MODAL STYLES */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            overflow: hidden;
+        }
+
+        .modal-header-ri {
+            background: var(--ri-navy);
+            color: white;
+            padding: 18px 24px;
+            border-bottom: 2px solid var(--ri-gold);
+        }
+
+        .flipbook-page {
+            background: #FAF8F5;
+            border: 1px solid #E5E0D8;
+            border-radius: 14px;
+            padding: 30px;
+            min-height: 460px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= TOP HEADER / NAVBAR TỐI ƯU ================= -->
+    <header class="ri-header" id="mainHeader">
+        <div class="container-fluid px-xl-5 px-3">
+            <div class="d-flex align-items-center justify-content-between h-100">
+                
+                <!-- KHU VỰC 1: LOGO BÊN TRÁI -->
+                <a href="/Home/Welcome" class="ri-brand">
+                    <div class="ri-brand-logo">
+                        <i class="fas fa-paw"></i>
+                    </div>
+                    <div class="ri-brand-title">
+                        <span>RescuePets</span>
+                        <small>Cứu Hộ & Bảo Trợ Động Vật</small>
+                    </div>
+                </a>
+
+                <!-- KHU VỰC 2: MENU ĐIỀU HƯỚNG Ở GIỮA (DESKTOP) -->
+                <nav class="ri-nav-menu d-none d-lg-flex">
+                    <a href="/Home/Welcome#trang-chu" class="ri-nav-link">Trang Chủ</a>
+                    <a href="/Home/Welcome#ve-tram" class="ri-nav-link">Về Trạm</a>
+                    <a href="/Home/Welcome#thu-cung" class="ri-nav-link">Thú Cưng</a>
+                    <a href="/Home/TinTuc" class="ri-nav-link active">Tin Tức & Tạp Chí</a>
+                    <a href="/Home/Welcome#quyen-gop" class="ri-nav-link">Quyên Góp</a>
+                    <a href="/Home/Welcome#lien-he" class="ri-nav-link">Liên Hệ</a>
+                </nav>
+
+                <!-- NÚT HAMBURGER (MOBILE) -->
+                <button class="btn-hamburger d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <!-- KHU VỰC 3: CHỨC NĂNG BÊN PHẢI -->
+                <div class="ri-nav-actions d-none d-lg-flex">
+                    <!-- Tìm kiếm -->
+                    <a href="#search-section" class="btn-ri-search" title="Tìm kiếm">
+                        <i class="fas fa-magnifying-glass"></i>
+                    </a>
+
+                    <!-- Báo cứu hộ -->
+                    <a asp-controller="Home" asp-action="BaoCao" class="btn-bao-cuuho">
+                        <i class="fas fa-truck-medical"></i> <span>Báo Cứu Hộ</span>
+                    </a>
+
+                    <!-- Tài khoản / Đăng nhập -->
+                    @if (Context.Session.GetString("TenDangNhap") != null)
+                    {
+                        <div class="dropdown">
+                            <button class="btn-tai-khoan dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fs-5"></i>
+                                <span class="text-truncate" style="max-width: 100px;">@Context.Session.GetString("TenDangNhap")</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item fw-semibold" href="/Home/Index"><i class="fas fa-gauge me-2 text-primary"></i>Giao Diện Hệ Thống</a></li>
+                                <li><a class="dropdown-item fw-semibold" href="/Profile/Index"><i class="fas fa-user-gear me-2 text-info"></i>Trang Cá Nhân</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item fw-semibold text-danger" href="/Login/DangXuat"><i class="fas fa-right-from-bracket me-2"></i>Đăng Xuất</a></li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dropdown">
+                            <button class="btn-tai-khoan dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user"></i> Tài Khoản
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item fw-semibold" href="/Login"><i class="fas fa-right-to-bracket me-2 text-warning"></i>Đăng Nhập</a></li>
+                                <li><a class="dropdown-item fw-semibold" href="/Login/DangKy"><i class="fas fa-user-plus me-2 text-success"></i>Đăng Ký</a></li>
+                            </ul>
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- OFFCANVAS MOBILE MENU -->
+    <div class="offcanvas offcanvas-end offcanvas-menu" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title serif-title text-white" id="mobileMenuLabel">Menu</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <a href="/Home/Welcome#trang-chu" class="mobile-nav-link" data-bs-dismiss="offcanvas">Trang Chủ</a>
+            <a href="/Home/Welcome#ve-tram" class="mobile-nav-link" data-bs-dismiss="offcanvas">Về Trạm</a>
+            <a href="/Home/Welcome#thu-cung" class="mobile-nav-link" data-bs-dismiss="offcanvas">Thú Cưng</a>
+            <a href="/Home/TinTuc" class="mobile-nav-link active" data-bs-dismiss="offcanvas">Tin Tức & Tạp Chí</a>
+            <a href="/Home/Welcome#quyen-gop" class="mobile-nav-link" data-bs-dismiss="offcanvas">Quyên Góp</a>
+            <a href="/Home/Welcome#lien-he" class="mobile-nav-link" data-bs-dismiss="offcanvas">Liên Hệ</a>
+            
+            <hr class="border-secondary my-3">
+            
+            <!-- Chức năng Mobile -->
+            <a href="#search-section" class="mobile-nav-link" data-bs-dismiss="offcanvas"><i class="fas fa-search me-2"></i> Tìm Kiếm</a>
+            <a asp-controller="Home" asp-action="BaoCao" class="btn btn-warning w-100 rounded-pill mt-2 fw-bold text-uppercase"><i class="fas fa-truck-medical me-2"></i>Báo Cứu Hộ</a>
+            
+            @if (Context.Session.GetString("TenDangNhap") == null)
+            {
+                <div class="d-flex gap-2 mt-3">
+                    <a href="/Login" class="btn btn-outline-light w-50 rounded-pill fw-bold">Đăng Nhập</a>
+                    <a href="/Login/DangKy" class="btn btn-gold w-50 rounded-pill fw-bold" style="background: var(--ri-gold); color: var(--ri-navy);">Đăng Ký</a>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-2 mt-3">
+                    <a href="/Home/Index" class="btn btn-outline-light w-100 rounded-pill fw-bold">Giao Diện Hệ Thống</a>
+                    <a href="/Profile/Index" class="btn btn-outline-light w-100 rounded-pill fw-bold">Trang Cá Nhân</a>
+                    <a href="/Login/DangXuat" class="btn btn-danger w-100 rounded-pill fw-bold">Đăng Xuất</a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- HERO BANNER -->
+    <section class="news-hero-banner" id="search-section">
+        <div class="container">
+            <span class="script-accent">Ấn phẩm & Bản tin trạm</span>
+            <h1 class="serif-title text-white fs-1 mb-2">Tin Tức & Tạp Chí RescuePets</h1>
+            <p class="text-white-50 mx-auto mb-0" style="max-width: 620px; font-size: 0.95rem; line-height: 1.6;">
+                Cập nhật những câu chuyện cứu hộ xúc động, cẩm nang chăm sóc thú cưng chuẩn y khoa và ấn phẩm tạp chí định kỳ từ trạm.
+            </p>
+
+            <!-- Search box with real-time filtering -->
+            <div class="news-search-box">
+                <input type="text" id="newsSearchInput" placeholder="Tìm kiếm bài viết, câu chuyện, cẩm nang..." oninput="filterArticles()">
+                <button type="button" onclick="filterArticles()">
+                    <i class="fas fa-magnifying-glass me-1"></i> Tìm kiếm
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT -->
+    <main class="py-4">
+        <div class="container">
+
+            <!-- CATEGORY FILTER PILLS -->
+            <div class="category-filter-nav">
+                <button type="button" class="category-pill-btn active" data-cat="all" onclick="filterCategory('all', this)">
+                    Tất Cả Bài Viết
+                </button>
+                <button type="button" class="category-pill-btn" data-cat="cuu-ho" onclick="filterCategory('cuu-ho', this)">
+                    Hành Trình Cứu Hộ
+                </button>
+                <button type="button" class="category-pill-btn" data-cat="tap-chi" onclick="filterCategory('tap-chi', this)">
+                    Tạp Chí & Ấn Phẩm
+                </button>
+                <button type="button" class="category-pill-btn" data-cat="su-kien" onclick="filterCategory('su-kien', this)">
+                    Sự Kiện Nổi Bật
+                </button>
+                <button type="button" class="category-pill-btn" data-cat="cam-nang" onclick="filterCategory('cam-nang', this)">
+                    Cẩm Nang Thú Cưng
+                </button>
+            </div>
+
+            <!-- FEATURED ARTICLE -->
+            <div class="featured-news-card article-item" data-category="cuu-ho" id="featuredArticleCard">
+                <div class="row g-0">
+                    <div class="col-lg-7">
+                        <div class="featured-img-wrap h-100">
+                            <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1200&auto=format&fit=crop" class="featured-img" alt="Hành trình cứu hộ kỳ diệu">
+                            <span class="featured-badge">Tiêu Điểm Cứu Hộ</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 d-flex align-items-center">
+                        <div class="p-4 p-md-5">
+                            <div class="article-date mb-2"><i class="far fa-calendar-alt me-1"></i> 12 THÁNG 5, 2026 • Đội Cứu Hộ RescuePets</div>
+                            <h2 class="serif-title mb-3" style="font-size: 1.65rem; line-height: 1.35;">Hành trình hồi phục kỳ diệu của 30 bé cún mèo bị bỏ rơi trong đợt rét lịch sử</h2>
+                            <p class="article-desc">
+                                Nhờ sự chung tay ủng hộ của các nhà hảo tâm và nỗ lực điều trị 24/7 của các bác sĩ thú y, các bé đã chiến thắng bệnh tật và sẵn sàng tìm kiếm mái ấm gia đình mới...
+                            </p>
+                            <button type="button" class="btn btn-dark rounded-pill py-2 px-4 fw-bold text-uppercase" style="font-size: 0.85rem;" onclick="openNewsDetailModal(1)">
+                                Đọc Toàn Bộ Bài Viết <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ARTICLES GRID -->
+            <div class="row g-4" id="articlesGrid">
+                
+                <!-- Card 1 -->
+                <div class="col-md-6 col-lg-4 article-item" data-category="cuu-ho">
+                    <div class="article-card" onclick="openNewsDetailModal(1)">
+                        <div class="article-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1534361960057-19889db9621e?q=80&w=800&auto=format&fit=crop" class="article-img" alt="Bé Teddy">
+                            <span class="article-badge">Cứu Hộ</span>
+                        </div>
+                        <div class="article-body">
+                            <div class="article-date"><i class="far fa-calendar-alt me-1"></i> 10 THÁNG 5, 2026</div>
+                            <h3 class="article-title">Bé Teddy - Chú cún Golden Retriever dũng cảm vượt qua cửa tử</h3>
+                            <p class="article-desc">Teddy được đội cứu hộ phát hiện tại quận Hoàn Kiếm khi bị chấn thương nặng. Sau 3 tháng chăm sóc tích cực, bé đã hoàn toàn khỏe mạnh...</p>
+                            <span class="btn-read-more">ĐỌC TIẾP ➔</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="col-md-6 col-lg-4 article-item" data-category="tap-chi">
+                    <div class="article-card" onclick="openMagModal()">
+                        <div class="article-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=800&auto=format&fit=crop" class="article-img" alt="RescuePets Mag Số 12">
+                            <span class="article-badge" style="background: var(--ri-gold); color: var(--ri-navy);">Tạp Chí</span>
+                        </div>
+                        <div class="article-body">
+                            <div class="article-date"><i class="far fa-calendar-alt me-1"></i> 01 THÁNG 5, 2026</div>
+                            <h3 class="article-title">Tạp Chí RescuePets Mag - Số Đặc Biệt Mùa Hè 2026</h3>
+                            <p class="article-desc">Ấn phẩm tập hợp những câu chuyện truyền cảm hứng, cẩm nang phòng bệnh mùa nắng nóng và danh sách các bé chờ nhận nuôi.</p>
+                            <span class="btn-read-more">ĐỌC TẠP CHÍ <i class="fas fa-book-open ms-1"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="col-md-6 col-lg-4 article-item" data-category="cam-nang">
+                    <div class="article-card" onclick="openNewsDetailModal(2)">
+                        <div class="article-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=800&auto=format&fit=crop" class="article-img" alt="Cẩm nang tiêm phòng">
+                            <span class="article-badge">Cẩm Nang</span>
+                        </div>
+                        <div class="article-body">
+                            <div class="article-date"><i class="far fa-calendar-alt me-1"></i> 28 THÁNG 4, 2026</div>
+                            <h3 class="article-title">Lịch tiêm phòng vắc-xin và triệt sản chuẩn y khoa cho cún mèo mới nhận nuôi</h3>
+                            <p class="article-desc">Hướng dẫn chi tiết từ Bác sĩ Trưởng trạm cứu hộ về việc tiêm mũi 5 trong 1, 7 trong 1 và thời điểm vàng triệt sản an toàn.</p>
+                            <span class="btn-read-more">ĐỌC TIẾP ➔</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="col-md-6 col-lg-4 article-item" data-category="su-kien">
+                    <div class="article-card" onclick="openNewsDetailModal(3)">
+                        <div class="article-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800&auto=format&fit=crop" class="article-img" alt="Ngày hội nhận nuôi">
+                            <span class="article-badge">Sự Kiện</span>
+                        </div>
+                        <div class="article-body">
+                            <div class="article-date"><i class="far fa-calendar-alt me-1"></i> 20 THÁNG 4, 2026</div>
+                            <h3 class="article-title">Ngày Hội Nhận Nuôi Thú Cưng "Mái Ấm Yêu Thương 2026"</h3>
+                            <p class="article-desc">Sự kiện quy tụ hơn 50 bé chó mèo cơ nhỡ sẵn sàng về nhà mới cùng các hoạt động khám sức khỏe miễn phí và tặng quà lưu niệm.</p>
+                            <span class="btn-read-more">ĐỌC TIẾP ➔</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="col-md-6 col-lg-4 article-item" data-category="cuu-ho">
+                    <div class="article-card" onclick="openNewsDetailModal(4)">
+                        <div class="article-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=800&auto=format&fit=crop" class="article-img" alt="Bé Bella Beagle">
+                            <span class="article-badge">Cứu Hộ</span>
+                        </div>
+                        <div class="article-body">
+                            <div class="article-date"><i class="far fa-calendar-alt me-1"></i> 15 THÁNG 4, 2026</div>
+                            <h3 class="article-title">Hành trình tìm lại nụ cười của Bella - Bé cún Beagle bị bỏ rơi</h3>
+                            <p class="article-desc">Từ một bé cún nhút nhát sợ hãi con người, Bella giờ đây đã trở thành cô bé vô cùng tinh nghịch và tràn đầy sức sống...</p>
+                            <span class="btn-read-more">ĐỌC TIẾP ➔</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="col-md-6 col-lg-4 article-item" data-category="cam-nang">
+                    <div class="article-card" onclick="openNewsDetailModal(5)">
+                        <div class="article-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=800&auto=format&fit=crop" class="article-img" alt="Dinh dưỡng thú cưng">
+                            <span class="article-badge">Cẩm Nang</span>
+                        </div>
+                        <div class="article-body">
+                            <div class="article-date"><i class="far fa-calendar-alt me-1"></i> 05 THÁNG 4, 2026</div>
+                            <h3 class="article-title">Chế độ dinh dưỡng phục hồi thể trạng cho chó mèo suy dinh dưỡng</h3>
+                            <p class="article-desc">Cách nấu pate tươi và bổ sung men vi sinh giúp thú cưng cứu hộ tăng cân an toàn và hồi phục bộ lông mượt mà.</p>
+                            <span class="btn-read-more">ĐỌC TIẾP ➔</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- EMPTY SEARCH MESSAGE -->
+            <div id="noArticlesMsg" class="text-center py-5 d-none">
+                <div class="text-muted mb-3" style="font-size: 3rem;"><i class="fas fa-search"></i></div>
+                <h4 class="serif-title text-dark">Không tìm thấy bài viết phù hợp</h4>
+                <p class="text-muted small">Vui lòng thử lại với từ khóa khác hoặc chọn tất cả bài viết.</p>
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 mt-2" onclick="resetFilter()">Xem tất cả bài viết</button>
+            </div>
+
+            <!-- MAGAZINE PROMO BANNER -->
+            <div class="mag-banner-card">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 mb-3 mb-lg-0">
+                        <span class="script-accent" style="color: var(--ri-gold);">Ấn phẩm điện tử hàng tháng</span>
+                        <h2 class="serif-title text-white fs-2 mb-2">Đọc Tạp Chí RescuePets Mag Trực Tuyến</h2>
+                        <p class="text-white-50 mb-0">Trải nghiệm đọc tạp chí dạng Flipbook lật trang trực quan với chất lượng hình ảnh cao và đầy đủ câu chuyện cứu hộ đặc sắc.</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <button type="button" class="btn-open-mag" onclick="openMagModal()">
+                            <i class="fas fa-book-open me-2"></i> Đọc Tạp Chí Ngay
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-4 bg-dark text-white-50 small mt-5 border-top border-secondary border-opacity-25">
+        <div class="container">
+            <p class="mb-1">© 2026 RescuePets Vietnam · Hệ thống cứu hộ và bảo trợ động vật</p>
+            <p class="mb-0 text-white-50" style="font-size: 0.78rem;">Đường dây nóng hỗ trợ 24/7: <span class="text-warning fw-bold">+84 (0988) 789 012</span></p>
+        </div>
+    </footer>
+
+    <!-- 1. MODAL ĐỌC TẠP CHÍ (FLIPBOOK READER MODAL) -->
+    <div class="modal fade" id="magModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header-ri d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="fas fa-book-open text-warning fs-3"></i>
+                        <div>
+                            <h4 class="serif-title text-white mb-0" style="font-size: 1.25rem;">RESCUEPETS MAG - SỐ 12 (MÙA HÈ 2026)</h4>
+                            <small class="text-white-50">Ấn phẩm truyền cảm hứng & bảo vệ động vật</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" style="background: #EFECE6;">
+                    <div class="row align-items-center">
+                        <div class="col-md-1 text-center mb-2 mb-md-0">
+                            <button type="button" class="btn btn-dark rounded-circle p-3 shadow" onclick="changeMagPage(-1)" id="btnPrevMag">
+                                <i class="fas fa-chevron-left fs-5"></i>
+                            </button>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="flipbook-page" id="magPageContent">
+                                <!-- Dynamic Page Content -->
+                            </div>
+                        </div>
+                        <div class="col-md-1 text-center mt-2 mt-md-0">
+                            <button type="button" class="btn btn-dark rounded-circle p-3 shadow" onclick="changeMagPage(1)" id="btnNextMag">
+                                <i class="fas fa-chevron-right fs-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-dark text-white d-flex justify-content-between">
+                    <span id="magPageIndicator" class="fw-bold text-warning">Trang 1 / 4</span>
+                    <div>
+                        <button type="button" class="btn btn-outline-light btn-sm me-2 rounded-pill px-3" onclick="alert('Đã tải xuống bản PDF tạp chí!')">
+                            <i class="fas fa-download me-1"></i> Tải bản PDF
+                        </button>
+                        <button type="button" class="btn btn-warning btn-sm text-dark fw-bold rounded-pill px-3" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MODAL ĐỌC BÀI VIẾT CHI TIẾT (NEWS DETAIL MODAL - NEWSPAPER DESIGN) -->
+    <div class="modal fade" id="newsDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 overflow-hidden shadow-2xl">
+                <!-- Newspaper Masthead Bar -->
+                <div class="px-4 py-2 bg-dark text-white-50 d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary small" style="font-size: 0.78rem;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger text-white fw-bold px-2 py-1 text-uppercase" id="newsModalCategoryBadge">PHÓNG SỰ</span>
+                        <span class="text-white fw-semibold">RESCUEPETS CHRONICLE · BÁO ĐIỆN TỬ CỨU TRỢ 2026</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span id="newsModalTopDate"><i class="far fa-calendar-alt me-1 text-warning"></i> 12/05/2026</span>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <div class="modal-body p-4 p-lg-5 bg-white text-dark" style="font-family: 'Times New Roman', serif;">
+                    <!-- Breadcrumbs -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                        <div class="d-flex align-items-center gap-2 small text-muted">
+                            <a href="/Home/TinTuc" class="text-decoration-none text-muted">Tin tức</a>
+                            <i class="fas fa-chevron-right" style="font-size: 0.65rem;"></i>
+                            <span class="text-danger fw-bold text-uppercase" id="newsModalCategory">HÀNH TRÌNH CỨU HỘ</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 rounded-pill fw-bold">
+                                <i class="fas fa-fire me-1"></i> BÀI NỔI BẬT
+                            </span>
+                            <span class="badge bg-light text-muted border px-2 py-1 rounded-pill">
+                                <i class="far fa-eye me-1"></i> 2.890 lượt đọc
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Article Headline -->
+                    <h1 class="serif-title text-dark mb-3" id="newsModalTitle" style="font-size: clamp(1.5rem, 3vw, 2.2rem); line-height: 1.3;">
+                        Hành trình phục hồi kỳ diệu của các bé tại trạm cứu hộ RescuePets
+                    </h1>
+
+                    <!-- Author Info & Toolbar -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 py-3 my-3 border-top border-bottom">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-dark text-warning d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                                <i class="fas fa-feather-pointed"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" id="newsModalAuthor" style="font-size: 0.95rem;">
+                                    Ban Biên Tập RescuePets
+                                </div>
+                                <small class="text-muted" id="newsModalDate" style="font-size: 0.8rem;">
+                                    12 Tháng 5, 2026 · 4 phút đọc
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Action Toolbar -->
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" onclick="adjustTinTucFontSize(-1)" title="Giảm cỡ chữ">A-</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" onclick="adjustTinTucFontSize(1)" title="Tăng cỡ chữ">A+</button>
+                            <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="window.print()" title="In bài báo">
+                                <i class="fas fa-print me-1"></i> In
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" onclick="alert('Đã sao chép liên kết bài báo!')" title="Chia sẻ">
+                                <i class="fas fa-share-nodes me-1"></i> Chia sẻ
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hero Article Image -->
+                    <figure class="my-4 text-center">
+                        <img id="newsModalImg" src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1200&auto=format&fit=crop" class="img-fluid rounded-4 shadow-sm w-100" style="max-height: 400px; object-fit: cover;" alt="Bài viết">
+                        <figcaption class="mt-2 text-muted fst-italic small text-center" id="newsModalImgCaption">
+                            📸 <b>Ảnh phóng sự:</b> Ghi nhận trực tiếp từ hoạt động cứu hộ và chăm sóc tại cơ sở RescuePets.
+                        </figcaption>
+                    </figure>
+
+                    <!-- Article Body Content -->
+                    <div id="newsModalBody" class="article-body-content" style="line-height: 1.95; font-size: 1.02rem; color: #334155;">
+                        <!-- Dynamic Content Loaded from JS -->
+                    </div>
+
+                    <!-- Reader Emotional Reactions Bar -->
+                    <div class="p-3 rounded-4 bg-light my-4 d-flex flex-wrap align-items-center justify-content-between gap-3 border">
+                        <span class="fw-bold text-dark small"><i class="far fa-face-smile text-warning me-1"></i> Cảm xúc của bạn về bài viết:</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" onclick="this.classList.toggle('btn-dark'); this.classList.toggle('text-white');">
+                                ❤️ Yêu thích <span class="badge bg-danger text-white ms-1">1.2K</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="this.classList.toggle('btn-dark'); this.classList.toggle('text-white');">
+                                👏 Cảm phục <span class="badge bg-primary text-white ms-1">750</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 fw-bold" onclick="this.classList.toggle('btn-dark'); this.classList.toggle('text-white');">
+                                🥺 Xúc động <span class="badge bg-warning text-dark ms-1">540</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 py-3 border-top border-bottom">
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#CuuHoDongVat</span>
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#RescuePets</span>
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#BaoDienTu</span>
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#MoiNgayMotCauChuyen</span>
+                        </div>
+                        <div class="text-end">
+                            <strong class="d-block text-dark small">Ban Biên Tập RescuePets</strong>
+                            <small class="text-muted fst-italic" style="font-size: 0.78rem;">(Phát hành trên Chuyên trang Tin Tức & Tạp Chí)</small>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Action Buttons -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-4 pt-3 border-top">
+                        <a href="/Home/Welcome#thu-cung" class="btn btn-warning text-dark fw-bold px-4 py-2 rounded-pill text-uppercase" style="background: var(--ri-gold); border: none; font-size: 0.84rem;">
+                            <i class="fas fa-heart me-1 text-danger"></i> Đăng Ký Nhận Nuôi
+                        </a>
+                        <div class="d-flex gap-2">
+                            <a href="/Home/Welcome#quyen-gop" class="btn btn-danger rounded-pill px-4 py-2 fw-bold text-uppercase" style="font-size: 0.84rem;">
+                                <i class="fas fa-hand-holding-heart me-1"></i> Ủng Hộ
+                            </a>
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold" style="font-size: 0.84rem;" data-bs-dismiss="modal">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // MAGAZINE FLIPBOOK DATA & LOGIC
+        const magPages = [
+            {
+                page: 1,
+                title: "Trang 1: Lời Ngỏ & Sứ Mệnh 2026",
+                content: `
+                    <div class="text-center my-auto">
+                        <span class="script-accent fs-1">RescuePets Mag</span>
+                        <h2 class="serif-title my-3" style="font-size: 2rem;">LỜI NGỎ TỪ BAN BIÊN TẬP</h2>
+                        <p class="text-muted max-w-600 mx-auto" style="max-width: 580px; line-height: 1.8;">
+                            Chào mừng bạn đến với ấn phẩm số 12. Trong số này, chúng tôi xin gửi đến bạn đọc những câu chuyện cảm động nhất về hành trình giành lại sự sống cho các bé thú cưng cơ nhỡ.
+                        </p>
+                        <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format&fit=crop" class="img-fluid rounded-4 shadow mt-3" style="max-height: 200px;" alt="Bìa tạp chí">
+                    </div>
+                `
+            },
+            {
+                page: 2,
+                title: "Trang 2: Những Ca Cứu Hộ Kỳ Diệu",
+                content: `
+                    <div>
+                        <h3 class="serif-title mb-3" style="color: var(--ri-navy);">NHỮNG CA CỨU HỘ KỲ DIỆU TRONG NĂM</h3>
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <img src="https://images.unsplash.com/photo-1534361960057-19889db9621e?q=80&w=600&auto=format&fit=crop" class="img-fluid rounded-4 mb-3 shadow-sm" alt="Teddy">
+                            </div>
+                            <div class="col-md-6">
+                                <h4 class="fw-bold">Bé Teddy - Phép màu Hoàn Kiếm</h4>
+                                <p class="text-muted" style="line-height: 1.7;">
+                                    Được tiếp nhận trong tình trạng kiệt sức và chấn thương chân. Qua 45 ngày phẫu thuật và vật lý trị liệu, Teddy đã có thể tự tin chạy nhảy và tìm được người chủ mới yêu thương.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                page: 3,
+                title: "Trang 3: Cẩm Nang Chăm Sóc Thú Cưng Mùa Hè",
+                content: `
+                    <div>
+                        <h3 class="serif-title mb-3" style="color: var(--ri-navy);">CẨM NANG CHĂM SÓC THÚ CƯNG MÙA NẮNG NÓNG</h3>
+                        <ul class="list-group list-group-flush fs-6" style="line-height: 2;">
+                            <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> <b>Cung cấp đủ nước sạch:</b> Luôn đặt ít nhất 2 bát nước mát trong nhà cho cún mèo.</li>
+                            <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> <b>Tránh đi dạo giờ cao điểm:</b> Không dắt cún đi trên mặt đường bê tông nóng rát từ 11h - 15h.</li>
+                            <li class="list-group-item bg-transparent"><i class="fas fa-check-circle text-success me-2"></i> <b>Tắm rửa & Cắt tỉa lông hợp lý:</b> Giúp thoát nhiệt hiệu quả nhưng không cạo sát da.</li>
+                        </ul>
+                    </div>
+                `
+            },
+            {
+                page: 4,
+                title: "Trang 4: Lời Cảm Ơn & Tri Ân Nhà Hảo Tâm",
+                content: `
+                    <div class="text-center my-auto">
+                        <i class="fas fa-heart text-danger display-4 mb-3"></i>
+                        <h3 class="serif-title mb-3">TRÂN TRỌNG CẢM ƠN CỘNG ĐỒNG YÊU ĐỘNG VẬT</h3>
+                        <p class="text-muted" style="max-width: 550px; margin: 0 auto 20px auto; line-height: 1.7;">
+                            Sự đóng góp hạt thức ăn, thuốc men và tài chính của quý vị là nguồn sống tiếp sức cho hơn 350 bé tại trạm RescuePets.
+                        </p>
+                        <a href="/Home/Welcome#quyen-gop" class="btn btn-warning px-4 py-2 fw-bold rounded-pill text-dark" style="background: var(--ri-gold); border: none;">
+                            TIẾP TỤC ĐỒNG HÀNH CÙNG TRẠM
+                        </a>
+                    </div>
+                `
+            }
+        ];
+
+        let currentMagPageIndex = 0;
+
+        function renderMagPage() {
+            const pageData = magPages[currentMagPageIndex];
+            document.getElementById('magPageContent').innerHTML = pageData.content;
+            document.getElementById('magPageIndicator').innerText = `Trang ${pageData.page} / ${magPages.length}`;
+            document.getElementById('btnPrevMag').disabled = (currentMagPageIndex === 0);
+            document.getElementById('btnNextMag').disabled = (currentMagPageIndex === magPages.length - 1);
+        }
+
+        function changeMagPage(dir) {
+            currentMagPageIndex += dir;
+            if (currentMagPageIndex < 0) currentMagPageIndex = 0;
+            if (currentMagPageIndex >= magPages.length) currentMagPageIndex = magPages.length - 1;
+            renderMagPage();
+        }
+
+        function openMagModal() {
+            currentMagPageIndex = 0;
+            renderMagPage();
+            new bootstrap.Modal(document.getElementById('magModal')).show();
+        }
+
+        // ARTICLES DATA FOR DETAIL MODAL (AUTHENTIC NEWSPAPER ARTICLE CONTENT)
+        const articlesData = {
+            1: {
+                title: "Kỳ Tích Đêm Đông: 48 Giờ Nghẹt Thở Giành Giật Sự Sống Cho 30 Bé Cún Mèo Bên Bờ Vực Tử Thần",
+                date: "12 Tháng 5, 2026 · 5 phút đọc",
+                author: "PV. Khánh Linh · Ban Phóng Sự Cứu Trợ",
+                category: "HÀNH TRÌNH CỨU HỘ",
+                categoryBadge: "PHÓNG SỰ",
+                img: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1200&auto=format&fit=crop",
+                caption: "📸 Ảnh phóng sự: Đội phản ứng nhanh tiếp cận và sơ cứu các bé cún mèo bị bỏ rơi trong đêm đông rét buốt.",
+                body: `
+                    <div class="p-3 p-md-4 rounded-3 my-3" style="background: #F8FAFC; border-left: 5px solid #D4A373;">
+                        <p class="mb-0 fw-semibold text-dark fst-italic" style="font-size: 1.05rem; line-height: 1.75;">
+                            "Trong đợt không khí lạnh lịch sử tràn về, nhiệt độ giảm sâu dưới 9°C kèm mưa phùn buốt giá. Đường dây nóng trạm RescuePets liên tục nhận được tin báo về hàng chục chú chó mèo bị bỏ rơi bên miệng cống, gầm cầu ngoại ô..."
+                        </p>
+                    </div>
+
+                    <p><span style="float: left; font-size: 3.2rem; line-height: 0.8; font-family: 'Times New Roman', serif; font-weight: 800; color: #071D2A; padding-right: 10px; padding-top: 2px;">Đ</span>êm ngày 15/01 là một đêm trắng nghẹt thở của toàn bộ y bác sĩ tại trạm. Tiếng chuông cấp cứu vang lên lúc 02:30 sáng báo tin 4 chú cún con sơ sinh bị vứt trong thùng xốp dán kín miệng.</p>
+                    
+                    <h4 class="serif-title text-dark mt-4 mb-2 fw-bold" style="font-size: 1.25rem;">I. TIẾNG CHUÔNG NỬA ĐÊM VÀ HIỆN TRƯỜNG LẠNH GIÁ</h4>
+                    <p>Hai tổ cấp cứu dã chiến lập tức lên đường mang theo lồng ủ nhiệt hồng ngoại, bình oxy dã chiến và dịch truyền sưởi ấm. Khi tiếp cận, thân nhiệt các bé đã tụt sâu dưới 33°C, mạch đập yếu ớt.</p>
+                    
+                    <blockquote class="my-4 p-4 rounded-4 text-center shadow-sm" style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1px solid #FDE68A;">
+                        <i class="fas fa-quote-left text-warning fs-3 d-block mb-2"></i>
+                        <p class="mb-2 fw-bold serif-title text-dark" style="font-size: 1.1rem; line-height: 1.6;">
+                            "Mỗi sinh linh nhỏ bé đều có quyền được sống. Chỉ cần tim các bé còn đập, chúng tôi sẽ không bao giờ buông tay!"
+                        </p>
+                        <small class="text-muted fw-bold d-block">— BS. Trưởng kíp cấp cứu RescuePets</small>
+                    </blockquote>
+
+                    <h4 class="serif-title text-dark mt-4 mb-2 fw-bold" style="font-size: 1.25rem;">II. PHÉP MÀU HỒI SINH VÀ MÁI ẤM GIA ĐÌNH MỚI</h4>
+                    <p>Sau 48 giờ giành giật sự sống bên lồng ấp, 100% các bé đã qua cơn nguy kịch. Hiện tại tất cả đã hoàn thành tiêm phòng, triệt sản và hơn 18 bé đã tìm được gia đình mới giàu tình thương yêu.</p>
+                `
+            },
+            2: {
+                title: "Cẩm Nang Y Khoa: Lịch Tiêm Phòng Vắc-Xin & Triệt Sản An Toàn Toàn Diện Cho Thú Cưng",
+                date: "28 Tháng 4, 2026 · 6 phút đọc",
+                author: "TS. Bác sĩ Thú y Lê Minh Tuấn",
+                category: "CẨM NANG THÚ CƯNG",
+                categoryBadge: "Y KHOA",
+                img: "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=1200&auto=format&fit=crop",
+                caption: "📸 Bác sĩ thú y thực hiện kiểm tra lâm sàng và tiêm chủng phòng bệnh định kỳ cho thú cưng.",
+                body: `
+                    <div class="p-3 p-md-4 rounded-3 my-3" style="background: #F8FAFC; border-left: 5px solid #0F3832;">
+                        <p class="mb-0 fw-semibold text-dark fst-italic" style="font-size: 1.05rem; line-height: 1.75;">
+                            "Việc tiêm phòng đầy đủ và triệt sản đúng thời điểm là biện pháp hữu hiệu nhất giúp ngăn ngừa các căn bệnh truyền nhiễm nguy hiểm và kéo dài tuổi thọ cho chó mèo cưng."
+                        </p>
+                    </div>
+
+                    <h4 class="serif-title text-dark mt-4 mb-2 fw-bold" style="font-size: 1.25rem;">1. PHÁC ĐỒ TIÊM CHỦNG ĐẠT CHUẨN QUỐC TẾ</h4>
+                    <p><b>• Mũi 1 (6-8 tuần tuổi):</b> Vắc-xin tổng hợp 5 hoặc 7 bệnh phòng ngừa Care, Parvo, Viêm gan truyền nhiễm...</p>
+                    <p><b>• Mũi 2 & 3 (Cách 3-4 tuần):</b> Tiêm nhắc lại để cơ thể tạo kháng thể bảo vệ tối ưu.</p>
+                    <p><b>• Vắc-xin phòng Dại (Từ 12 tuần tuổi):</b> Bắt buộc theo quy định thú y và nhắc lại hàng năm.</p>
+
+                    <h4 class="serif-title text-dark mt-4 mb-2 fw-bold" style="font-size: 1.25rem;">2. LỢI ÍCH CỦA VIỆC TRIỆT SẢN ĐÚNG THỜI ĐIỂM</h4>
+                    <p>Triệt sản từ 6-8 tháng tuổi giúp giảm 90% nguy cơ ung thư tử cung/tuyến tiền liệt, đồng thời loại bỏ các hành vi đi lạc, đánh nhau trong mùa sinh sản.</p>
+                `
+            },
+            3: {
+                title: "Ngày Hội Nhận Nuôi Thú Cưng 'Mái Ấm Yêu Thương 2026' - Kết Nối 100 Trái Tim Nhân Ái",
+                date: "20 Tháng 4, 2026 · 4 phút đọc",
+                author: "Ban Tổ Chức Sự Kiện RescuePets",
+                category: "SỰ KIỆN NỔI BẬT",
+                categoryBadge: "SỰ KIỆN",
+                img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1200&auto=format&fit=crop",
+                caption: "📸 Toàn cảnh ngày hội nhận nuôi thú cưng thu hút hàng trăm bạn trẻ và gia đình tham dự.",
+                body: `
+                    <div class="p-3 p-md-4 rounded-3 my-3" style="background: #F8FAFC; border-left: 5px solid #D4A373;">
+                        <p class="mb-0 fw-semibold text-dark fst-italic" style="font-size: 1.05rem; line-height: 1.75;">
+                            "Hơn 50 bé cún mèo đã chính thức có gia đình mới trong sự kiện ngày hội nhận nuôi lớn nhất mùa xuân 2026 do RescuePets tổ chức tại công viên Thống Nhất."
+                        </p>
+                    </div>
+
+                    <h4 class="serif-title text-dark mt-4 mb-2 fw-bold" style="font-size: 1.25rem;">HOẠT ĐỘNG NỔI BẬT TẠI SỰ KIỆN</h4>
+                    <p>• Trực tiếp giao lưu và nộp hồ sơ nhận nuôi các bé cứu hộ đã phục hồi sức khỏe.</p>
+                    <p>• Khám sức khỏe thú y, tiêm phòng dại và gắn microchip miễn phí cho thú cưng tham dự.</p>
+                    <p>• Gian hàng gây quỹ từ thiện: thức ăn, phụ kiện và workshop hướng dẫn huấn luyện cún cưng cơ bản.</p>
+                `
+            },
+            4: {
+                title: "Ký Sự Cứu Hộ: Hành Trình Tìm Lại Nụ Cười Của Bella - Bé Cún Beagle Từng Bị Bạo Hành",
+                date: "15 Tháng 4, 2026 · 5 phút đọc",
+                author: "Tình nguyện viên Trọng Nhân",
+                category: "HÀNH TRÌNH CỨU HỘ",
+                categoryBadge: "KÝ SỰ",
+                img: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=1200&auto=format&fit=crop",
+                caption: "📸 Bella rạng rỡ và tự tin chạy nhảy trong công viên bên người chủ mới sau 3 tháng trị liệu tâm lý.",
+                body: `
+                    <div class="p-3 p-md-4 rounded-3 my-3" style="background: #F8FAFC; border-left: 5px solid #E11D48;">
+                        <p class="mb-0 fw-semibold text-dark fst-italic" style="font-size: 1.05rem; line-height: 1.75;">
+                            "Từ một chú cún co rúm trong góc tối, sợ hãi từng bước chân người lạ, Bella đã vượt qua chấn thương tâm lý để trở thành cô bé Beagle đáng yêu nhất trạm."
+                        </p>
+                    </div>
+
+                    <p>Khi được giải cứu từ một cơ sở nuôi nhốt trái phép, Bella mang nhiều vết thương ngoài da và chứng rối loạn lo âu nặng. Nhờ liệu pháp tiếp xúc nhẹ nhàng, dinh dưỡng bồi bổ và sự kiên trì mỗi ngày, ánh mắt sợ hãi ngày nào đã nhường chỗ cho sự tinh nghịch và tràn ngập niềm vui.</p>
+                `
+            },
+            5: {
+                title: "Chế Độ Dinh Dưỡng Khoa Học Phục Hồi Thể Trạng Thần Tốc Cho Chó Mèo Suy Dinh Dưỡng",
+                date: "05 Tháng 4, 2026 · 4 phút đọc",
+                author: "Chuyên viên Dinh Dưỡng Thú Y Thảo My",
+                category: "CẨM NANG THÚ CƯNG",
+                categoryBadge: "DINH DƯỠNG",
+                img: "https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=1200&auto=format&fit=crop",
+                caption: "📸 Bữa ăn giàu protein và vi chất dinh dưỡng giúp cún mèo nhanh chóng lấy lại thể trọng khỏe mạnh.",
+                body: `
+                    <div class="p-3 p-md-4 rounded-3 my-3" style="background: #F8FAFC; border-left: 5px solid #0F3832;">
+                        <p class="mb-0 fw-semibold text-dark fst-italic" style="font-size: 1.05rem; line-height: 1.75;">
+                            "Nguyên tắc vàng khi chăm sóc thú cưng sau cứu hộ là chia nhỏ bữa ăn, ưu tiên đạm tinh khiết dễ hấp thụ và bổ sung men vi sinh đường ruột."
+                        </p>
+                    </div>
+
+                    <h4 class="serif-title text-dark mt-4 mb-2 fw-bold" style="font-size: 1.25rem;">THỰC ĐƠN PHỤC HỒI 4 TUẦN ĐẦU TIÊN</h4>
+                    <p>• <b>Tuần 1-2:</b> Cháo yến mạch nấu ức gà xay nhuyễn, bí đỏ hấp và men tiêu hóa sống.</p>
+                    <p>• <b>Tuần 3-4:</b> Bổ sung dầu cá hồi omega-3, lòng đỏ trứng gà chín và hạt dinh dưỡng ngâm mềm.</p>
+                `
+            }
+        };
+
+        function openNewsDetailModal(id) {
+            const data = articlesData[id] || articlesData[1];
+            document.getElementById('newsModalTitle').innerText = data.title;
+            document.getElementById('newsModalDate').innerHTML = `<i class="far fa-calendar-alt me-1"></i> ${data.date}`;
+            document.getElementById('newsModalAuthor').innerText = data.author || 'Ban Biên Tập RescuePets';
+            document.getElementById('newsModalCategory').innerText = data.category;
+            document.getElementById('newsModalCategoryBadge').innerText = data.categoryBadge || 'PHÓNG SỰ';
+            document.getElementById('newsModalImg').src = data.img;
+            document.getElementById('newsModalImgCaption').innerHTML = data.caption || '📸 Ảnh phóng sự ghi nhận tại RescuePets.';
+            document.getElementById('newsModalBody').innerHTML = data.body;
+
+            new bootstrap.Modal(document.getElementById('newsDetailModal')).show();
+        }
+
+        let tinTucFontSize = 1.02;
+        function adjustTinTucFontSize(dir) {
+            tinTucFontSize += (dir * 0.08);
+            if (tinTucFontSize < 0.85) tinTucFontSize = 0.85;
+            if (tinTucFontSize > 1.4) tinTucFontSize = 1.4;
+            document.querySelectorAll('#newsModalBody').forEach(el => {
+                el.style.fontSize = tinTucFontSize + 'rem';
+            });
+        }
+
+        let currentCategory = 'all';
+
+        // CATEGORY FILTER LOGIC
+        function filterCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-pill-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            filterArticles();
+        }
+
+        // REAL-TIME SEARCH & CATEGORY COMBINED FILTER
+        function filterArticles() {
+            const query = (document.getElementById('newsSearchInput').value || '').toLowerCase().trim();
+            const items = document.querySelectorAll('.article-item');
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const itemCat = item.getAttribute('data-category');
+                const itemText = item.innerText.toLowerCase();
+
+                const matchesCat = (currentCategory === 'all' || itemCat === currentCategory);
+                const matchesQuery = (!query || itemText.includes(query));
+
+                if (matchesCat && matchesQuery) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Toggle empty message
+            const emptyMsg = document.getElementById('noArticlesMsg');
+            if (emptyMsg) {
+                emptyMsg.classList.toggle('d-none', visibleCount > 0);
+            }
+        }
+
+        function resetFilter() {
+            document.getElementById('newsSearchInput').value = '';
+            const allBtn = document.querySelector('.category-pill-btn[data-cat="all"]');
+            filterCategory('all', allBtn);
+        }
+    </script>
+</body>
+</html>

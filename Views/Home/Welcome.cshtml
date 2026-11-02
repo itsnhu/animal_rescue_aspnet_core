@@ -1,0 +1,2180 @@
+@model List<HeThongCuuHo.Models.DongVat>
+@{
+    Layout = null;
+    ViewData["Title"] = "RescuePets - Trạm Cứu Hộ & Bảo Trợ Động Vật";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Pro Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- Google Fonts: Chỉ giữ lại Dancing Script cho các tiêu đề phụ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        :root {
+            --ri-navy: #071D2A;
+            --ri-navy-dark: #04121B;
+            --ri-teal: #0F3832;
+            --ri-teal-light: #EAF2EF;
+            --ri-gold: #D4A373;
+            --ri-gold-hover: #FAEDCD;
+            --rp-amber: #D97706;
+            --ri-bg: #F4F6F5;
+            --ri-white: #FFFFFF;
+            --ri-card-bg: #F9FAF9;
+            --ri-text-dark: #122129;
+            --ri-muted: #5A6D77;
+            --ri-border: #E1E7E5;
+            --ri-radius-card: 12px;
+            --ri-radius-pill: 50px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+            font-size: 13.5px; /* Thu nhỏ base size để vừa màn hình 100% */
+        }
+
+        /* ĐỒNG BỘ FONT CHỮ TIMES NEW ROMAN TOÀN TRANG */
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: var(--ri-bg);
+            color: var(--ri-text-dark);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        section[id], div[id] { scroll-margin-top: 80px; }
+
+        /* GIỮ NGUYÊN FONT CHỮ VIẾT TAY CHO CÁC TIÊU ĐỀ PHỤ */
+        .script-accent {
+            font-family: 'Dancing Script', cursive;
+            color: var(--ri-gold);
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: -2px;
+        }
+
+        .serif-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 800;
+            color: var(--ri-text-dark);
+            letter-spacing: -0.5px;
+        }
+
+        /* ==================== TỐI ƯU NAVBAR MỚI (ĐÃ FIX OVERLAP) ==================== */
+        .ri-header {
+            background-color: var(--ri-navy);
+            color: white;
+            height: 72px;
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+        }
+
+        /* Khu vực 1: Logo */
+        .ri-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+            flex-shrink: 0;
+            margin-right: 20px;
+        }
+
+        .ri-brand-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--ri-gold);
+            background: rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .ri-brand-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            line-height: 1;
+            color: white;
+        }
+
+        .ri-brand-title small {
+            display: block;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--ri-gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            white-space: nowrap;
+        }
+
+        /* Khu vực 2: Menu điều hướng ở giữa */
+        .ri-nav-menu {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            flex-grow: 1;
+            flex-wrap: nowrap;
+        }
+
+        .ri-nav-link {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.85) !important;
+            padding: 10px 0;
+            position: relative;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ri-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--ri-gold);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            transform-origin: center;
+        }
+
+        .ri-nav-link:hover, .ri-nav-link.active {
+            color: var(--ri-gold) !important;
+        }
+
+        .ri-nav-link:hover::after, .ri-nav-link.active::after {
+            transform: scaleX(1);
+        }
+
+        /* Khu vực 3: Chức năng bên phải */
+        .ri-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            margin-left: 20px;
+        }
+
+        .btn-ri-search {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .btn-ri-search:hover {
+            background: var(--ri-gold);
+            color: var(--ri-navy);
+        }
+
+        .btn-bao-cuuho {
+            background: #F5A623;
+            color: #071D2A !important;
+            border-radius: var(--ri-radius-pill);
+            height: 38px;
+            padding: 0 14px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 13.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(245, 166, 35, 0.2);
+            flex-shrink: 0;
+        }
+
+        .btn-bao-cuuho:hover {
+            background: #e0961d;
+            transform: translateY(-1px);
+        }
+
+        .btn-tai-khoan {
+            background: transparent;
+            color: white !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--ri-radius-pill);
+            height: 38px;
+            padding: 0 14px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-tai-khoan:hover, .btn-tai-khoan:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--ri-gold);
+            color: var(--ri-gold) !important;
+        }
+
+        /* Dropdown Menu Customization */
+        .dropdown-menu {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-top: 10px !important;
+        }
+        .dropdown-item {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 10px 20px;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: var(--ri-teal);
+        }
+
+        /* Hamburger Mobile */
+        .btn-hamburger {
+            color: white;
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Offcanvas Mobile Menu */
+        .offcanvas-menu {
+            background-color: var(--ri-navy);
+            color: white;
+        }
+        .offcanvas-menu .offcanvas-header {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .offcanvas-menu .offcanvas-body {
+            padding: 20px;
+        }
+        .mobile-nav-link {
+            display: block;
+            color: white;
+            text-decoration: none;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            text-transform: uppercase;
+        }
+        .mobile-nav-link:hover, .mobile-nav-link.active {
+            color: var(--ri-gold);
+        }
+
+        /* Responsive Fixes cho Navbar */
+        @@media (max-width: 1399.98px) {
+            .ri-nav-link { font-size: 13px; gap: 12px; }
+            .btn-bao-cuuho, .btn-tai-khoan { font-size: 12.5px; padding: 0 10px; }
+            .ri-brand-title { font-size: 1.3rem; }
+        }
+        @@media (max-width: 1199.98px) {
+            .ri-nav-menu { gap: 8px; }
+            .ri-nav-link { font-size: 12.5px; }
+            .btn-bao-cuuho span { display: none; }
+            .btn-bao-cuuho { padding: 0 12px; }
+        }
+        @@media (max-width: 991.98px) {
+            .ri-brand { margin-right: 0; }
+            .ri-nav-actions { margin-left: 0; }
+        }
+        /* ========================================================= */
+
+        /* FIX LEAFLET MAP Z-INDEX */
+        #shelterMap { z-index: 1 !important; isolation: isolate; }
+        #shelterMap .leaflet-pane { z-index: 10 !important; }
+        #shelterMap .leaflet-top, #shelterMap .leaflet-bottom, #shelterMap .leaflet-control { z-index: 20 !important; }
+
+        /* HERO SECTION WITH YOUTUBE BACKGROUND */
+        .ri-hero-wrap {
+            position: relative;
+            background-color: var(--ri-navy); /* Màu nền dự phòng */
+            padding: 30px 0 90px 0;
+            color: white;
+            overflow: hidden; /* Ngăn iframe tràn ra ngoài */
+        }
+
+        /* CSS CHO IFRAME YOUTUBE LÀM NỀN */
+        .hero-bg-iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 56.25vw; /* Tỷ lệ 16:9 */
+            min-height: 100vh;
+            min-width: 177.77vh; /* Tỷ lệ 16:9 */
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none; /* Chặn click vào video để click được nút bên trên */
+            border: none;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Lớp phủ màu tối giúp chữ trắng nổi bật trên video */
+            background: linear-gradient(180deg, rgba(7, 29, 42, 0.6) 0%, rgba(7, 29, 42, 0.8) 100%);
+            z-index: 1; /* Nằm trên video, dưới nội dung */
+        }
+
+        .ri-hero-content { max-width: 550px; }
+
+        .ri-hero-main-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+            font-weight: 800;
+            line-height: 1.05;
+            color: white;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            white-space: nowrap;
+        }
+
+        .ri-hero-sub-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            white-space: nowrap;
+        }
+
+        .ri-hero-desc {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+            margin-bottom: 20px;
+            max-width: 480px;
+        }
+
+        .btn-ri-hero-action {
+            background: var(--ri-navy);
+            color: white !important;
+            border-radius: var(--ri-radius-pill);
+            padding: 6px 6px 6px 18px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-ri-hero-action .arrow-circle {
+            width: 26px;
+            height: 26px;
+            background: var(--ri-gold);
+            color: var(--ri-navy);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-ri-hero-action:hover { background: var(--ri-gold); color: var(--ri-navy) !important; border-color: var(--ri-gold); }
+        .btn-ri-hero-action:hover .arrow-circle { background: var(--ri-navy); color: white; transform: translateX(3px); }
+
+        .ri-slider-arrow {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(7, 29, 42, 0.6);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .ri-slider-arrow:hover { background: var(--ri-gold); color: var(--ri-navy); }
+
+        .ri-wave-divider { position: absolute; bottom: 0; left: 0; width: 100%; overflow: hidden; line-height: 0; z-index: 3; }
+        .ri-wave-divider svg { position: relative; display: block; width: calc(100% + 1.3px); height: 40px; }
+        .ri-wave-divider .shape-fill { fill: var(--ri-bg); }
+
+        /* FLOATING CARDS */
+        .ri-floating-hub { position: relative; z-index: 10; margin-top: -40px; margin-bottom: 20px; }
+
+        .ri-icon-card {
+            background: white;
+            border-radius: var(--ri-radius-card);
+            padding: 10px 8px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--ri-border);
+            height: 100%;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-decoration: none;
+            color: var(--ri-text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .ri-icon-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(7, 29, 42, 0.12); border-color: var(--ri-teal); color: var(--ri-text-dark); }
+
+        .ri-icon-badge {
+            width: 34px;
+            height: 34px;
+            background: var(--ri-teal);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            box-shadow: 0 4px 12px rgba(15, 56, 50, 0.25);
+            transition: transform 0.3s ease;
+        }
+
+        .ri-icon-card:hover .ri-icon-badge { transform: scale(1.1) rotate(-5deg); background: var(--ri-gold); color: var(--ri-navy); }
+
+        .ri-icon-card-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--ri-text-dark);
+            margin-bottom: 2px;
+            white-space: nowrap;
+        }
+
+        .ri-icon-card-desc { font-size: 0.7rem; color: var(--ri-muted); margin-bottom: 0; line-height: 1.3; white-space: nowrap; }
+
+        /* EVENTS SECTION */
+        .ri-events-section { padding: 0 0 30px 0; }
+        .ri-section-top { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+
+        .ri-section-heading {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--ri-text-dark);
+            margin-bottom: 0;
+            line-height: 1.1;
+            white-space: nowrap;
+        }
+
+        .btn-ri-view-all {
+            background: var(--ri-navy);
+            color: white !important;
+            border-radius: var(--ri-radius-pill);
+            padding: 5px 14px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+        .btn-ri-view-all:hover { background: var(--ri-gold); color: var(--ri-navy) !important; }
+
+        .ri-event-card {
+            background: white; border-radius: var(--ri-radius-card); overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05); border: 1px solid var(--ri-border);
+            height: 100%; transition: all 0.3s ease; position: relative;
+        }
+        .ri-event-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.09); }
+        .ri-event-img-wrap { position: relative; height: 160px; overflow: hidden; }
+        .ri-event-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .ri-event-card:hover .ri-event-img { transform: scale(1.05); }
+
+        .ri-date-badge {
+            position: absolute; top: 8px; left: 8px; background: var(--ri-teal); color: white;
+            border-radius: 6px; width: 42px; padding: 3px 0; text-align: center; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        .ri-date-badge-num { font-family: 'Times New Roman', Times, serif; font-size: 1.1rem; font-weight: 800; line-height: 1; }
+        .ri-date-badge-month { font-size: 0.55rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 1px; }
+        .ri-event-body { padding: 12px; }
+        .ri-event-title { font-family: 'Times New Roman', Times, serif; font-size: 0.95rem; font-weight: 800; color: var(--ri-text-dark); line-height: 1.3; margin-bottom: 8px; }
+        .ri-event-location { font-size: 0.78rem; color: var(--ri-muted); display: flex; align-items: center; gap: 4px; font-weight: 600; }
+
+        /* HYBRID SECTION */
+        .ri-hybrid-section { padding: 20px 0 40px 0; }
+        .ri-hybrid-card { background: white; border-radius: var(--ri-radius-card); padding: 16px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05); border: 1px solid var(--ri-border); height: 100%; display: flex; flex-direction: column; }
+
+        .ri-newsletter-card {
+            background: linear-gradient(145deg, #0F3832 0%, #071D2A 60%, #122129 100%);
+            color: white; border-radius: var(--ri-radius-card); padding: 20px 16px; position: relative;
+            height: 100%; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;
+        }
+        .ri-newsletter-card::before {
+            content: '\f1b0'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            position: absolute; bottom: -15px; right: -10px; font-size: 8rem;
+            color: rgba(212, 163, 115, 0.06); transform: rotate(-15deg); pointer-events: none;
+        }
+        .ri-newsletter-card::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--ri-gold), #E8B86D, var(--ri-gold)); border-radius: 12px 12px 0 0;
+        }
+        .ri-envelope-icon {
+            width: 46px; height: 46px; background: linear-gradient(135deg, var(--ri-gold), #E8B86D);
+            color: var(--ri-navy); border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; position: absolute; top: 18px; right: 18px;
+            box-shadow: 0 6px 20px rgba(212, 163, 115, 0.35); animation: envelopePulse 3s ease-in-out infinite;
+        }
+        @@keyframes envelopePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+        .ri-newsletter-title { font-family: 'Times New Roman', Times, serif; font-size: 1.4rem; font-weight: 800; color: white; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+        .ri-newsletter-subtitle { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--ri-gold); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .ri-newsletter-desc { font-size: 0.9rem; color: rgba(255, 255, 255, 0.75); line-height: 1.5; margin-bottom: 16px; }
+        .ri-newsletter-benefits { list-style: none; padding: 0; margin: 0 0 16px 0; }
+        .ri-newsletter-benefits li { font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); padding: 4px 0; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .ri-newsletter-benefits li i { color: var(--ri-gold); font-size: 0.7rem; width: 16px; text-align: center; }
+        .ri-newsletter-input-wrap { display: flex; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); border: 1.5px solid rgba(212, 163, 115, 0.3); border-radius: var(--ri-radius-pill); padding: 4px 4px 4px 16px; margin-bottom: 12px; transition: all 0.3s ease; }
+        .ri-newsletter-input-wrap:focus-within { border-color: var(--ri-gold); background: rgba(255, 255, 255, 0.15); box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.15); }
+        .ri-newsletter-input { border: none; outline: none; width: 100%; font-size: 0.85rem; font-weight: 600; color: white; background: transparent; }
+        .ri-newsletter-input::placeholder { color: rgba(255, 255, 255, 0.45); }
+        .btn-ri-newsletter-send { width: 34px; height: 34px; background: linear-gradient(135deg, var(--ri-gold), #E8B86D); color: var(--ri-navy); border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0; }
+        .btn-ri-newsletter-send:hover { transform: scale(1.1) rotate(10deg); background: white; color: var(--ri-teal); box-shadow: 0 4px 14px rgba(255, 255, 255, 0.3); }
+        .ri-newsletter-trust { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: rgba(255, 255, 255, 0.4); margin-bottom: 14px; }
+        .ri-newsletter-trust i { color: var(--ri-gold); }
+
+        /* PRE-FOOTER */
+        .ri-prefooter-banner { background: linear-gradient(180deg, rgba(7, 29, 42, 0.85) 0%, rgba(7, 29, 42, 0.95) 100%), url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat; color: white; padding: 30px 0; border-top-left-radius: 30px; border-top-right-radius: 30px; }
+        .ri-prefooter-title { font-family: 'Times New Roman', Times, serif; font-size: 1.8rem; font-weight: 800; color: white; text-transform: uppercase; margin-bottom: 8px; white-space: nowrap; }
+        .ri-prefooter-desc { font-size: 0.95rem; color: rgba(255, 255, 255, 0.8); max-width: 450px; margin-bottom: 16px; }
+        .btn-ri-map-action { background: transparent; color: white !important; border: 1.5px solid var(--ri-gold); border-radius: var(--ri-radius-pill); padding: 6px 20px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.25s ease; white-space: nowrap; }
+        .btn-ri-map-action:hover { background: var(--ri-gold); color: var(--ri-navy) !important; }
+
+        /* FOOTER */
+        .ri-footer { background-color: var(--ri-navy-dark); color: white; padding: 30px 0 15px 0; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+        .ri-footer-heading { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ri-gold); margin-bottom: 12px; white-space: nowrap; }
+        .ri-footer-link { color: rgba(255, 255, 255, 0.75); text-decoration: none; font-size: 0.9rem; font-weight: 500; display: block; margin-bottom: 6px; transition: color 0.2s ease; white-space: nowrap; }
+        .ri-footer-link:hover { color: var(--ri-gold); }
+
+        /* TOAST & BACK TO TOP */
+        .toast-container-ri { position: fixed; bottom: 30px; left: 30px; z-index: 1060; }
+        .toast-ri { background: var(--ri-navy); color: white; padding: 13px 22px; border-radius: 10px; box-shadow: 0 12px 30px rgba(0,0,0,0.3); font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 10px; border: 1px solid var(--ri-gold); animation: slideUp 0.3s ease; }
+        @@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .btn-back-top { position: fixed; bottom: 30px; right: 30px; width: 46px; height: 46px; background: var(--ri-gold); color: var(--ri-navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); cursor: pointer; border: none; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 99; }
+        .btn-back-top.show { opacity: 1; visibility: visible; }
+        .btn-back-top:hover { background: white; color: var(--ri-navy); transform: translateY(-3px); }
+
+        /* ==================== RESPONSIVE TỔNG THỂ ==================== */
+        @@media (max-width: 1199.98px) {
+            .ri-hero-main-title { font-size: 2.8rem; }
+            .ri-hero-sub-title { font-size: 1.3rem; }
+            .ri-floating-hub { margin-top: -30px; }
+        }
+        @@media (max-width: 991.98px) {
+            .ri-section-heading { font-size: 1.4rem; }
+            .ri-prefooter-title { font-size: 1.2rem; }
+        }
+        @@media (max-width: 767.98px) {
+            .ri-hero-wrap { padding: 20px 0 70px 0; }
+            .ri-hero-main-title { font-size: 2.2rem; }
+            .ri-hero-sub-title { font-size: 1.1rem; }
+            .ri-hero-desc { font-size: 0.9rem; }
+            .ri-floating-hub { margin-top: 15px; }
+            .ri-wave-divider svg { height: 30px; }
+            .ri-icon-card { padding: 8px 4px; }
+            .ri-icon-badge { width: 30px; height: 30px; font-size: 0.8rem; margin-bottom: 4px; }
+            .ri-icon-card-title { font-size: 0.65rem; letter-spacing: 0.2px; }
+            .ri-icon-card-desc { font-size: 0.6rem; }
+            .ri-section-heading { font-size: 1.2rem; }
+            .ri-prefooter-title { font-size: 1.1rem; }
+            .ri-newsletter-title { font-size: 1.1rem; }
+            .ri-footer-heading { font-size: 0.7rem; }
+            .ri-footer-link { font-size: 0.75rem; }
+        }
+        @@media (max-width: 575.98px) {
+            .ri-hero-main-title { font-size: 1.8rem; }
+            .ri-hero-sub-title { font-size: 1rem; }
+            .ri-section-heading { font-size: 1rem; }
+            .ri-icon-card-title { font-size: 0.6rem; }
+            .ri-icon-card-desc { font-size: 0.55rem; }
+            .ri-brand-title small { font-size: 0.5rem; }
+            .ri-newsletter-title { font-size: 0.9rem; }
+            .ri-prefooter-title { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= TOP HEADER / NAVBAR TỐI ƯU ================= -->
+    <header class="ri-header" id="mainHeader">
+        <div class="container-fluid px-xl-5 px-3">
+            <div class="d-flex align-items-center justify-content-between h-100">
+                
+                <!-- KHU VỰC 1: LOGO BÊN TRÁI -->
+                <a href="/Home/Welcome" class="ri-brand">
+                    <div class="ri-brand-logo">
+                        <i class="fas fa-paw"></i>
+                    </div>
+                    <div class="ri-brand-title">
+                        <span>RescuePets</span>
+                        <small>Cứu Hộ & Bảo Trợ Động Vật</small>
+                    </div>
+                </a>
+
+                <!-- KHU VỰC 2: MENU ĐIỀU HƯỚNG Ở GIỮA (DESKTOP) -->
+                <nav class="ri-nav-menu d-none d-lg-flex">
+                    <a href="/Home/Welcome#trang-chu" class="ri-nav-link active">Trang Chủ</a>
+                    <a href="/Home/Welcome#ve-tram" class="ri-nav-link">Về Trạm</a>
+                    <a href="/Home/Welcome#thu-cung" class="ri-nav-link">Thú Cưng</a>
+                    <a href="/Home/TinTuc" class="ri-nav-link">Tin Tức & Tạp Chí</a>
+                    <a href="/Home/Welcome#quyen-gop" class="ri-nav-link">Quyên Góp</a>
+                    <!-- ĐÃ SỬA ĐƯỜNG DẪN SANG TRANG LIÊN HỆ -->
+                    <a asp-controller="Home" asp-action="Contact" class="ri-nav-link">Liên Hệ</a>
+                </nav>
+
+                <!-- NÚT HAMBURGER (MOBILE) -->
+                <button class="btn-hamburger d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <!-- KHU VỰC 3: CHỨC NĂNG BÊN PHẢI -->
+                <div class="ri-nav-actions d-none d-lg-flex">
+                    <!-- Tìm kiếm -->
+                    <a href="/Home/Welcome#thu-cung" class="btn-ri-search" title="Tìm kiếm">
+                        <i class="fas fa-magnifying-glass"></i>
+                    </a>
+
+                    <!-- Báo cứu hộ -->
+                    <a asp-controller="Home" asp-action="BaoCao" class="btn-bao-cuuho">
+                        <i class="fas fa-truck-medical"></i> <span>Báo Cứu Hộ</span>
+                    </a>
+
+                    <!-- Tài khoản / Đăng nhập -->
+                    @if (Context.Session.GetString("TenDangNhap") != null)
+                    {
+                        <div class="dropdown">
+                            <button class="btn-tai-khoan dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fs-5"></i>
+                                <span class="text-truncate" style="max-width: 100px;">@Context.Session.GetString("TenDangNhap")</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item fw-semibold" href="/Home/Index"><i class="fas fa-gauge me-2 text-primary"></i>Giao Diện Hệ Thống</a></li>
+                                <li><a class="dropdown-item fw-semibold" href="/Profile/Index"><i class="fas fa-user-gear me-2 text-info"></i>Trang Cá Nhân</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item fw-semibold text-danger" href="/Login/DangXuat"><i class="fas fa-right-from-bracket me-2"></i>Đăng Xuất</a></li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dropdown">
+                            <button class="btn-tai-khoan dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user"></i> Tài Khoản
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item fw-semibold" href="/Login"><i class="fas fa-right-to-bracket me-2 text-warning"></i>Đăng Nhập</a></li>
+                                <li><a class="dropdown-item fw-semibold" href="/Login/DangKy"><i class="fas fa-user-plus me-2 text-success"></i>Đăng Ký</a></li>
+                            </ul>
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- OFFCANVAS MOBILE MENU -->
+    <div class="offcanvas offcanvas-end offcanvas-menu" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title serif-title text-white" id="mobileMenuLabel">Menu</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <a href="/Home/Welcome#trang-chu" class="mobile-nav-link active" data-bs-dismiss="offcanvas">Trang Chủ</a>
+            <a href="/Home/Welcome#ve-tram" class="mobile-nav-link" data-bs-dismiss="offcanvas">Về Trạm</a>
+            <a href="/Home/Welcome#thu-cung" class="mobile-nav-link" data-bs-dismiss="offcanvas">Thú Cưng</a>
+            <a href="/Home/TinTuc" class="mobile-nav-link" data-bs-dismiss="offcanvas">Tin Tức & Tạp Chí</a>
+            <a href="/Home/Welcome#quyen-gop" class="mobile-nav-link" data-bs-dismiss="offcanvas">Quyên Góp</a>
+            <!-- ĐÃ SỬA ĐƯỜNG DẪN SANG TRANG LIÊN HỆ -->
+            <a asp-controller="Home" asp-action="Contact" class="mobile-nav-link" data-bs-dismiss="offcanvas">Liên Hệ</a>
+            
+            <hr class="border-secondary my-3">
+            
+            <!-- Chức năng Mobile -->
+            <a href="/Home/Welcome#thu-cung" class="mobile-nav-link" data-bs-dismiss="offcanvas"><i class="fas fa-search me-2"></i> Tìm Kiếm</a>
+            <a asp-controller="Home" asp-action="BaoCao" class="btn btn-warning w-100 rounded-pill mt-2 fw-bold text-uppercase"><i class="fas fa-truck-medical me-2"></i>Báo Cứu Hộ</a>
+            
+            @if (Context.Session.GetString("TenDangNhap") == null)
+            {
+                <div class="d-flex gap-2 mt-3">
+                    <a href="/Login" class="btn btn-outline-light w-50 rounded-pill fw-bold">Đăng Nhập</a>
+                    <a href="/Login/DangKy" class="btn btn-gold w-50 rounded-pill fw-bold" style="background: var(--ri-gold); color: var(--ri-navy);">Đăng Ký</a>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-2 mt-3">
+                    <a href="/Home/Index" class="btn btn-outline-light w-100 rounded-pill fw-bold">Giao Diện Hệ Thống</a>
+                    <a href="/Profile/Index" class="btn btn-outline-light w-100 rounded-pill fw-bold">Trang Cá Nhân</a>
+                    <a href="/Login/DangXuat" class="btn btn-danger w-100 rounded-pill fw-bold">Đăng Xuất</a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ================= 1. HERO SECTION ================= -->
+    <section class="ri-hero-wrap" id="trang-chu">
+        <!-- YOUTUBE BACKGROUND - Link: https://www.youtube.com/watch?v=RAf2Mx7gvN0 -->
+        <iframe class="hero-bg-iframe" 
+                src="https://www.youtube.com/embed/kdzO8Nndilo?autoplay=1&mute=1&loop=1&playlist=kdzO8Nndilo&controls=0&showinfo=0&modestbranding=1&rel=0&playsinline=1" 
+                frameborder="0" 
+                allow="autoplay; encrypted-media" 
+                allowfullscreen>
+        </iframe>
+        
+        <!-- LỚP PHỦ TỐI GIÚP ĐỌC CHỮ RÕ HƠN -->
+        <div class="hero-overlay"></div>
+
+        <div class="container position-relative z-2">
+            <div class="d-flex align-items-center justify-content-between">
+                
+                <div class="ri-slider-arrow d-none d-md-flex" onclick="changeHeroSlide(-1)" title="Ảnh trước">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+
+                <div class="ri-hero-content text-center text-md-start mx-auto mx-md-0">
+                    <span class="script-accent">Chào mừng đến với</span>
+                    <h1 class="ri-hero-main-title">RescuePets</h1>
+                    <h2 class="ri-hero-sub-title">Trạm Cứu Hộ & Bảo Trợ Động Vật</h2>
+                    <p class="ri-hero-desc">
+                        Nơi kết nối yêu thương, tiếp nhận cứu hộ khẩn cấp 24/7 và mang lại mái ấm gia đình hạnh phúc cho các bé chó mèo cơ nhỡ.
+                    </p>
+                    
+                    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3">
+                        <a href="#thu-cung" class="btn-ri-hero-action">
+                            <span>Khám Phá Thú Cưng</span>
+                            <span class="arrow-circle"><i class="fas fa-arrow-right"></i></span>
+                        </a>
+                        <a href="/Home/TinTuc" class="btn btn-outline-light rounded-pill px-3 py-2 fw-bold text-uppercase d-inline-flex align-items-center gap-2 text-nowrap" style="font-size: 0.78rem; border-width: 1.5px;">
+                            <span>Đọc Tin Tức Trạm</span>
+                            <i class="fas fa-newspaper text-warning"></i>
+                        </a>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mt-3" id="heroDotsContainer">
+                        <span class="dot-item active" onclick="setHeroSlide(0)" style="width: 20px; height: 6px; background: var(--ri-gold); border-radius: 10px; cursor: pointer; transition: all 0.3s ease;"></span>
+                        <span class="dot-item" onclick="setHeroSlide(1)" style="width: 6px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; transition: all 0.3s ease;"></span>
+                        <span class="dot-item" onclick="setHeroSlide(2)" style="width: 6px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; transition: all 0.3s ease;"></span>
+                        <span class="dot-item" onclick="setHeroSlide(3)" style="width: 6px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; transition: all 0.3s ease;"></span>
+                    </div>
+                </div>
+
+                <div class="ri-slider-arrow d-none d-md-flex" onclick="changeHeroSlide(1)" title="Ảnh tiếp theo">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="ri-wave-divider">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0 C150,90 350,-40 500,45 C650,130 900,10 1200,50 L1200,120 L0,120 Z" class="shape-fill"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ================= 6 FLOATING ICON FEATURE CARDS OVERLAPPING HERO ================= -->
+    <div class="container ri-floating-hub">
+        <div class="row g-2 g-md-3">
+            
+            <div class="col-lg-2 col-md-4 col-6">
+                <a asp-controller="Home" asp-action="BaoCao" class="ri-icon-card">
+                    <div class="ri-icon-badge"><i class="fas fa-truck-medical"></i></div>
+                    <h6 class="ri-icon-card-title">Cứu Hộ Khẩn Cấp</h6>
+                    <p class="ri-icon-card-desc">Báo cáo tai nạn 24/7</p>
+                </a>
+            </div>
+
+            <div class="col-lg-2 col-md-4 col-6">
+                <a href="#thu-cung" class="ri-icon-card">
+                    <div class="ri-icon-badge"><i class="fas fa-heart"></i></div>
+                    <h6 class="ri-icon-card-title">Nhận Nuôi Thú Cưng</h6>
+                    <p class="ri-icon-card-desc">Đón các bé về nhà</p>
+                </a>
+            </div>
+
+            <div class="col-lg-2 col-md-4 col-6">
+                <a href="#quyen-gop" class="ri-icon-card">
+                    <div class="ri-icon-badge"><i class="fas fa-gift"></i></div>
+                    <h6 class="ri-icon-card-title">Ủng Hộ & Quyên Góp</h6>
+                    <p class="ri-icon-card-desc">Quyên góp y tế & hạt</p>
+                </a>
+            </div>
+
+            <div class="col-lg-2 col-md-4 col-6">
+                <a href="#cach-giup-do" class="ri-icon-card">
+                    <div class="ri-icon-badge"><i class="fas fa-hands-holding-child"></i></div>
+                    <h6 class="ri-icon-card-title">Tình Nguyện Viên</h6>
+                    <p class="ri-icon-card-desc">Đồng hành cùng trạm</p>
+                </a>
+            </div>
+
+            <div class="col-lg-2 col-md-4 col-6">
+                <a href="#cach-giup-do" class="ri-icon-card">
+                    <div class="ri-icon-badge"><i class="fas fa-shield-cat"></i></div>
+                    <h6 class="ri-icon-card-title">Chăm Sóc Y Tế</h6>
+                    <p class="ri-icon-card-desc">Tiêm phòng & triệt sản</p>
+                </a>
+            </div>
+
+            <div class="col-lg-2 col-md-4 col-6">
+                <a href="#lien-he" class="ri-icon-card">
+                    <div class="ri-icon-badge"><i class="fas fa-map-location-dot"></i></div>
+                    <h6 class="ri-icon-card-title">Địa Chỉ Trạm</h6>
+                    <p class="ri-icon-card-desc">Tham quan & giao lưu</p>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= 2. "ÉVÉNEMENTS" SECTION ================= -->
+    <section class="ri-events-section" id="thu-cung">
+        <div class="container">
+            
+            <div class="ri-section-top">
+                <div>
+                    <span class="script-accent">Cập nhật mới nhất</span>
+                    <h2 class="ri-section-heading">Sự Kiện & Thú Cưng Nổi Bật</h2>
+                </div>
+                <a href="#quyen-gop" class="btn-ri-view-all" onclick="toggleMorePets()">
+                    <span>Tất Cả Thú Cưng</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="row g-3" id="petCardGrid">
+                
+                <!-- Event Card 1: Teddy -->
+                <div class="col-lg-4 col-md-6 pet-item-card">
+                    <div class="ri-event-card">
+                        <div class="ri-event-img-wrap">
+                            <img src="/images/pet_teddy.jpg" alt="Teddy" class="ri-event-img">
+                            <div class="ri-date-badge">
+                                <div class="ri-date-badge-num">12</div>
+                                <div class="ri-date-badge-month">TH3 9</div>
+                            </div>
+                        </div>
+                        <div class="ri-event-body">
+                            <h4 class="ri-event-title">Bé Teddy - Golden Retriever ngoan hiền tìm mái ấm mới</h4>
+                            <div class="ri-event-location">
+                                <i class="fas fa-location-dot text-danger"></i>
+                                <span>Trạm Cứu Hộ Hà Nội · 1.5 tuổi (Đực)</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill w-100 mt-2 fw-bold" style="font-size: 0.78rem;" onclick="openPetModal('Teddy', 'Chó', 'Golden Retriever lai', 'Đực', 1.5, '14 kg', 'Đã tiêm 3 mũi, rất quấn người', '/images/pet_teddy.jpg', 1)">
+                                Xem Chi Tiết & Nhận Nuôi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Card 2: Bella -->
+                <div class="col-lg-4 col-md-6 pet-item-card">
+                    <div class="ri-event-card">
+                        <div class="ri-event-img-wrap">
+                            <img src="/images/pet_bella.jpg" alt="Bella" class="ri-event-img">
+                            <div class="ri-date-badge">
+                                <div class="ri-date-badge-num">03</div>
+                                <div class="ri-date-badge-month">TH3 9</div>
+                            </div>
+                        </div>
+                        <div class="ri-event-body">
+                            <h4 class="ri-event-title">Bé Bella - Beagle năng động đã hoàn thành tiêm phòng</h4>
+                            <div class="ri-event-location">
+                                <i class="fas fa-location-dot text-danger"></i>
+                                <span>Trạm Cứu Hộ Hà Nội · 8 tháng (Cái)</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill w-100 mt-2 fw-bold" style="font-size: 0.78rem;" onclick="openPetModal('Bella', 'Chó', 'Beagle thuần chủng', 'Cái', 0.8, '7.5 kg', 'Năng động, đã triệt sản', '/images/pet_bella.jpg', 2)">
+                                Xem Chi Tiết & Nhận Nuôi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Card 3: Prince -->
+                <div class="col-lg-4 col-md-6 pet-item-card">
+                    <div class="ri-event-card">
+                        <div class="ri-event-img-wrap">
+                            <img src="/images/pet_prince.jpg" alt="Prince" class="ri-event-img">
+                            <div class="ri-date-badge">
+                                <div class="ri-date-badge-num">07</div>
+                                <div class="ri-date-badge-month">TH3 8</div>
+                            </div>
+                        </div>
+                        <div class="ri-event-body">
+                            <h4 class="ri-event-title">Bé Prince - Corgi chân ngắn thông minh nghe lời</h4>
+                            <div class="ri-event-location">
+                                <i class="fas fa-location-dot text-danger"></i>
+                                <span>Trạm Cứu Hộ Hà Nội · 2 tuổi (Đực)</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill w-100 mt-2 fw-bold" style="font-size: 0.78rem;" onclick="openPetModal('Prince', 'Chó', 'Welsh Corgi', 'Đực', 2, '11 kg', 'Thông minh, nghe lời', '/images/pet_prince.jpg', 3)">
+                                Xem Chi Tiết & Nhận Nuôi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extra Hidden Pet Cards -->
+                <div class="col-lg-4 col-md-6 pet-item-card extra-card d-none">
+                    <div class="ri-event-card">
+                        <div class="ri-event-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?q=80&w=400&auto=format&fit=crop" alt="Mark" class="ri-event-img">
+                            <div class="ri-date-badge">
+                                <div class="ri-date-badge-num">01</div>
+                                <div class="ri-date-badge-month">TH3 8</div>
+                            </div>
+                        </div>
+                        <div class="ri-event-body">
+                            <h4 class="ri-event-title">Bé Mark - Siberian Husky mắt xanh quyến rũ</h4>
+                            <div class="ri-event-location">
+                                <i class="fas fa-location-dot text-danger"></i>
+                                <span>Trạm Cứu Hộ Hà Nội · 2.5 tuổi (Đực)</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill w-100 mt-2 fw-bold" style="font-size: 0.78rem;" onclick="openPetModal('Mark', 'Chó', 'Siberian Husky', 'Đực', 2.5, '18 kg', 'Mắt xanh, ngoan hiền', 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?q=80&w=400&auto=format&fit=crop', 4)">
+                                Xem Chi Tiết & Nhận Nuôi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model != null && Model.Count > 0)
+                {
+                    @foreach (var p in Model)
+                    {
+                        var imgPath = !string.IsNullOrEmpty(p.HinhAnh) ? p.HinhAnh : "/images/pet_teddy.jpg";
+                        if (!imgPath.StartsWith("http") && !imgPath.StartsWith("/"))
+                        {
+                            imgPath = "/uploads/" + imgPath;
+                        }
+
+                        <div class="col-lg-4 col-md-6 pet-item-card extra-card d-none">
+                            <div class="ri-event-card">
+                                <div class="ri-event-img-wrap">
+                                    <img src="@imgPath" alt="@p.Ten" class="ri-event-img" onerror="this.src='/images/pet_teddy.jpg'">
+                                    <div class="ri-date-badge">
+                                        <div class="ri-date-badge-num">@p.NgayTiepNhan.Day</div>
+                                        <div class="ri-date-badge-month">TH3 @p.NgayTiepNhan.Month</div>
+                                    </div>
+                                </div>
+                                <div class="ri-event-body">
+                                    <h4 class="ri-event-title">Bé @p.Ten - @p.Loai @p.Giong</h4>
+                                    <div class="ri-event-location">
+                                        <i class="fas fa-location-dot text-danger"></i>
+                                        <span>Trạm Cứu Hộ · @p.Tuoi tuổi (@p.GioiTinh)</span>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill w-100 mt-2 fw-bold" style="font-size: 0.78rem;" onclick="openPetModal('@p.Ten', '@p.Loai', '@p.Giong', '@p.GioiTinh', @p.Tuoi, '10 kg', '@p.TinhTrangSucKhoe', '@imgPath', @p.MaDongVat)">
+                                        Xem Chi Tiết & Nhận Nuôi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-2 mt-3">
+                <button type="button" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm text-nowrap" onclick="openAdoptForm(1, 'Thú Cưng')" style="font-size: 0.8rem;">
+                    <span>Gửi Đơn Đăng Ký Nhận Nuôi</span>
+                </button>
+                <button type="button" class="btn btn-dark rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" onclick="toggleMorePets()" title="Xem thêm / Thu gọn thú cưng">
+                    <i class="fas fa-plus" id="iconToggleMore" style="font-size: 0.8rem;"></i>
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ================= 3. 3-COLUMN HYBRID GRID SECTION ================= -->
+    <section class="ri-hybrid-section" id="ve-tram">
+        <div class="container">
+            <div class="row g-3">
+                
+                <!-- Column 1: ACTUALITÉS -->
+                <div class="col-lg-4">
+                    <div class="ri-hybrid-card">
+                        <span class="script-accent">Cập nhật tin tức</span>
+                        <h3 class="serif-title fs-4 mb-2 text-uppercase text-nowrap">Tin Tức Cứu Hộ</h3>
+                        
+                        <div class="rounded-3 overflow-hidden mb-2" onclick="openNewsDetailModal(1)" style="cursor: pointer;">
+                            <img src="/images/shelter_pets_group.jpg" alt="Tin tức" class="img-fluid w-100" style="height: 140px; object-fit: cover;">
+                        </div>
+
+                        <span class="badge bg-warning-subtle text-dark rounded-pill px-2 py-1 mb-2 d-inline-block align-self-start fw-bold" style="font-size: 0.65rem;">Đã cấp cứu ngày 12/05/2026</span>
+                        <h5 class="fw-bold text-dark mb-1" onclick="openNewsDetailModal(1)" style="cursor: pointer; font-size: 1rem;">Hành trình phục hồi kỳ diệu của trạm cứu hộ</h5>
+                        <p class="text-muted small mb-2" style="line-height: 1.4; font-size: 0.8rem;">
+                            Hơn 30 ca tai nạn chó mèo đã được các bác sĩ thú y đối tác phẫu thuật và chăm sóc tận tình trong tháng qua...
+                        </p>
+
+                        <div class="d-flex align-items-center justify-content-between mt-auto">
+                            <button type="button" class="btn text-danger p-0 fw-bold small text-decoration-none border-0 bg-transparent text-nowrap" style="font-size: 0.75rem;" onclick="openNewsDetailModal(1)">
+                                ĐỌC TIẾP ➔
+                            </button>
+                            <a href="/Home/TinTuc" class="text-muted small text-decoration-none fw-semibold text-nowrap" style="font-size: 0.75rem;">
+                                Tất cả bài viết <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 2: LE MAG -->
+                <div class="col-lg-4">
+                    <div class="ri-hybrid-card text-center">
+                        <span class="script-accent">Ấn phẩm trạm</span>
+                        <h3 class="serif-title fs-4 mb-2 text-uppercase text-nowrap">RescuePets Mag</h3>
+                        
+                        <div class="p-2 bg-light rounded-3 mb-2 border" onclick="openMagModal()" style="cursor: pointer;">
+                            <div class="p-2 bg-white shadow-sm rounded-2 border border-warning">
+                                <h4 class="serif-title text-danger mb-1" style="font-size: 1.1rem;">RescuePets</h4>
+                                <small class="text-muted fw-bold d-block mb-2" style="font-size: 0.65rem;">TẠP CHÍ THỜI BÁO THÚ CƯNG 2026</small>
+                                <img src="/images/investigator_dog_help.jpg" alt="Mag cover" class="img-fluid rounded-2 mb-2" style="max-height: 100px;">
+                                <div class="bg-dark text-white p-1 rounded small fw-bold" style="font-size: 0.7rem;">Số Đặc Biệt 2026</div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-outline-dark rounded-pill px-4 py-2 fw-bold text-uppercase w-100 mt-auto text-nowrap" onclick="openMagModal()" style="font-size: 0.75rem;">
+                            <span>Đọc Tạp Chí</span>
+                            <i class="fas fa-book-open ms-2 text-warning"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Column 3: NEWSLETTER -->
+                <div class="col-lg-4">
+                    <div class="ri-newsletter-card">
+                        <div class="ri-envelope-icon"><i class="fas fa-paw"></i></div>
+                        
+                        <div>
+                            <span class="script-accent text-warning">Kết nối yêu thương</span>
+                            <h3 class="ri-newsletter-title">BẢN TIN CỨU HỘ</h3>
+                            <div class="ri-newsletter-subtitle" style="font-size: 0.65rem;">
+                                <i class="fas fa-heart-pulse"></i>
+                                <span>Cập nhật hàng tuần từ trạm</span>
+                            </div>
+                            <p class="ri-newsletter-desc" style="font-size: 0.8rem;">
+                                Nhận thông báo về các ca cứu hộ mới, sự kiện nhận nuôi và câu chuyện ấm lòng từ RescuePets.
+                            </p>
+                            <ul class="ri-newsletter-benefits" style="margin-bottom: 12px;">
+                                <li style="font-size: 0.75rem;"><i class="fas fa-bell"></i> Thông báo ca cứu hộ khẩn cấp</li>
+                                <li style="font-size: 0.75rem;"><i class="fas fa-calendar-heart"></i> Lịch sự kiện nhận nuôi</li>
+                                <li style="font-size: 0.75rem;"><i class="fas fa-camera"></i> Ảnh & video các bé phục hồi</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <div class="ri-newsletter-input-wrap" style="margin-bottom: 8px; padding: 3px 3px 3px 12px;">
+                                <input type="email" id="newsletterEmail" class="ri-newsletter-input" placeholder="Email của bạn..." style="font-size: 0.8rem;">
+                                <button type="button" class="btn-ri-newsletter-send" onclick="handleNewsletter()" title="Đăng ký" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                                    <i class="fas fa-paw"></i>
+                                </button>
+                            </div>
+                            <div class="ri-newsletter-trust" style="margin-bottom: 10px; font-size: 0.65rem;">
+                                <i class="fas fa-shield-check"></i>
+                                <span>Không spam · Hủy đăng ký bất cứ lúc nào</span>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="small fw-bold text-white-50 me-1 text-nowrap" style="font-size: 0.65rem;">THEO DÕI:</span>
+                                <a href="https://facebook.com" target="_blank" class="btn-ri-search" style="width: 24px; height: 24px; font-size: 0.65rem;"><i class="fab fa-facebook-f"></i></a>
+                                <a href="https://instagram.com" target="_blank" class="btn-ri-search" style="width: 24px; height: 24px; font-size: 0.65rem;"><i class="fab fa-instagram"></i></a>
+                                <a href="https://youtube.com" target="_blank" class="btn-ri-search" style="width: 24px; height: 24px; font-size: 0.65rem;"><i class="fab fa-youtube"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 4. PRE-FOOTER BANNER ================= -->
+    <section class="ri-prefooter-banner">
+        <div class="container">
+            <div class="row align-items-center gy-3">
+                
+                <div class="col-lg-6">
+                    <span class="script-accent">Khám phá không gian</span>
+                    <h2 class="ri-prefooter-title">Trạm Cứu Hộ RescuePets</h2>
+                    <p class="ri-prefooter-desc">
+                        Hệ thống hạ tầng gồm trạm y tế sơ cứu, khu nuôi dưỡng phân lập chó mèo và sân chơi tự do ngoài trời.
+                    </p>
+                    <a href="#lien-he" class="btn-ri-map-action">
+                        <span>Bản Đồ Vị Trí Trạm ➔</span>
+                    </a>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="row g-2 text-center">
+                        <div class="col-4">
+                            <div class="p-2 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-25">
+                                <i class="fas fa-heart text-warning fs-4 mb-1"></i>
+                                <h3 class="serif-title text-white mb-0" style="font-size: 1.3rem;">1.200+</h3>
+                                <small class="text-white-50 fw-bold" style="font-size: 0.7rem;">Bé đã cứu</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-25">
+                                <i class="fas fa-paw text-warning fs-4 mb-1"></i>
+                                <h3 class="serif-title text-white mb-0" style="font-size: 1.3rem;">350+</h3>
+                                <small class="text-white-50 fw-bold" style="font-size: 0.7rem;">Bé chờ nhận nuôi</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-25">
+                                <i class="fas fa-shield-heart text-warning fs-4 mb-1"></i>
+                                <h3 class="serif-title text-white mb-0" style="font-size: 1.3rem;">100%</h3>
+                                <small class="text-white-50 fw-bold" style="font-size: 0.7rem;">Tình thương</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= 5. FINANCIAL DONATION & MAP SECTION ================= -->
+    <section class="container py-4" id="quyen-gop">
+        <div class="row g-3">
+            
+            <div class="col-lg-6">
+                <div class="bg-white p-3 rounded-4 shadow-sm border">
+                    <h3 class="serif-title text-uppercase mb-1 text-dark text-nowrap" style="font-size: 1.4rem;">Ủng Hộ Tài Chính</h3>
+                    <p class="text-muted small mb-2" style="font-size: 0.8rem;">Minh bạch 100% mọi khoản ủng hộ cho y tế và hạt</p>
+
+                    <label class="form-label fw-bold small text-muted mb-1" style="font-size: 0.8rem;">Số tiền ủng hộ (VNĐ):</label>
+                    <div class="input-group mb-2 input-group-sm">
+                        <input type="text" id="donationAmtInput" class="form-control rounded-start-pill" placeholder="Nhập số tiền (VD: 10.000)" oninput="formatDonationInput(this)">
+                        <span class="input-group-text rounded-end-pill fw-bold" style="background: var(--ri-navy); color: var(--ri-gold); border-color: var(--ri-navy);">VNĐ</span>
+                    </div>
+                    <div class="d-flex gap-2 mb-2 flex-wrap">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill fw-bold btn-amt flex-fill text-nowrap" onclick="setDonationAmt(50000)">50.000</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill fw-bold btn-amt flex-fill text-nowrap" onclick="setDonationAmt(100000)">100.000</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill fw-bold btn-amt flex-fill text-nowrap" onclick="setDonationAmt(200000)">200.000</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill fw-bold btn-amt flex-fill text-nowrap" onclick="setDonationAmt(500000)">500.000</button>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label fw-bold small text-muted mb-1" style="font-size: 0.8rem;">Họ và tên <span class="text-danger">*</span></label>
+                        <input type="text" id="donorName" class="form-control form-control-sm rounded-pill" placeholder="Nhập họ và tên của bạn">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted mb-1" style="font-size: 0.8rem;">Số điện thoại / Email <span class="text-danger">*</span></label>
+                        <input type="text" id="donorContact" class="form-control form-control-sm rounded-pill" placeholder="Nhập SĐT hoặc Email của bạn">
+                    </div>
+
+                    <button class="btn w-100 rounded-pill py-2 fw-bold text-uppercase text-white shadow-sm text-nowrap" style="background: linear-gradient(135deg, #0F3832 0%, #071D2A 100%); border: 1.5px solid #D4A373; font-size: 0.85rem; letter-spacing: 0.5px;" onclick="openVietQrModal()">
+                        Tiến Hành Ủng Hộ
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-6" id="lien-he">
+                <div class="rounded-4 overflow-hidden shadow-sm border h-100" style="min-height: 250px;" id="shelterMap"></div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ================= 6. FOOTER ================= -->
+    <footer class="ri-footer">
+        <div class="container">
+            <div class="row g-3 mb-3">
+                
+                <div class="col-lg-4">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="ri-brand-logo" style="width: 32px; height: 32px; font-size: 1rem;"><i class="fas fa-paw"></i></div>
+                        <span class="serif-title fs-4 text-white">RescuePets</span>
+                    </div>
+                    <p class="text-white-50 small mb-2" style="line-height: 1.5; max-width: 320px; font-size: 0.8rem;">
+                        Tổ chức bảo hộ và cứu trợ động vật phi lợi nhuận. Cam kết minh bạch tài chính và tận tâm chăm sóc.
+                    </p>
+                    <small class="text-warning fw-bold d-block text-nowrap" style="font-size: 0.75rem;">© 2026 Mairie de RescuePets - Tous droits réservés</small>
+                </div>
+
+                <div class="col-lg-3 col-6">
+                    <div class="ri-footer-heading">ĐỊA CHỈ TRẠM CỨU HỘ</div>
+                    <p class="text-white-50 small mb-1 text-nowrap" style="font-size: 0.8rem;"><i class="fas fa-location-dot text-warning me-2"></i>Số 88 Đường Cứu Trợ, Hà Nội</p>
+                    <p class="text-white-50 small mb-1 text-nowrap" style="font-size: 0.8rem;"><i class="fas fa-phone text-warning me-2"></i>+84 (0988) 789 012</p>
+                    <p class="text-white-50 small text-nowrap" style="font-size: 0.8rem;"><i class="fas fa-envelope text-warning me-2"></i>rescuepets@gmail.com</p>
+                </div>
+
+                <div class="col-lg-3 col-6">
+                    <div class="ri-footer-heading">GIỜ MỞ CỬA ĐÓN KHÁCH</div>
+                    <p class="text-white-50 small mb-1 text-nowrap" style="font-size: 0.8rem;">Thứ Hai - Thứ Sáu: 08:30 - 17:30</p>
+                    <p class="text-white-50 small mb-1 text-nowrap" style="font-size: 0.8rem;">Thứ Bảy: 09:00 - 12:00</p>
+                    <p class="text-white-50 small text-nowrap" style="font-size: 0.8rem;">Chủ Nhật: Nghỉ</p>
+                </div>
+
+                <div class="col-lg-2">
+                    <div class="ri-footer-heading">LIÊN KẾT NHANH</div>
+                    <a href="/Home/Welcome#trang-chu" class="ri-footer-link">Trang Chủ</a>
+                    <a href="/Home/Welcome#thu-cung" class="ri-footer-link">Thú Cưng</a>
+                    <a href="/Home/Welcome#quyen-gop" class="ri-footer-link">Quyên Góp</a>
+                    <a asp-controller="Home" asp-action="BaoCao" class="btn btn-sm btn-outline-warning rounded-pill mt-2 fw-bold text-uppercase text-nowrap" style="font-size: 0.7rem;">
+                        LIÊN HỆ NGAY ➔
+                    </a>
+                </div>
+
+            </div>
+
+            <hr style="border-color: rgba(255, 255, 255, 0.1); margin: 15px 0;">
+
+            <div class="text-center text-white-50 small text-nowrap" style="font-size: 0.75rem;">
+                © 2026 RescuePets Vietnam. Mọi quyền được bảo lưu.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back To Top Button -->
+    <button type="button" class="btn-back-top" id="backToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Về đầu trang">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container-ri" id="toastBox"></div>
+
+    <!-- ================= CÁC MODALS ================= -->
+
+    <!-- PET DETAIL MODAL -->
+    <div class="modal fade" id="petDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 rounded-4 overflow-hidden">
+                <div class="modal-header bg-dark text-white border-0 px-4 py-3">
+                    <h5 class="modal-title serif-title text-white mb-0">Hồ Sơ Bé: <span id="modalPetName"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-md-5">
+                            <img id="modalPetImg" src="" alt="Pet" class="img-fluid rounded-3 w-100" style="height: 250px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-7">
+                            <h3 class="serif-title text-dark mb-1" id="modalPetNameDisplay"></h3>
+                            <span class="badge bg-success rounded-pill px-3 py-1 mb-3">Sẵn Sàng Về Nhà Mới</span>
+
+                            <div class="row g-2 mb-3 small">
+                                <div class="col-6"><strong>Loài:</strong> <span id="modalPetLoai"></span></div>
+                                <div class="col-6"><strong>Giống:</strong> <span id="modalPetGiong"></span></div>
+                                <div class="col-6"><strong>Giới tính:</strong> <span id="modalPetSex"></span></div>
+                                <div class="col-6"><strong>Tuổi:</strong> <span id="modalPetAge"></span></div>
+                            </div>
+
+                            <div class="p-3 bg-light rounded-3 mb-4 small text-muted" id="modalPetHealth"></div>
+
+                            <button type="button" class="btn btn-dark w-100 rounded-pill py-3 fw-bold text-uppercase" id="btnGoToAdoptForm">
+                                <i class="fas fa-heart me-2 text-danger"></i>Đăng Ký Nhận Nuôi Bé
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADOPTION FORM MODAL -->
+    <div class="modal fade" id="adoptFormModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header bg-danger text-white border-0 px-4 py-3">
+                    <h5 class="modal-title serif-title text-white mb-0">Đơn Nhận Nuôi: <span id="adoptTargetPetName"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="adoptSubmitForm" onsubmit="submitAdoptForm(event)">
+                        <input type="hidden" id="adoptTargetPetId" value="1">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Họ và tên *</label>
+                            <input type="text" id="adoptFullName" class="form-control rounded-pill" placeholder="Nguyễn Văn A" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Số điện thoại *</label>
+                            <input type="tel" id="adoptPhone" class="form-control rounded-pill" placeholder="0988xxxxxx" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Email</label>
+                            <input type="email" id="adoptEmail" class="form-control rounded-pill" placeholder="email@gmail.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Địa chỉ nơi sống *</label>
+                            <input type="text" id="adoptAddress" class="form-control rounded-pill" placeholder="Số nhà, Đường, TP..." required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Lý do nhận nuôi</label>
+                            <textarea id="adoptReason" class="form-control rounded-3" rows="3" placeholder="Chia sẻ đôi điều..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100 rounded-pill py-3 fw-bold text-uppercase" id="btnSubmitAdoptNow">
+                            <span>Gửi Đơn Đăng Ký 🎉</span>
+                        </button>
+                    </form>
+
+                    <div id="adoptSuccessState" class="text-center py-4 d-none">
+                        <div class="text-success mb-3" style="font-size: 3rem;"><i class="fas fa-circle-check"></i></div>
+                        <h4 class="serif-title text-dark">Gửi Đơn Thành Công!</h4>
+                        <p class="text-muted small">Chúng tôi sẽ xem xét và gọi lại trong 24h.</p>
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4 mt-2" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIETQR MODAL -->
+    <div class="modal fade" id="donationPayModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 text-center p-4">
+                <div class="modal-header border-0 pb-0 justify-content-end">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <h4 class="serif-title text-dark mb-1">Mã QR Chuyển Khoản Ủng Hộ</h4>
+                    <p class="text-muted small">Quét mã bằng ứng dụng Ngân hàng</p>
+
+                    <div class="p-3 bg-light rounded-3 d-inline-block shadow-sm my-2">
+                        <img id="vietQrImg" src="" alt="VietQR" class="img-fluid" style="max-width: 240px;">
+                    </div>
+
+                    <div class="text-start bg-light p-3 rounded-3 mt-3 small border">
+                        <div><strong>Ngân hàng:</strong> MBBank</div>
+                        <div><strong>Số tài khoản:</strong> 838226969</div>
+                        <div><strong>Chủ TK:</strong> NGUYEN NGOC NHU</div>
+                        <div><strong>Số tiền:</strong> <span class="text-danger fw-bold" id="qrAmountDisplay">Tùy tâm</span></div>
+                    </div>
+
+                    <button type="button" class="btn btn-outline-secondary w-100 rounded-pill mt-3 py-2 fw-semibold" data-bs-dismiss="modal">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEWS DETAIL MODAL -->
+    <div class="modal fade" id="newsDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 overflow-hidden shadow-2xl">
+                <div class="px-4 py-2 bg-dark text-white-50 d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary small" style="font-size: 0.78rem;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger text-white fw-bold px-2 py-1 text-uppercase">BÁO ĐIỆN TỬ</span>
+                        <span class="text-white fw-semibold">RESCUEPETS CHRONICLE · SỐ PHÁT HÀNH 2026</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span><i class="far fa-calendar-alt me-1 text-warning"></i> Thứ Ba, 12/05/2026</span>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <div class="modal-body p-4 p-lg-5 bg-white text-dark" style="font-family: 'Times New Roman', serif;">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                        <div class="d-flex align-items-center gap-2 small text-muted">
+                            <a href="/Home/Welcome" class="text-decoration-none text-muted">Trang chủ</a>
+                            <i class="fas fa-chevron-right" style="font-size: 0.65rem;"></i>
+                            <span class="text-danger fw-bold text-uppercase">Phóng sự điều tra & Cứu trợ</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 rounded-pill fw-bold">
+                                <i class="fas fa-fire me-1"></i> TIÊU ĐIỂM HÔM NAY
+                            </span>
+                            <span class="badge bg-light text-muted border px-2 py-1 rounded-pill">
+                                <i class="far fa-eye me-1"></i> 3.420 lượt đọc
+                            </span>
+                        </div>
+                    </div>
+
+                    <h1 class="serif-title text-dark mb-3" style="font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.25; letter-spacing: -0.5px;">
+                        Kỳ Tích Đêm Đông: 48 Giờ Nghẹt Thở Giành Giật Sự Sống Cho 30 Bé Cún Mèo Bên Bờ Vực Tử Thần
+                    </h1>
+
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 py-3 my-3 border-top border-bottom">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-dark text-warning d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                                <i class="fas fa-feather-pointed"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" style="font-size: 0.95rem;">
+                                    Phóng viên Khánh Linh <span class="badge bg-secondary-subtle text-secondary small ms-1">Ban Phóng sự</span>
+                                </div>
+                                <small class="text-muted" style="font-size: 0.8rem;">
+                                    Ảnh: Đội Cứu Hộ Dã Ngoại · Đăng lúc 08:30 (GMT+7) ngày 12/05/2026 · 5 phút đọc
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" onclick="adjustArticleFontSize(-1)" title="Giảm cỡ chữ">A-</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" onclick="adjustArticleFontSize(1)" title="Tăng cỡ chữ">A+</button>
+                            <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="window.print()" title="In bài báo">
+                                <i class="fas fa-print me-1"></i> In bài
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" onclick="showToast('🔗 Đã sao chép liên kết bài báo!')" title="Chia sẻ">
+                                <i class="fas fa-share-nodes me-1"></i> Chia sẻ
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-3 p-md-4 rounded-3 my-4" style="background: #F8FAFC; border-left: 5px solid #D4A373; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);">
+                        <p class="mb-0 fw-semibold text-dark fst-italic" style="font-size: 1.08rem; line-height: 1.8; color: #1E293B;">
+                            "Trong đợt không khí lạnh lịch sử tràn về, nhiệt độ ngoài trời giảm sâu dưới 9°C kèm mưa phùn buốt giá. Đường dây nóng trạm RescuePets liên tục nhận được tin báo về hàng chục chú chó mèo bị bỏ rơi tại các bãi đất trống, gầm cầu và cống thoát nước. 48 giờ sau đó là một cuộc chạy đua nghẹt thở chưa từng có của đội ngũ y bác sĩ nhằm giữ lại từng nhịp thở mong manh..."
+                        </p>
+                    </div>
+
+                    <figure class="my-4 text-center">
+                        <img src="/images/shelter_pets_group.jpg" alt="Ảnh phóng sự cứu hộ" class="img-fluid rounded-4 shadow-sm w-100" style="max-height: 440px; object-fit: cover;">
+                        <figcaption class="mt-2 text-muted fst-italic small text-center">
+                            📸 <b>Ảnh phóng sự:</b> Các bé cún mèo sau khi trải qua phác đồ điều trị hồi sức tích cực và được chuyển về phòng sưởi ấm tại Trạm RescuePets. (Ảnh: CTV Minh Quân / RescuePets)
+                        </figcaption>
+                    </figure>
+
+                    <div class="article-body-text" style="line-height: 1.95; font-size: 1.02rem; color: #334155;">
+                        <p>
+                            <span class="drop-cap" style="float: left; font-size: 3.6rem; line-height: 0.8; font-family: 'Times New Roman', serif; font-weight: 800; color: #071D2A; padding-right: 12px; padding-top: 4px;">Đ</span>êm ngày 15/01 vừa qua sẽ là ký ức không thể nào quên đối với toàn bộ các tình nguyện viên và y bác sĩ tại trạm cứu hộ động vật RescuePets. Giữa màn đêm đặc quánh và cái rét thấu xương của đợt gió mùa đông bắc, hồi chuông điện thoại cấp cứu réo vang liên hồi.
+                        </p>
+
+                        <h3 class="serif-title text-dark mt-4 mb-3 fw-bold" style="font-size: 1.35rem; color: #071D2A;">
+                            I. TIẾNG CHUÔNG NỬA ĐÊM VÀ HIỆN TRƯỜNG LẠNH GIÁ
+                        </h3>
+                        <p>
+                            Người dân phát hiện một thùng xốp bị dán kín băng dính vứt bỏ bên cạnh miệng cống nước thải khu vực ngoại ô. Bên trong là 4 chú cún con chưa đầy 1 tháng tuổi đang co giật vì hạ thân nhiệt nghiêm trọng. Cách đó không xa, một chú mèo mẹ mang thai bị chấn thương chân sau đang nằm bất động dưới gầm xe tải.
+                        </p>
+                        <p>
+                            Ngay lập tức, 2 tổ phản ứng nhanh của trạm đã xuất kích mang theo lồng ủ nhiệt, bình oxy dã chiến, đèn hồng ngoại và dung dịch điện giải làm ấm để sơ cứu tại chỗ trước khi chuyển thẳng về trung tâm phẫu thuật.
+                        </p>
+
+                        <blockquote class="my-4 p-4 rounded-4 text-center shadow-sm" style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1px solid #FDE68A;">
+                            <i class="fas fa-quote-left text-warning fs-2 d-block mb-2"></i>
+                            <p class="mb-2 fw-bold serif-title text-dark" style="font-size: 1.15rem; line-height: 1.6;">
+                                "Mỗi sinh linh nhỏ bé đều mang trong mình khát vọng được sống mãnh liệt. Chỉ cần trái tim các bé còn đập dù là một nhịp yếu ớt nhất, chúng tôi nhất định sẽ không bao giờ bỏ cuộc!"
+                            </p>
+                            <small class="text-muted fw-bold d-block">— BS.CKII Nguyễn Minh Tuấn (Trưởng kíp cấp cứu 24/7 RescuePets)</small>
+                        </blockquote>
+
+                        <h3 class="serif-title text-dark mt-4 mb-3 fw-bold" style="font-size: 1.35rem; color: #071D2A;">
+                            II. 48 GIỜ NGHẸT THỞ TẠI PHÒNG PHẪU THUẬT VÀ LỒNG ẤP
+                        </h3>
+                        <p>
+                            Tại phòng cấp cứu trung tâm, 6 bác sĩ và 12 tình nguyện viên đã thay phiên túc trực trắng đêm. Các ca phẫu thuật cố định xương gãy, xử lý vết thương hoại tử và tiêm kháng sinh hồi sức diễn ra liên tục. Đèn sưởi ấm được bật hết công suất để kéo thân nhiệt các bé từ mức nguy kịch (dưới 34°C) trở về ngưỡng an toàn.
+                        </p>
+                        <p>
+                            Từng giọt sữa ấm được bón bằng xi-lanh, từng nhịp tim được theo dõi trên máy điện tâm đồ. Đến rạng sáng ngày thứ 2, tiếng kêu khe khẽ của bé cún Milo đòi bú sữa đã làm vỡ òa cảm xúc của toàn bộ kíp trực.
+                        </p>
+
+                        <div class="p-4 rounded-4 my-4 bg-light border shadow-sm">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i class="fas fa-clipboard-check text-success fs-5"></i>
+                                <h5 class="serif-title text-dark mb-0 fw-bold">HỒ SƠ TỔNG KẾT CHIẾN DỊCH CỨU TRỢ ĐÊM ĐÔNG 2026</h5>
+                            </div>
+                            <div class="row g-3 text-center">
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 bg-white rounded-3 border">
+                                        <div class="fs-3 fw-bold text-danger">32</div>
+                                        <small class="text-muted fw-semibold">Ca cấp cứu khẩn cấp</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 bg-white rounded-3 border">
+                                        <div class="fs-3 fw-bold text-success">100%</div>
+                                        <small class="text-muted fw-semibold">Qua cơn nguy kịch</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 bg-white rounded-3 border">
+                                        <div class="fs-3 fw-bold text-primary">18</div>
+                                        <small class="text-muted fw-semibold">Đã tìm được chủ mới</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 bg-white rounded-3 border">
+                                        <div class="fs-3 fw-bold text-warning">24/7</div>
+                                        <small class="text-muted fw-semibold">Túc trực y tế</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="serif-title text-dark mt-4 mb-3 fw-bold" style="font-size: 1.35rem; color: #071D2A;">
+                            III. HÀNH TRÌNH HỒI SINH VÀ NHỮNG MÁI ẤM MỚI
+                        </h3>
+                        <p>
+                            Sau hơn 2 tháng kiên trì chăm sóc, 100% các bé đều đã được tiêm phòng vắc-xin 7 trong 1, xét nghiệm sạch vi-rút và triệt sản an toàn. Đặc biệt, ngày hội nhận nuôi cuối tuần qua đã đón nhận hơn 18 gia đình hảo tâm đến hoàn tất thủ tục đón các bé về ngôi nhà mới tràn ngập tình yêu thương.
+                        </p>
+                        <p>
+                            Sự hồi sinh kỳ diệu này là minh chứng rõ nét cho sức mạnh của sự chung tay từ cộng đồng. Mỗi sự quyên góp thức ăn, thuốc men hay chia sẻ thông tin đều trực tiếp thắp lên cơ hội sống cho những mảnh đời cơ nhỡ.
+                        </p>
+                    </div>
+
+                    <div class="p-3 rounded-4 bg-light my-4 d-flex flex-wrap align-items-center justify-content-between gap-3 border">
+                        <span class="fw-bold text-dark small"><i class="far fa-face-smile text-warning me-1"></i> Cảm xúc của bạn về bài viết:</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" onclick="reactArticle(this, '❤️')">
+                                ❤️ Yêu thích <span class="badge bg-danger text-white ms-1">1.4K</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="reactArticle(this, '👏')">
+                                👏 Cảm phục <span class="badge bg-primary text-white ms-1">820</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 fw-bold" onclick="reactArticle(this, '🥺')">
+                                🥺 Xúc động <span class="badge bg-warning text-dark ms-1">650</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 py-3 border-top border-bottom">
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#CuuHoDongVat</span>
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#PhepMauDemDong</span>
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#RescuePetsMag2026</span>
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#NhanNuoiYeuThuong</span>
+                        </div>
+                        <div class="text-end">
+                            <strong class="d-block text-dark small">Khánh Linh - Minh Quân</strong>
+                            <small class="text-muted fst-italic" style="font-size: 0.78rem;">(Thực hiện cho Chuyên trang Thời Báo RescuePets)</small>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-2">
+                        <h5 class="serif-title text-dark fw-bold mb-3"><i class="fas fa-newspaper text-danger me-2"></i>CÙNG CHUYÊN MỤC PHÓNG SỰ</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded-3 border h-100 d-flex flex-column">
+                                    <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small mb-2 align-self-start fw-bold">CẨM NANG</span>
+                                    <h6 class="fw-bold mb-2 small" style="line-height: 1.4;">Lịch tiêm phòng và triệt sản chuẩn y khoa cho cún mèo mới nhận nuôi</h6>
+                                    <small class="text-muted mt-auto"><i class="far fa-clock me-1"></i> 3 ngày trước</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded-3 border h-100 d-flex flex-column">
+                                    <span class="badge bg-warning-subtle text-dark rounded-pill px-2 py-1 small mb-2 align-self-start fw-bold">SỰ KIỆN</span>
+                                    <h6 class="fw-bold mb-2 small" style="line-height: 1.4;">Ngày hội 'Mái Ấm Yêu Thương 2026' chính thức khởi động tại Hà Nội</h6>
+                                    <small class="text-muted mt-auto"><i class="far fa-clock me-1"></i> 5 ngày trước</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded-3 border h-100 d-flex flex-column">
+                                    <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1 small mb-2 align-self-start fw-bold">NHẬN NUÔI</span>
+                                    <h6 class="fw-bold mb-2 small" style="line-height: 1.4;">Hành trình tìm lại nụ cười của Bella - Bé cún Beagle bị bỏ rơi</h6>
+                                    <small class="text-muted mt-auto"><i class="far fa-clock me-1"></i> 1 tuần trước</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-4 pt-3 border-top">
+                        <a href="/Home/TinTuc" class="btn btn-dark rounded-pill px-4 py-2 fw-bold text-uppercase text-nowrap" style="font-size: 0.84rem;">
+                            <i class="fas fa-newspaper me-2 text-warning"></i>Xem Thư Viện Bài Báo
+                        </a>
+                        <div class="d-flex gap-2">
+                            <a href="/Home/Welcome#quyen-gop" class="btn btn-danger rounded-pill px-4 py-2 fw-bold text-uppercase text-nowrap" style="font-size: 0.84rem;" data-bs-dismiss="modal">
+                                <i class="fas fa-heart me-1"></i>Ủng Hộ Trạm
+                            </a>
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold text-nowrap" style="font-size: 0.84rem;" data-bs-dismiss="modal">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAGAZINE MODAL -->
+    <div class="modal fade" id="magModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 overflow-hidden shadow-2xl">
+                <div class="px-4 py-2 text-white d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary small" style="background: linear-gradient(135deg, var(--ri-navy) 0%, var(--ri-teal) 100%); font-size: 0.78rem;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-book-open text-warning fs-5"></i>
+                        <div>
+                            <span class="badge bg-warning text-dark fw-bold px-2 py-0 me-2 text-uppercase">ẤN PHẨM ĐẶC BIỆT</span>
+                            <span class="text-white fw-bold">RESCUEPETS MAGAZINE · SỐ PHÁT HÀNH 2026</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="text-white-50"><i class="far fa-calendar-alt me-1 text-warning"></i> Thời Báo Cứu Hộ Động Vật</span>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <div class="modal-body p-4 p-lg-5 bg-white text-dark" style="font-family: 'Times New Roman', serif;">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                        <div class="d-flex align-items-center gap-2 small text-muted">
+                            <span class="text-uppercase fw-bold text-danger">Tạp Chí Chuyên Đề</span>
+                            <i class="fas fa-chevron-right" style="font-size: 0.65rem;"></i>
+                            <span class="text-dark fw-semibold">Số Đặc Biệt Mùa Xuân 2026</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-danger text-white px-3 py-1 rounded-pill fw-bold">
+                                <i class="fas fa-award me-1"></i> BÀI VIẾT ĐOẠT GIẢI BÁO CHÍ
+                            </span>
+                            <span class="badge bg-light text-muted border px-2 py-1 rounded-pill">
+                                <i class="far fa-eye me-1"></i> 5.120 lượt xem
+                            </span>
+                        </div>
+                    </div>
+
+                    <h1 class="serif-title text-dark mb-3" style="font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.25; letter-spacing: -0.5px;">
+                        Kỳ Tích Đêm Đông: 48 Giờ Nghẹt Thở Giành Giật Sự Sống Cho 30 Bé Cún Mèo Bên Bờ Vực Tử Thần
+                    </h1>
+
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 py-3 my-3 border-top border-bottom">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-dark text-warning d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" style="font-size: 0.95rem;">
+                                    Ban Biên Tập RescuePets & Hội Thú Y Nhân Đạo
+                                </div>
+                                <small class="text-muted" style="font-size: 0.8rem;">
+                                    Phát hành độc quyền trên Tạp chí RescuePets Magazine Số 2026 · 5 phút đọc
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" onclick="adjustArticleFontSize(-1)" title="Giảm cỡ chữ">A-</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" onclick="adjustArticleFontSize(1)" title="Tăng cỡ chữ">A+</button>
+                            <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="window.print()" title="In ấn">
+                                <i class="fas fa-print me-1"></i> In
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" onclick="showToast('🔗 Đã sao chép liên kết tạp chí!')" title="Chia sẻ">
+                                <i class="fas fa-share-nodes me-1"></i> Chia sẻ
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-3 p-md-4 rounded-3 my-4" style="background: #F8FAFC; border-left: 5px solid #D4A373; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);">
+                        <p class="mb-0 fw-semibold text-dark fst-italic" style="font-size: 1.08rem; line-height: 1.8; color: #1E293B;">
+                            "Trong đợt không khí lạnh lịch sử tràn về, nhiệt độ ngoài trời giảm sâu dưới 9°C kèm mưa phùn buốt giá. Đường dây nóng trạm RescuePets liên tục nhận được tin báo về hàng chục chú chó mèo bị bỏ rơi tại các bãi đất trống, gầm cầu và cống thoát nước. 48 giờ sau đó là một cuộc chạy đua nghẹt thở chưa từng có của đội ngũ y bác sĩ nhằm giữ lại từng nhịp thở mong manh..."
+                        </p>
+                    </div>
+
+                    <figure class="my-4 text-center">
+                        <img src="/images/shelter_pets_group.jpg" alt="Ảnh phóng sự cứu hộ" class="img-fluid rounded-4 shadow-sm w-100" style="max-height: 440px; object-fit: cover;">
+                        <figcaption class="mt-2 text-muted fst-italic small text-center">
+                            📸 <b>Ảnh phóng sự báo chí:</b> Đội ngũ bác sĩ và tình nguyện viên túc trực bên lồng ủ ấm suốt 48 giờ để cứu sống các bé sơ sinh. (Ảnh: RescuePets Magazine)
+                        </figcaption>
+                    </figure>
+
+                    <div class="article-body-text" style="line-height: 1.95; font-size: 1.02rem; color: #334155;">
+                        <p>
+                            <span class="drop-cap" style="float: left; font-size: 3.6rem; line-height: 0.8; font-family: 'Times New Roman', serif; font-weight: 800; color: #071D2A; padding-right: 12px; padding-top: 4px;">Đ</span>êm ngày 15/01 vừa qua sẽ là ký ức không thể nào quên đối với toàn bộ các tình nguyện viên và y bác sĩ tại trạm cứu hộ động vật RescuePets. Giữa màn đêm đặc quánh và cái rét thấu xương của đợt gió mùa đông bắc, hồi chuông điện thoại cấp cứu réo vang liên hồi.
+                        </p>
+
+                        <h3 class="serif-title text-dark mt-4 mb-3 fw-bold" style="font-size: 1.35rem; color: #071D2A;">
+                            I. TIẾNG CHUÔNG NỬA ĐÊM VÀ HIỆN TRƯỜNG LẠNH GIÁ
+                        </h3>
+                        <p>
+                            Người dân phát hiện một thùng xốp bị dán kín băng dính vứt bỏ bên cạnh miệng cống nước thải khu vực ngoại ô. Bên trong là 4 chú cún con chưa đầy 1 tháng tuổi đang co giật vì hạ thân nhiệt nghiêm trọng. Cách đó không xa, một chú mèo mẹ mang thai bị chấn thương chân sau đang nằm bất động dưới gầm xe tải.
+                        </p>
+                        <p>
+                            Ngay lập tức, 2 tổ phản ứng nhanh của trạm đã xuất kích mang theo lồng ủ nhiệt, bình oxy dã chiến, đèn hồng ngoại và dung dịch điện giải làm ấm để sơ cứu tại chỗ trước khi chuyển thẳng về trung tâm phẫu thuật.
+                        </p>
+
+                        <blockquote class="my-4 p-4 rounded-4 text-center shadow-sm" style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1px solid #FDE68A;">
+                            <i class="fas fa-quote-left text-warning fs-2 d-block mb-2"></i>
+                            <p class="mb-2 fw-bold serif-title text-dark" style="font-size: 1.15rem; line-height: 1.6;">
+                                "Mỗi sinh linh nhỏ bé đều mang trong mình khát vọng được sống mãnh liệt. Chỉ cần trái tim các bé còn đập dù là một nhịp yếu ớt nhất, chúng tôi nhất định sẽ không bao giờ bỏ cuộc!"
+                            </p>
+                            <small class="text-muted fw-bold d-block">— BS.CKII Nguyễn Minh Tuấn (Trưởng kíp cấp cứu 24/7 RescuePets)</small>
+                        </blockquote>
+
+                        <h3 class="serif-title text-dark mt-4 mb-3 fw-bold" style="font-size: 1.35rem; color: #071D2A;">
+                            II. 48 GIỜ NGHẸT THỞ TẠI PHÒNG PHẪU THUẬT VÀ LỒNG ẤP
+                        </h3>
+                        <p>
+                            Tại phòng cấp cứu trung tâm, 6 bác sĩ và 12 tình nguyện viên đã thay phiên túc trực trắng đêm. Các ca phẫu thuật cố định xương gãy, xử lý vết thương hoại tử và tiêm kháng sinh hồi sức diễn ra liên tục. Đèn sưởi ấm được bật hết công suất để kéo thân nhiệt các bé từ mức nguy kịch (dưới 34°C) trở về ngưỡng an toàn.
+                        </p>
+                        <p>
+                            Từng giọt sữa ấm được bón bằng xi-lanh, từng nhịp tim được theo dõi trên máy điện tâm đồ. Đến rạng sáng ngày thứ 2, tiếng kêu khe khẽ của bé cún Milo đòi bú sữa đã làm vỡ òa cảm xúc của toàn bộ kíp trực.
+                        </p>
+
+                        <div class="p-4 rounded-4 my-4 bg-light border shadow-sm">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i class="fas fa-clipboard-check text-success fs-5"></i>
+                                <h5 class="serif-title text-dark mb-0 fw-bold">HỒ SƠ TỔNG KẾT CHIẾN DỊCH CỨU TRỢ ĐÊM ĐÔNG 2026</h5>
+                            </div>
+                            <div class="row g-3 text-center">
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 bg-white rounded-3 border">
+                                        <div class="fs-3 fw-bold text-danger">32</div>
+                                        <small class="text-muted fw-semibold">Ca cấp cứu khẩn cấp</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 bg-white rounded-3 border">
+                                        <div class="fs-3 fw-bold text-success">100%</div>
+                                        <small class="text-muted fw-semibold">Qua cơn nguy kịch</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 bg-white rounded-3 border">
+                                        <div class="fs-3 fw-bold text-primary">18</div>
+                                        <small class="text-muted fw-semibold">Đã tìm được chủ mới</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="p-3 bg-white rounded-3 border">
+                                        <div class="fs-3 fw-bold text-warning">24/7</div>
+                                        <small class="text-muted fw-semibold">Túc trực y tế</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="serif-title text-dark mt-4 mb-3 fw-bold" style="font-size: 1.35rem; color: #071D2A;">
+                            III. HÀNH TRÌNH HỒI SINH VÀ NHỮNG MÁI ẤM MỚI
+                        </h3>
+                        <p>
+                            Sau hơn 2 tháng kiên trì chăm sóc, 100% các bé đều đã được tiêm phòng vắc-xin 7 trong 1, xét nghiệm sạch vi-rút và triệt sản an toàn. Đặc biệt, ngày hội nhận nuôi cuối tuần qua đã đón nhận hơn 18 gia đình hảo tâm đến hoàn tất thủ tục đón các bé về ngôi nhà mới tràn ngập tình yêu thương.
+                        </p>
+                        <p>
+                            Sự hồi sinh kỳ diệu này là minh chứng rõ nét cho sức mạnh của sự chung tay từ cộng đồng. Mỗi sự quyên góp thức ăn, thuốc men hay chia sẻ thông tin đều trực tiếp thắp lên cơ hội sống cho những mảnh đời cơ nhỡ.
+                        </p>
+                    </div>
+
+                    <div class="p-3 rounded-4 bg-light my-4 d-flex flex-wrap align-items-center justify-content-between gap-3 border">
+                        <span class="fw-bold text-dark small"><i class="far fa-face-smile text-warning me-1"></i> Cảm xúc của bạn về bài viết:</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" onclick="reactArticle(this, '❤️')">
+                                ❤️ Yêu thích <span class="badge bg-danger text-white ms-1">2.1K</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="reactArticle(this, '👏')">
+                                👏 Cảm phục <span class="badge bg-primary text-white ms-1">1.2K</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 fw-bold" onclick="reactArticle(this, '🥺')">
+                                🥺 Xúc động <span class="badge bg-warning text-dark ms-1">940</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 py-3 border-top border-bottom">
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#CuuHoDongVat</span>
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#PhepMauDemDong</span>
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#RescuePetsMag2026</span>
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1">#NhanNuoiYeuThuong</span>
+                        </div>
+                        <div class="text-end">
+                            <strong class="d-block text-dark small">Khánh Linh - Minh Quân</strong>
+                            <small class="text-muted fst-italic" style="font-size: 0.78rem;">(Thực hiện cho Chuyên trang Tạp chí RescuePets Magazine)</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-4 pt-3 border-top">
+                        <a href="/Home/TinTuc" class="btn btn-dark rounded-pill px-4 py-2 fw-bold text-uppercase text-nowrap" style="font-size: 0.84rem;">
+                            <i class="fas fa-newspaper me-2 text-warning"></i>Xem Thư Viện Tạp Chí
+                        </a>
+                        <div class="d-flex gap-2">
+                            <a href="/Home/Welcome#quyen-gop" class="btn btn-danger rounded-pill px-4 py-2 fw-bold text-uppercase text-nowrap" style="font-size: 0.84rem;" data-bs-dismiss="modal">
+                                <i class="fas fa-heart me-1"></i>Ủng Hộ Trạm
+                            </a>
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold text-nowrap" style="font-size: 0.84rem;" data-bs-dismiss="modal">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT SECTION -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Init map
+        document.addEventListener('DOMContentLoaded', () => {
+            const mapEl = document.getElementById('shelterMap');
+            if (mapEl) {
+                const map = L.map('shelterMap', {
+                    scrollWheelZoom: false
+                }).setView([21.0285, 105.8542], 14);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+
+                const customIcon = L.divIcon({
+                    className: 'custom-map-marker',
+                    html: '<div style="background-color: var(--ri-navy, #1e293b); color: #f59e0b; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid white;"><i class="fas fa-paw"></i></div>',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 18]
+                });
+
+                L.marker([21.0285, 105.8542], { icon: customIcon })
+                    .addTo(map)
+                    .bindPopup('<b>Trạm Cứu Hộ RescuePets</b><br>Số 88 Đường Cứu Trợ, Hà Nội<br><i>Mở cửa 8h30 - 17h30</i>')
+                    .openPopup();
+            }
+
+            // Scroll effect for back-to-top button
+            const backTop = document.getElementById('backToTopBtn');
+            window.addEventListener('scroll', () => {
+                if (backTop) {
+                    if (window.scrollY > 250) {
+                        backTop.classList.add('show');
+                    } else {
+                        backTop.classList.remove('show');
+                    }
+                }
+            });
+        });
+
+        // Filter Pets
+        function filterPets(category, btn) {
+            document.querySelectorAll('.btn-filter-ri').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const cards = document.querySelectorAll('.pet-card-wrapper');
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Search Pets
+        function searchPets() {
+            const query = document.getElementById('petSearchInput').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.pet-card-wrapper');
+
+            cards.forEach(card => {
+                const name = card.dataset.name.toLowerCase();
+                if (name.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Toggle More Pets
+        let isMorePetsShown = false;
+        function toggleMorePets() {
+            isMorePetsShown = !isMorePetsShown;
+            const extraCards = document.querySelectorAll('.extra-card');
+            extraCards.forEach(c => c.classList.toggle('d-none', !isMorePetsShown));
+            const icon = document.getElementById('iconToggleMore');
+            if (icon) {
+                icon.className = isMorePetsShown ? 'fas fa-minus' : 'fas fa-plus';
+            }
+            if (isMorePetsShown) {
+                showToast('🐾 Đã mở rộng danh sách thú cưng!');
+            }
+        }
+
+        // View Pet Modal (support openPetModal & viewPet)
+        function openPetModal(name, loai, giong, sex, age, weight, health, img, id) {
+            document.getElementById('modalPetName').innerText = name || '';
+            document.getElementById('modalPetNameDisplay').innerText = name || '';
+            document.getElementById('modalPetLoai').innerText = loai || '';
+            document.getElementById('modalPetGiong').innerText = giong || '';
+            document.getElementById('modalPetSex').innerText = sex || '';
+            document.getElementById('modalPetAge').innerText = (age ? (typeof age === 'number' ? age + ' tuổi' : age) : '');
+            document.getElementById('modalPetHealth').innerText = 'Tình trạng: ' + (health || 'Khỏe mạnh');
+            document.getElementById('modalPetImg').src = img || '/images/pet_teddy.jpg';
+
+            document.getElementById('btnGoToAdoptForm').onclick = function () {
+                const modalEl = document.getElementById('petDetailModal');
+                const instance = bootstrap.Modal.getInstance(modalEl);
+                if (instance) instance.hide();
+                openAdoptForm(id || 1, name);
+            };
+
+            new bootstrap.Modal(document.getElementById('petDetailModal')).show();
+        }
+
+        function viewPet(id, name, loai, giong, sex, age, health, img) {
+            openPetModal(name, loai, giong, sex, age, '', health, img, id);
+        }
+
+        // Adopt Modal (support openAdoptForm & openAdoptModal)
+        function openAdoptForm(id, name) {
+            document.getElementById('adoptTargetPetId').value = id || 1;
+            document.getElementById('adoptTargetPetName').innerText = name || 'Bé Cưng';
+            document.getElementById('adoptSubmitForm').classList.remove('d-none');
+            document.getElementById('adoptSuccessState').classList.add('d-none');
+            new bootstrap.Modal(document.getElementById('adoptFormModal')).show();
+        }
+
+        function openAdoptModal(id, name) {
+            openAdoptForm(id, name);
+        }
+
+        function submitAdoptForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitAdoptNow');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang gửi...';
+
+            const payload = {
+                MaDongVat: parseInt(document.getElementById('adoptTargetPetId').value) || 1,
+                HoTen: document.getElementById('adoptFullName').value,
+                SoDienThoai: document.getElementById('adoptPhone').value,
+                Email: document.getElementById('adoptEmail').value,
+                DiaChi: document.getElementById('adoptAddress').value,
+                LyDo: document.getElementById('adoptReason').value,
+                KinhNghiem: ''
+            };
+
+            fetch('/Home/GuiDonNhanNuoiAjax', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Gửi Đơn Đăng Ký 🎉</span>';
+                if (data.success) {
+                    document.getElementById('adoptSubmitForm').classList.add('d-none');
+                    document.getElementById('adoptSuccessState').classList.remove('d-none');
+                    showToast('🎉 Đơn nhận nuôi của bạn đã được gửi thành công!');
+                } else {
+                    showToast('❌ ' + (data.message || 'Có lỗi xảy ra!'));
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Gửi Đơn Đăng Ký 🎉</span>';
+                showToast('❌ Lỗi kết nối, vui lòng thử lại!');
+            });
+        }
+
+        // Handle Newsletter Subscription
+        function handleNewsletter() {
+            const emailInput = document.getElementById('newsletterEmail');
+            const email = emailInput.value.trim();
+            const sendBtn = document.querySelector('.btn-ri-newsletter-send');
+
+            if (!email) {
+                showToast('⚠️ Vui lòng nhập địa chỉ email của bạn!');
+                return;
+            }
+
+            const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            if (!emailRegex.test(email)) {
+                showToast('⚠️ Địa chỉ email không hợp lệ!');
+                return;
+            }
+
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            fetch('/Home/SubscribeNewsletter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Email: email })
+            })
+            .then(res => res.json())
+            .then(data => {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-paw"></i>';
+                if (data.success) {
+                    emailInput.value = '';
+                    showToast('🎉 Đăng ký thành công!');
+                } else {
+                    showToast('❌ ' + (data.message || 'Có lỗi xảy ra!'));
+                }
+            })
+            .catch(err => {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-paw"></i>';
+                showToast('❌ Không thể kết nối server, vui lòng thử lại sau!');
+            });
+        }
+
+        // Format số tiền: tự động hiển thị dấu chấm phân cách hàng nghìn
+        function formatDonationInput(input) {
+            let raw = input.value.replace(/\D/g, '');
+            if (raw) {
+                input.value = Number(raw).toLocaleString('vi-VN');
+            } else {
+                input.value = '';
+            }
+        }
+
+        function setDonationAmt(amt) {
+            document.getElementById('donationAmtInput').value = amt.toLocaleString('vi-VN');
+            document.querySelectorAll('.btn-amt').forEach(b => b.classList.remove('active', 'btn-dark'));
+            if (window.event && window.event.target) {
+                window.event.target.classList.add('active', 'btn-dark');
+            }
+        }
+
+        function openVietQrModal() {
+            const name = document.getElementById('donorName').value.trim();
+            const contact = document.getElementById('donorContact').value.trim();
+
+            if (!name) {
+                showToast('⚠️ Vui lòng nhập Họ và tên của bạn!');
+                document.getElementById('donorName').focus();
+                return;
+            }
+            if (!contact) {
+                showToast('⚠️ Vui lòng nhập Số điện thoại hoặc Email!');
+                document.getElementById('donorContact').focus();
+                return;
+            }
+
+            const amtInput = document.getElementById('donationAmtInput');
+            const rawAmt = (amtInput.value || '').replace(/\D/g, '');
+            const donationAmt = parseInt(rawAmt) || 0;
+            const memo = encodeURIComponent(`RESCUEPETS UNG HO - ${name}`);
+
+            // Tạo URL VietQR với STK 838226969 MBBank (mã bin 970422)
+            let qrUrl = `https://api.vietqr.io/image/970422-838226969-compact2.jpg?addInfo=${memo}`;
+            if (donationAmt > 0) {
+                qrUrl += `&amount=${donationAmt}`;
+                document.getElementById('qrAmountDisplay').innerText = donationAmt.toLocaleString('vi-VN') + ' VNĐ';
+            } else {
+                document.getElementById('qrAmountDisplay').innerText = 'Tùy tâm (tự nhập khi chuyển)';
+            }
+
+            document.getElementById('vietQrImg').src = qrUrl;
+            new bootstrap.Modal(document.getElementById('donationPayModal')).show();
+
+            // Gửi email cảm ơn tự động nếu người dùng nhập Email
+            fetch('/Home/GuiEmailUngHo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    HoTen: name,
+                    LienHe: contact,
+                    SoTien: donationAmt
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.isEmail) {
+                    showToast('❤️ Thư cảm ơn đã được gửi đến email: ' + contact);
+                }
+            })
+            .catch(err => {
+                console.error('Lỗi gửi email cảm ơn:', err);
+            });
+        }
+
+        function confirmDonationDone() {
+            bootstrap.Modal.getInstance(document.getElementById('donationPayModal')).hide();
+            showToast('❤️ Cảm ơn tấm lòng nhân ái của bạn!');
+        }
+
+        // ===== NEWS DETAIL MODAL =====
+        function openNewsDetailModal(id) {
+            new bootstrap.Modal(document.getElementById('newsDetailModal')).show();
+        }
+
+        // ===== MAGAZINE MODAL =====
+        function openMagModal() {
+            new bootstrap.Modal(document.getElementById('magModal')).show();
+        }
+
+        let articleFontSize = 1.02;
+        function adjustArticleFontSize(dir) {
+            articleFontSize += (dir * 0.08);
+            if (articleFontSize < 0.85) articleFontSize = 0.85;
+            if (articleFontSize > 1.4) articleFontSize = 1.4;
+            document.querySelectorAll('.article-body-text').forEach(el => {
+                el.style.fontSize = articleFontSize + 'rem';
+            });
+        }
+
+        function reactArticle(btn, icon) {
+            btn.classList.toggle('btn-dark');
+            btn.classList.toggle('text-white');
+            showToast(`Cảm ơn bạn đã bày tỏ cảm xúc ${icon} với bài báo!`);
+        }
+
+        function showToast(msg) {
+            const box = document.getElementById('toastBox');
+            const toast = document.createElement('div');
+            toast.className = 'toast-ri';
+            toast.innerHTML = `<i class="fas fa-bell text-warning"></i><span>${msg}</span>`;
+            box.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(15px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

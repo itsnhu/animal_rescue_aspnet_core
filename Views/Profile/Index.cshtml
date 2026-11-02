@@ -1,0 +1,386 @@
+﻿@model HeThongCuuHo.Models.NguoiDung
+
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+    
+    // Xử lý đường dẫn ảnh đại diện
+    var avatarUrl = !string.IsNullOrEmpty(Model?.AnhDaiDien) 
+        ? Url.Content("~/uploads/avatars/" + Model.AnhDaiDien) 
+        : $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(Model?.HoTen ?? "User")}&background=0D6EFD&color=fff&size=128&font-size=0.4&bold=true";
+}
+
+<style>
+    /* ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .card, .btn, .badge, p, span, div, label, input {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+    }
+
+    .card-custom {
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        overflow: hidden;
+    }
+
+    /* AVATAR & TRẠNG THÁI */
+    .avatar-wrapper {
+        position: relative;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .avatar-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #ffffff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        background-color: #f1f5f9;
+    }
+
+    /* Nút đổi Avatar (Icon Camera) */
+    .avatar-edit-btn {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        width: 30px;
+        height: 30px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #475569;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        transition: all 0.2s;
+        z-index: 2;
+    }
+    
+    .avatar-edit-btn:hover {
+        background: #f1f5f9;
+        color: #0d6efd;
+        transform: scale(1.1);
+    }
+
+    /* Hiệu ứng khi Offline */
+    .avatar-wrapper.offline .avatar-img {
+        filter: grayscale(100%);
+        opacity: 0.7;
+    }
+
+    .status-dot {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 3px solid #ffffff;
+        background-color: #10b981;
+        transition: all 0.3s ease;
+        z-index: 1;
+    }
+
+    .avatar-wrapper.offline .status-dot {
+        background-color: #94a3b8;
+    }
+
+    /* Danh sách thông tin dạng dòng kẻ */
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-row {
+        display: flex;
+        padding: 12px 0;
+        border-bottom: 1px dashed #e2e8f0;
+        align-items: center;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .info-row:first-child {
+        padding-top: 0;
+    }
+
+    .info-label {
+        width: 150px;
+        flex-shrink: 0;
+        font-weight: 700;
+        color: #64748b;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+
+    .info-val {
+        flex-grow: 1;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1rem;
+        word-wrap: break-word;
+    }
+
+    /* CSS CHO TOGGLE SWITCH (Kiểu Messenger) */
+    .status-toggle-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 15px;
+        padding: 10px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        margin: 0;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #cbd5e1;
+        transition: .4s;
+        border-radius: 24px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px; width: 18px;
+        left: 3px; bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    input:checked + .slider { background-color: #10b981; }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    .status-text {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #10b981;
+        transition: all 0.3s ease;
+    }
+
+    .status-text.offline { color: #94a3b8; }
+</style>
+
+<div class="container-fluid py-3 px-md-4">
+    
+    <!-- TIÊU ĐỀ -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 bg-white p-3 rounded-lg shadow-sm border">
+        <div>
+            <h4 class="font-weight-bold text-dark mb-1" style="font-size: 1.3rem;">Hồ Sơ Cá Nhân</h4>
+            <p class="text-muted small mb-0">Quản lý thông tin tài khoản và chi tiết cá nhân của bạn</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <a asp-action="Sua" class="btn btn-sm btn-primary font-weight-bold px-3 py-1" style="border-radius: 6px; background-color: #0d6efd; border-color: #0d6efd; font-size: 0.9rem;">
+                <i class="fas fa-edit mr-1"></i> Chỉnh sửa hồ sơ
+            </a>
+        </div>
+    </div>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <div class="row">
+        
+        <!-- CỘT TRÁI: AVATAR & TRẠNG THÁI -->
+        <div class="col-md-4 col-lg-3 mb-3">
+            <div class="card-custom bg-white p-3 text-center h-100">
+                <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                    
+                    <!-- Avatar, Nút đổi ảnh & Chấm trạng thái -->
+                    <div class="avatar-wrapper" id="avatarWrapper">
+                        <img src="@avatarUrl" alt="User Avatar" class="avatar-img" id="mainAvatar" />
+                        
+                        <!-- Icon Camera để đổi ảnh -->
+                        <div class="avatar-edit-btn" data-toggle="modal" data-target="#avatarModal" title="Đổi ảnh đại diện">
+                            <i class="fas fa-camera" style="font-size: 0.85rem;"></i>
+                        </div>
+
+                        <span class="status-dot" id="statusDot" title="Đang hoạt động"></span>
+                    </div>
+
+                    <!-- Tên & Vai trò -->
+                    <h5 class="font-weight-bold text-dark mt-3 mb-1" style="font-size: 1.1rem;">@(Model?.HoTen ?? "Thành viên")</h5>
+                    <p class="text-muted small mb-2">Người dùng hệ thống</p>
+
+                    <!-- Toggle Switch Trạng thái -->
+                    <div class="status-toggle-container">
+                        <span class="status-text" id="statusText">Đang hoạt động</span>
+                        <label class="switch mb-0">
+                            <input type="checkbox" id="statusToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: THÔNG TIN CHI TIẾT -->
+        <div class="col-md-8 col-lg-9 mb-3">
+            <div class="card-custom bg-white p-3 h-100">
+                <h5 class="font-weight-bold text-dark mb-3 pb-2 border-bottom" style="font-size: 1.1rem;">
+                    Thông tin chi tiết
+                </h5>
+
+                <ul class="info-list">
+                    <li class="info-row">
+                        <div class="info-label">Họ và tên</div>
+                        <div class="info-val">@(Model?.HoTen ?? "Chưa cập nhật")</div>
+                    </li>
+                    <li class="info-row">
+                        <div class="info-label">Địa chỉ Email</div>
+                        <div class="info-val">@(Model?.Email ?? "Chưa cập nhật")</div>
+                    </li>
+                    <li class="info-row">
+                        <div class="info-label">Số điện thoại</div>
+                        <div class="info-val">@(Model?.SoDienThoai ?? "Chưa cập nhật")</div>
+                    </li>
+                    <li class="info-row">
+                        <div class="info-label">Địa chỉ</div>
+                        <div class="info-val">@(Model?.DiaChi ?? "Chưa cập nhật")</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL ĐỔI ẢNH ĐẠI DIỆN -->
+<div class="modal fade" id="avatarModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title font-weight-bold text-dark">Cập nhật ảnh đại diện</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <img id="previewAvatar" src="@avatarUrl" alt="Preview" 
+                         style="width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 3px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" />
+                </div>
+                
+                <!-- Input chọn file ẩn -->
+                <input type="file" id="avatarInput" accept="image/*" style="display: none;" />
+                
+                <!-- Nút kích hoạt chọn file -->
+                <label for="avatarInput" class="btn btn-outline-primary font-weight-bold" style="border-radius: 6px; cursor: pointer;">
+                    <i class="fas fa-folder-open mr-1"></i> Chọn ảnh từ thiết bị
+                </label>
+                <p class="text-muted small mt-2 mb-0">Định dạng hỗ trợ: JPG, PNG, GIF (Tối đa 2MB)</p>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-light font-weight-bold" style="border-radius: 6px;" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary font-weight-bold" id="btnSaveAvatar" style="border-radius: 6px;">Lưu ảnh</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Xử lý Toggle Trạng thái
+            $('#statusToggle').change(function() {
+                var isChecked = $(this).is(':checked');
+                var $wrapper = $('#avatarWrapper');
+                var $statusText = $('#statusText');
+                var $statusDot = $('#statusDot');
+
+                if (isChecked) {
+                    $wrapper.removeClass('offline');
+                    $statusDot.attr('title', 'Đang hoạt động');
+                    $statusText.removeClass('offline').text('Đang hoạt động');
+                } else {
+                    $wrapper.addClass('offline');
+                    $statusDot.attr('title', 'Ngoại tuyến');
+                    $statusText.addClass('offline').text('Ngoại tuyến');
+                }
+            });
+
+            // Xem trước ảnh khi chọn file
+            $('#avatarInput').change(function(e) {
+                var file = e.target.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#previewAvatar').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Gửi ảnh lên Server qua AJAX
+            $('#btnSaveAvatar').click(function() {
+                var fileInput = $('#avatarInput')[0];
+                if (fileInput.files.length === 0) {
+                    alert('Vui lòng chọn một ảnh trước khi lưu.');
+                    return;
+                }
+
+                var file = fileInput.files[0];
+                var formData = new FormData();
+                formData.append('file', file);
+
+                var $btn = $(this);
+                var originalText = $btn.html();
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang lưu...');
+
+                $.ajax({
+                    url: '/Profile/DoiAvatar',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(res) {
+                        if (res.success) {
+                            // Cập nhật ảnh mới lên giao diện
+                            $('#mainAvatar').attr('src', res.url);
+                            $('#previewAvatar').attr('src', res.url);
+                            
+                            // Đóng modal
+                            $('#avatarModal').modal('hide');
+                            alert('Cập nhật ảnh đại diện thành công!');
+                        } else {
+                            alert('Lỗi: ' + res.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra khi upload ảnh.');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        });
+    </script>
+}

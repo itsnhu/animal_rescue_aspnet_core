@@ -1,0 +1,957 @@
+@model HeThongCuuHo.Models.BaoCao
+
+@{
+    ViewData["Title"] = "Báo Cáo Cứu Hộ Nhanh";
+    Layout = null;
+
+    // Kiểm tra trạng thái đăng nhập từ Session
+    int? maNguoiDung = Context.Session.GetInt32("MaNguoiDung") ?? Context.Session.GetInt32("MaTaiKhoan");
+    bool isKhachVangLai = !maNguoiDung.HasValue || maNguoiDung.Value <= 0;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RescuePets</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- Google Fonts: Chỉ giữ lại Dancing Script cho các tiêu đề phụ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        :root {
+            --ri-navy: #071D2A;
+            --ri-navy-dark: #04121B;
+            --ri-teal: #0F3832;
+            --ri-gold: #D4A373;
+            --ri-gold-hover: #FAEDCD;
+            --ri-bg: #F4F6F5;
+            --ri-text-dark: #122129;
+            --ri-muted: #5A6D77;
+            --ri-border: #E1E7E5;
+            --ri-red: #E11D48;
+            --ri-red-dark: #BE123C;
+            --ri-radius-pill: 50px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+            font-size: 13.5px; /* Thu nhỏ base size để vừa màn hình 100% */
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* ĐỒNG BỘ FONT CHỮ TIMES NEW ROMAN TOÀN TRANG */
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: var(--ri-bg);
+            color: var(--ri-text-dark);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* GIỮ NGUYÊN FONT CHỮ VIẾT TAY CHO CÁC TIÊU ĐỀ PHỤ */
+        .script-accent {
+            font-family: 'Dancing Script', cursive;
+            color: var(--ri-gold);
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .serif-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 800;
+            color: var(--ri-text-dark);
+            letter-spacing: -0.5px;
+        }
+
+        /* ==================== TỐI ƯU NAVBAR MỚI (ĐÃ FIX OVERLAP) ==================== */
+        .ri-header {
+            background-color: var(--ri-navy);
+            color: white;
+            height: 72px;
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+        }
+
+        .ri-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+            flex-shrink: 0;
+            margin-right: 20px;
+        }
+
+        .ri-brand-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--ri-gold);
+            background: rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .ri-brand-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            line-height: 1;
+            color: white;
+        }
+
+        .ri-brand-title small {
+            display: block;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--ri-gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            white-space: nowrap;
+        }
+
+        .ri-nav-menu {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            flex-grow: 1;
+            flex-wrap: nowrap;
+        }
+
+        .ri-nav-link {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.85) !important;
+            padding: 10px 0;
+            position: relative;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ri-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--ri-gold);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            transform-origin: center;
+        }
+
+        .ri-nav-link:hover, .ri-nav-link.active {
+            color: var(--ri-gold) !important;
+        }
+
+        .ri-nav-link:hover::after, .ri-nav-link.active::after {
+            transform: scaleX(1);
+        }
+
+        .ri-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            margin-left: 20px;
+        }
+
+        .btn-ri-search {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .btn-ri-search:hover {
+            background: var(--ri-gold);
+            color: var(--ri-navy);
+        }
+
+        .btn-bao-cuuho {
+            background: #F5A623;
+            color: #071D2A !important;
+            border-radius: var(--ri-radius-pill);
+            height: 38px;
+            padding: 0 14px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 13.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(245, 166, 35, 0.2);
+            flex-shrink: 0;
+        }
+
+        .btn-bao-cuuho:hover {
+            background: #e0961d;
+            transform: translateY(-1px);
+        }
+
+        .btn-tai-khoan {
+            background: transparent;
+            color: white !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--ri-radius-pill);
+            height: 38px;
+            padding: 0 14px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-tai-khoan:hover, .btn-tai-khoan:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--ri-gold);
+            color: var(--ri-gold) !important;
+        }
+
+        .dropdown-menu {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-top: 10px !important;
+        }
+        .dropdown-item {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 10px 20px;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: var(--ri-teal);
+        }
+
+        .btn-hamburger {
+            color: white;
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .offcanvas-menu {
+            background-color: var(--ri-navy);
+            color: white;
+        }
+        .offcanvas-menu .offcanvas-header {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .offcanvas-menu .offcanvas-body {
+            padding: 20px;
+        }
+        .mobile-nav-link {
+            display: block;
+            color: white;
+            text-decoration: none;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            text-transform: uppercase;
+        }
+        .mobile-nav-link:hover, .mobile-nav-link.active {
+            color: var(--ri-gold);
+        }
+
+        @@media (max-width: 1399.98px) {
+            .ri-nav-link { font-size: 13px; gap: 12px; }
+            .btn-bao-cuuho, .btn-tai-khoan { font-size: 12.5px; padding: 0 10px; }
+            .ri-brand-title { font-size: 1.3rem; }
+        }
+        @@media (max-width: 1199.98px) {
+            .ri-nav-menu { gap: 8px; }
+            .ri-nav-link { font-size: 12.5px; }
+            .btn-bao-cuuho span { display: none; }
+            .btn-bao-cuuho { padding: 0 12px; }
+        }
+        @@media (max-width: 991.98px) {
+            .ri-brand { margin-right: 0; }
+            .ri-nav-actions { margin-left: 0; }
+        }
+        /* ========================================================= */
+
+        /* HERO HEADER BANNER */
+        .baocao-hero {
+            background: linear-gradient(135deg, var(--ri-navy-dark) 0%, var(--ri-navy) 60%, var(--ri-teal) 100%);
+            color: white;
+            padding: 35px 0 50px;
+            position: relative;
+            text-align: center;
+        }
+
+        .baocao-hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: var(--ri-bg);
+            border-radius: 30px 30px 0 0;
+        }
+
+        .hotline-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(225, 29, 72, 0.2);
+            border: 1px solid rgba(225, 29, 72, 0.5);
+            color: #FDA4AF;
+            padding: 4px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .hotline-badge .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #F43F5E;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7);
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @@keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(244, 63, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+        }
+
+        /* FORM CARD */
+        .baocao-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 12px 35px rgba(7, 29, 42, 0.08);
+            border: 1px solid rgba(7, 29, 42, 0.06);
+            margin-top: -20px;
+            position: relative;
+            z-index: 10;
+            padding: 25px !important;
+        }
+
+        .form-section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--ri-navy);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #F1F5F9;
+        }
+
+        /* INPUTS & SELECTS */
+        .form-control, .form-select {
+            border: 1.5px solid #E2E8F0;
+            padding: 8px 14px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--ri-teal);
+            box-shadow: 0 0 0 3px rgba(15, 56, 50, 0.12);
+        }
+
+        .form-label {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* UPLOAD DROPZONE */
+        .upload-dropzone {
+            border: 2px dashed #CBD5E1;
+            background: #F8FAFC;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .upload-dropzone:hover {
+            border-color: var(--ri-teal);
+            background: rgba(15, 56, 50, 0.03);
+        }
+
+        /* MAP STYLING */
+        #map {
+            height: 260px;
+            border-radius: 12px;
+            border: 1.5px solid #E2E8F0;
+            z-index: 1 !important;
+            isolation: isolate;
+        }
+
+        #map .leaflet-pane { z-index: 10 !important; }
+        #map .leaflet-top, #map .leaflet-bottom { z-index: 20 !important; }
+
+        /* BUTTONS */
+        .btn-submit-emergency {
+            background: linear-gradient(135deg, #E11D48 0%, #BE123C 100%);
+            color: white;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: none;
+            box-shadow: 0 6px 18px rgba(225, 29, 72, 0.35);
+            transition: all 0.25s ease;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-submit-emergency:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(225, 29, 72, 0.45);
+            color: white;
+        }
+
+        .btn-back-home {
+            border: 1.5px solid #CBD5E1;
+            color: #475569;
+            background: white;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 11px 22px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-back-home:hover {
+            background: #F1F5F9;
+            color: #0F172A;
+            border-color: #94A3B8;
+        }
+
+        .btn-gps-action {
+            background: #F0FDF4;
+            color: #166534;
+            border: 1.5px solid #BBF7D0;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 6px 16px;
+            border-radius: 50px;
+            transition: all 0.2s ease;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .btn-gps-action:hover {
+            background: #DCFCE7;
+            color: #14532D;
+            border-color: #86EFAC;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= TOP HEADER / NAVBAR TỐI ƯU ================= -->
+    <header class="ri-header" id="mainHeader">
+        <div class="container-fluid px-xl-5 px-3">
+            <div class="d-flex align-items-center justify-content-between h-100">
+                
+                <!-- KHU VỰC 1: LOGO BÊN TRÁI -->
+                <a href="/Home/Welcome" class="ri-brand">
+                    <div class="ri-brand-logo">
+                        <i class="fas fa-paw"></i>
+                    </div>
+                    <div class="ri-brand-title">
+                        <span>RescuePets</span>
+                        <small>Cứu Hộ & Bảo Trợ Động Vật</small>
+                    </div>
+                </a>
+
+                <!-- KHU VỰC 2: MENU ĐIỀU HƯỚNG Ở GIỮA (DESKTOP) -->
+                <nav class="ri-nav-menu d-none d-lg-flex">
+                    <a href="/Home/Welcome#trang-chu" class="ri-nav-link">Trang Chủ</a>
+                    <a href="/Home/Welcome#ve-tram" class="ri-nav-link">Về Trạm</a>
+                    <a href="/Home/Welcome#thu-cung" class="ri-nav-link">Thú Cưng</a>
+                    <a href="/Home/TinTuc" class="ri-nav-link">Tin Tức & Tạp Chí</a>
+                    <a href="/Home/Welcome#quyen-gop" class="ri-nav-link">Quyên Góp</a>
+                    <a href="/Home/Contact" class="ri-nav-link">Liên Hệ</a>
+                </nav>
+
+                <!-- NÚT HAMBURGER (MOBILE) -->
+                <button class="btn-hamburger d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <!-- KHU VỰC 3: CHỨC NĂNG BÊN PHẢI -->
+                <div class="ri-nav-actions d-none d-lg-flex">
+                    <!-- Tìm kiếm -->
+                    <a href="/Home/Welcome#thu-cung" class="btn-ri-search" title="Tìm kiếm">
+                        <i class="fas fa-magnifying-glass"></i>
+                    </a>
+
+                    <!-- Báo cứu hộ -->
+                    <a asp-controller="Home" asp-action="BaoCao" class="btn-bao-cuuho">
+                        <i class="fas fa-truck-medical"></i> <span>Báo Cứu Hộ</span>
+                    </a>
+
+                    <!-- Tài khoản / Đăng nhập -->
+                    @if (Context.Session.GetString("TenDangNhap") != null)
+                    {
+                        <div class="dropdown">
+                            <button class="btn-tai-khoan dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle fs-5"></i>
+                                <span class="text-truncate" style="max-width: 100px;">@Context.Session.GetString("TenDangNhap")</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item fw-semibold" href="/Home/Index"><i class="fas fa-gauge me-2 text-primary"></i>Giao Diện Hệ Thống</a></li>
+                                <li><a class="dropdown-item fw-semibold" href="/Profile/Index"><i class="fas fa-user-gear me-2 text-info"></i>Trang Cá Nhân</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item fw-semibold text-danger" href="/Login/DangXuat"><i class="fas fa-right-from-bracket me-2"></i>Đăng Xuất</a></li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dropdown">
+                            <button class="btn-tai-khoan dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user"></i> Tài Khoản
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item fw-semibold" href="/Login"><i class="fas fa-right-to-bracket me-2 text-warning"></i>Đăng Nhập</a></li>
+                                <li><a class="dropdown-item fw-semibold" href="/Login/DangKy"><i class="fas fa-user-plus me-2 text-success"></i>Đăng Ký</a></li>
+                            </ul>
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- OFFCANVAS MOBILE MENU -->
+    <div class="offcanvas offcanvas-end offcanvas-menu" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title serif-title text-white" id="mobileMenuLabel">Menu</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <a href="/Home/Welcome#trang-chu" class="mobile-nav-link" data-bs-dismiss="offcanvas">Trang Chủ</a>
+            <a href="/Home/Welcome#ve-tram" class="mobile-nav-link" data-bs-dismiss="offcanvas">Về Trạm</a>
+            <a href="/Home/Welcome#thu-cung" class="mobile-nav-link" data-bs-dismiss="offcanvas">Thú Cưng</a>
+            <a href="/Home/TinTuc" class="mobile-nav-link" data-bs-dismiss="offcanvas">Tin Tức & Tạp Chí</a>
+            <a href="/Home/Welcome#quyen-gop" class="mobile-nav-link" data-bs-dismiss="offcanvas">Quyên Góp</a>
+            <a href="/Home/Contact" class="mobile-nav-link" data-bs-dismiss="offcanvas">Liên Hệ</a>
+            
+            <hr class="border-secondary my-3">
+            
+            <!-- Chức năng Mobile -->
+            <a href="/Home/Welcome#thu-cung" class="mobile-nav-link" data-bs-dismiss="offcanvas"><i class="fas fa-search me-2"></i> Tìm Kiếm</a>
+            <a asp-controller="Home" asp-action="BaoCao" class="btn btn-warning w-100 rounded-pill mt-2 fw-bold text-uppercase"><i class="fas fa-truck-medical me-2"></i>Báo Cứu Hộ</a>
+            
+            @if (Context.Session.GetString("TenDangNhap") == null)
+            {
+                <div class="d-flex gap-2 mt-3">
+                    <a href="/Login" class="btn btn-outline-light w-50 rounded-pill fw-bold">Đăng Nhập</a>
+                    <a href="/Login/DangKy" class="btn btn-gold w-50 rounded-pill fw-bold" style="background: var(--ri-gold); color: var(--ri-navy);">Đăng Ký</a>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-2 mt-3">
+                    <a href="/Home/Index" class="btn btn-outline-light w-100 rounded-pill fw-bold">Giao Diện Hệ Thống</a>
+                    <a href="/Profile/Index" class="btn btn-outline-light w-100 rounded-pill fw-bold">Trang Cá Nhân</a>
+                    <a href="/Login/DangXuat" class="btn btn-danger w-100 rounded-pill fw-bold">Đăng Xuất</a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- HERO BANNER -->
+    <section class="baocao-hero">
+        <div class="container">
+            <div class="hotline-badge">
+                <span class="pulse-dot"></span>
+                <span>Hotline Cứu Trợ Khẩn Cấp: 0988 789 012</span>
+            </div>
+            <br>
+            <span class="script-accent">Hành động kịp thời vì các bé</span>
+            <h1 class="serif-title text-white mb-2" style="font-size: 2.2rem;">Báo Cáo Cứu Hộ Động Vật</h1>
+            <p class="text-white-50 mx-auto mb-0" style="max-width: 580px; font-size: 0.95rem; line-height: 1.6;">
+                Vui lòng cung cấp chi tiết tình trạng và định vị vị trí hiện trường để đội phản ứng nhanh RescuePets tiếp cận cứu hộ kịp thời nhất.
+            </p>
+        </div>
+    </section>
+
+    <!-- FORM CONTAINER -->
+    <div class="container mb-5" style="max-width: 860px;">
+
+        @if (ViewBag.Loi != null)
+        {
+            <div class="alert alert-danger rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3">
+                <i class="fas fa-triangle-exclamation fs-4"></i>
+                <div>
+                    <strong>Có lỗi xảy ra:</strong> @ViewBag.Loi
+                </div>
+            </div>
+        }
+
+        <div class="baocao-card p-4 p-md-5">
+            <form asp-controller="Home" asp-action="BaoCao" method="post" enctype="multipart/form-data" id="reportRescueForm">
+                
+                <div asp-validation-summary="All" class="text-danger small mb-3"></div>
+
+                <!-- 1. THÔNG TIN NGƯỜI BÁO CÁO -->
+                <div class="form-section-title">
+                    <span>1. Thông Tin Người Báo Cáo</span>
+                </div>
+
+                @if (isKhachVangLai)
+                {
+                    <div class="p-3 bg-light rounded-4 mb-4 border">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">Khách vãng lai</span>
+                            <small class="text-muted">Vui lòng để lại số điện thoại để trạm cứu hộ gọi xác minh vị trí khi xuất phát.</small>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Họ và tên của bạn</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-pill text-muted"><i class="fas fa-user"></i></span>
+                                    <input type="text" name="HoTenNguoiGui" class="form-control border-start-0 rounded-end-pill" placeholder="Ví dụ: Nguyễn Văn A" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số điện thoại liên hệ <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 rounded-start-pill text-muted"><i class="fas fa-phone"></i></span>
+                                    <input type="tel" name="SoDienThoai" class="form-control border-start-0 rounded-end-pill" placeholder="Ví dụ: 0988xxxxxx" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-success d-flex align-items-center gap-3 rounded-4 mb-4 py-3">
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>
+                            <strong class="d-block text-dark">Thành viên đã xác thực</strong>
+                            <small class="text-muted">Bạn đang gửi báo cáo cứu hộ với tài khoản thành viên trong hệ thống.</small>
+                        </div>
+                    </div>
+                }
+
+                <!-- 2. CHI TIẾT TÌNH TRẠNG & LOÀI ĐỘNG VẬT -->
+                <div class="form-section-title mt-4">
+                    <span>2. Thông Tin Bé Động Vật Cần Cứu Hộ</span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Mức độ khẩn cấp <span class="text-danger">*</span></label>
+                        <select asp-for="MucDoKhanCap" class="form-select rounded-pill">
+                            <option value="Bình thường">Bình thường (Đã ổn định, cần hỗ trợ)</option>
+                            <option value="Rất khẩn cấp">Rất khẩn cấp (Chấn thương nặng, nguy kịch)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Loài động vật <span class="text-danger">*</span></label>
+                        <select asp-for="LoaiDongVat" class="form-select rounded-pill">
+                            <option value="Chó">Chó</option>
+                            <option value="Mèo">Mèo</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Mô tả tình trạng bé & hiện trường</label>
+                    <textarea asp-for="MoTa" class="form-control rounded-4" rows="3" placeholder="Mô tả vết thương, màu lông, biểu hiện, đặc điểm nhận dạng hoặc lưu ý đặc biệt..."></textarea>
+                </div>
+
+                <!-- 3. HÌNH ẢNH HIỆN TRƯỜNG -->
+                <div class="form-section-title mt-4">
+                    <span>3. Hình Ảnh Hiện Trường / Động Vật</span>
+                </div>
+
+                <div class="mb-4">
+                    <div class="upload-dropzone" onclick="document.getElementById('imageFileInput').click()">
+                        <input type="file" id="imageFileInput" name="file" class="d-none" accept="image/*" onchange="previewImage(event)" />
+                        <div class="mb-2 text-muted" style="font-size: 2rem;">
+                            <i class="fas fa-cloud-arrow-up text-secondary"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1" style="font-size: 1rem;">Tải ảnh chụp hiện trường hoặc bé cưng</h6>
+                        <p class="text-muted small mb-0">Bấm vào đây để chọn tệp ảnh từ điện thoại hoặc máy tính (JPG, PNG)</p>
+                    </div>
+
+                    <!-- Live Image Preview -->
+                    <div id="previewContainer" class="mt-3 text-center d-none">
+                        <div class="position-relative d-inline-block">
+                            <img id="imgPreview" src="#" alt="Ảnh xem trước" class="rounded-4 shadow-sm border" style="max-height: 220px; max-width: 100%; object-fit: cover;" />
+                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow" onclick="removeImage()" title="Xóa ảnh">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. VỊ TRÍ CỨU HỘ & BẢN ĐỒ -->
+                <div class="form-section-title mt-4">
+                    <span>4. Xác Định Vị Trí Cứu Hộ</span>
+                </div>
+
+                <div class="p-3 bg-light rounded-4 mb-4 border">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                        <div>
+                            <button type="button" class="btn btn-gps-action" onclick="layViTriGPS()">
+                                <i class="fas fa-crosshairs me-1 text-success"></i> 📍 Lấy vị trí GPS hiện tại của tôi
+                            </button>
+                        </div>
+                        <small id="statusGPS" class="text-muted fw-semibold"></small>
+                    </div>
+
+                    <!-- Interactive Map -->
+                    <div id="map" class="mb-3 shadow-sm"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ mô tả chi tiết <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 rounded-start-pill text-danger"><i class="fas fa-map-pin"></i></span>
+                            <input asp-for="DiaChi" class="form-control border-start-0 rounded-end-pill" placeholder="Số nhà, ngõ ngách, tên đường, khu vực..." required />
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="p-2 bg-white rounded-3 border small">
+                                <span class="text-muted d-block" style="font-size: 0.72rem;">VĨ ĐỘ (LATITUDE)</span>
+                                <input asp-for="ViDo" class="form-control-plaintext py-0 fw-bold text-dark small" id="ViDo" readonly />
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 bg-white rounded-3 border small">
+                                <span class="text-muted d-block" style="font-size: 0.72rem;">KINH ĐỘ (LONGITUDE)</span>
+                                <input asp-for="KinhDo" class="form-control-plaintext py-0 fw-bold text-dark small" id="KinhDo" readonly />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBMIT ACTIONS -->
+                <div class="d-flex align-items-center justify-content-between gap-3 mt-4 pt-3 border-top flex-wrap flex-sm-nowrap">
+                    <a asp-controller="Home" asp-action="Welcome" class="btn-back-home">
+                        <i class="fas fa-arrow-left me-2"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn-submit-emergency text-uppercase flex-grow-1">
+                        <i class="fas fa-paper-plane me-2"></i> Gửi Báo Cáo Cứu Hộ Ngay
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-4 bg-dark text-white-50 small mt-5 border-top border-secondary border-opacity-25">
+        <div class="container">
+            <p class="mb-1">© 2026 RescuePets Vietnam · Hệ thống cứu hộ và bảo trợ động vật</p>
+            <p class="mb-0 text-white-50" style="font-size: 0.78rem;">Đường dây nóng hỗ trợ 24/7: <span class="text-warning fw-bold">+84 (0988) 789 012</span></p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Init Map
+        const defaultLat = 21.0285;
+        const defaultLng = 105.8542;
+
+        let currentLat = parseFloat(document.getElementById('ViDo').value) || defaultLat;
+        let currentLng = parseFloat(document.getElementById('KinhDo').value) || defaultLng;
+
+        // Populate defaults if empty
+        if (!document.getElementById('ViDo').value) {
+            document.getElementById('ViDo').value = currentLat.toFixed(6);
+        }
+        if (!document.getElementById('KinhDo').value) {
+            document.getElementById('KinhDo').value = currentLng.toFixed(6);
+        }
+
+        const map = L.map('map', {
+            scrollWheelZoom: false
+        }).setView([currentLat, currentLng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        const customMarkerIcon = L.divIcon({
+            className: 'custom-pin-rescue',
+            html: '<div style="background-color: #E11D48; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(225,29,72,0.4); border: 2px solid white;"><i class="fas fa-paw"></i></div>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
+        });
+
+        const marker = L.marker([currentLat, currentLng], { 
+            draggable: true,
+            icon: customMarkerIcon
+        }).addTo(map);
+
+        function updateInputs(lat, lng) {
+            document.getElementById('ViDo').value = lat.toFixed(6);
+            document.getElementById('KinhDo').value = lng.toFixed(6);
+        }
+
+        marker.on('dragend', function (e) {
+            const position = marker.getLatLng();
+            updateInputs(position.lat, position.lng);
+        });
+
+        map.on('click', function (e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+            marker.setLatLng([lat, lng]);
+            updateInputs(lat, lng);
+        });
+
+        function layViTriGPS() {
+            const status = document.getElementById('statusGPS');
+            if (!navigator.geolocation) {
+                status.innerText = "Trình duyệt không hỗ trợ GPS.";
+                status.className = "text-danger fw-semibold";
+                return;
+            }
+
+            status.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang xác định tọa độ GPS...';
+            status.className = "text-primary fw-semibold";
+
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    map.setView([lat, lng], 16);
+                    marker.setLatLng([lat, lng]);
+                    updateInputs(lat, lng);
+                    status.innerHTML = '✅ Đã định vị thành công!';
+                    status.className = "text-success fw-bold";
+                },
+                function (error) {
+                    status.innerText = "⚠️ Không lấy được vị trí GPS. Vui lòng bấm trực tiếp trên bản đồ.";
+                    status.className = "text-danger fw-semibold";
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        function previewImage(event) {
+            const input = event.target;
+            const container = document.getElementById('previewContainer');
+            const preview = document.getElementById('imgPreview');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    container.classList.remove('d-none');
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                removeImage();
+            }
+        }
+
+        function removeImage() {
+            const input = document.getElementById('imageFileInput');
+            const container = document.getElementById('previewContainer');
+            const preview = document.getElementById('imgPreview');
+
+            if (input) input.value = '';
+            if (preview) preview.src = '#';
+            if (container) container.classList.add('d-none');
+        }
+    </script>
+</body>
+</html>

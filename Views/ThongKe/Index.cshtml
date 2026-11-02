@@ -1,0 +1,131 @@
+﻿@model HeThongCuuHo.Models.ThongKeViewModel
+
+@{
+    ViewData["Title"] = "Thống kê & Báo cáo";
+}
+
+<!-- Nhúng thư viện Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📊 Thống Kê Hoạt Động Cứu Hộ & Nhận Nuôi</h2>
+        
+        <form method="get" class="d-flex align-items-center gap-2">
+            <label class="fw-bold mb-0">Năm:</label>
+            <select name="nam" class="form-select w-auto" onchange="this.form.submit()">
+                @for (int year = DateTime.Now.Year; year >= DateTime.Now.Year - 4; year--)
+                {
+                    <option value="@year" selected="@(year == ViewBag.NamChon)">@year</option>
+                }
+            </select>
+        </form>
+    </div>
+
+    <!-- 4 Thẻ KPI chính -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-uppercase fw-bold opacity-75">Tổng Báo Cáo</h6>
+                    <h2 class="mb-0 fw-bold">@Model.TongSoBaoCao</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-uppercase fw-bold opacity-75">Ca Cứu Hộ Thành Công</h6>
+                    <h2 class="mb-0 fw-bold">@Model.CaCuuHoHoanThanh</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-uppercase fw-bold opacity-75">Động Vật Đã Tiếp Nhận</h6>
+                    <h2 class="mb-0 fw-bold">@Model.TongSoDongVat</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-uppercase fw-bold opacity-75">Đã Được Nhận Nuôi</h6>
+                    <h2 class="mb-0 fw-bold">@Model.DongVatDaDuocNhanNuoi</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ -->
+    <div class="row g-4 mb-4">
+        <!-- Biểu đồ Cột: Số ca cứu hộ theo tháng -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white fw-bold">
+                    📈 Số ca cứu hộ theo tháng trong năm @ViewBag.NamChon
+                </div>
+                <div class="card-body">
+                    <canvas id="chartThang" style="max-height: 320px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ Tròn: Phân bổ loài động vật -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white fw-bold">
+                    🐕 Phân bổ theo Loài
+                </div>
+                <div class="card-body d-flex justify-content-center align-items-center">
+                    <canvas id="chartLoai" style="max-height: 280px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Khởi tạo Biểu đồ Cột (Ca cứu hộ theo tháng)
+    const ctxThang = document.getElementById('chartThang').getContext('2d');
+    new Chart(ctxThang, {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CaCuuHoTheoThang.Select(x => x.Thang))),
+            datasets: [{
+                label: 'Số ca cứu hộ',
+                data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CaCuuHoTheoThang.Select(x => x.SoLuong))),
+                backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                borderColor: 'rgba(13, 110, 253, 1)',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+
+    // 2. Khởi tạo Biểu đồ Tròn (Cơ cấu Động vật)
+    const ctxLoai = document.getElementById('chartLoai').getContext('2d');
+    new Chart(ctxLoai, {
+        type: 'doughnut',
+        data: {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DongVatTheoLoai.Select(x => x.TenLoai))),
+            datasets: [{
+                data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DongVatTheoLoai.Select(x => x.SoLuong))),
+                backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56', '#4bc0c0']
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>

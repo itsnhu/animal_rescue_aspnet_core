@@ -1,0 +1,311 @@
+﻿@model HeThongCuuHo.Models.NguoiDung
+
+@{
+    ViewData["Title"] = "Chỉnh sửa hồ sơ";
+    
+    // Logic lấy ảnh đại diện
+    string avatarUrl = string.IsNullOrEmpty(Model.AnhDaiDien) 
+        ? $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(string.IsNullOrEmpty(Model.HoTen) ? "User" : Model.HoTen)}&background=10b981&color=fff&size=256&font-size=0.4&bold=true"
+        : Url.Content($"~/uploads/avatars/{Model.AnhDaiDien}?v={DateTime.Now.Ticks}");
+}
+
+<style>
+    /* 1. ĐỒNG BỘ FONT TIMES NEW ROMAN THEO YÊU CẦU */
+    body, h1, h2, h3, h4, h5, h6, .card, .btn, .form-control, label, input, select, textarea {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f4f6f9;
+    }
+
+    .card-custom {
+        max-width: 1000px;
+        margin: 0 auto;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        background-color: #ffffff;
+        overflow: hidden;
+    }
+
+    /* TIÊU ĐỀ */
+    .card-header-custom {
+        padding: 20px 25px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .card-header-custom h4 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+    .card-header-custom p {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+    /* KHU VỰC AVATAR (CỘT TRÁI) */
+    .avatar-section {
+        text-align: center;
+        padding: 20px;
+        border-right: 1px solid #f1f5f9;
+    }
+    
+    .avatar-preview {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #e2e8f0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    .avatar-preview:hover {
+        border-color: #10b981;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-upload {
+        background-color: #f8fafc;
+        color: #334155;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 6px 15px;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-upload:hover {
+        background-color: #e2e8f0;
+        color: #0f172a;
+    }
+
+    .avatar-note {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-top: 12px;
+        line-height: 1.4;
+    }
+
+    /* KHU VỰC FORM (CỘT PHẢI) */
+    .form-section {
+        padding: 25px 30px;
+    }
+
+    .form-label {
+        font-weight: 700;
+        color: #334155;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-control-custom {
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        font-size: 0.95rem;
+        padding: 10px 15px;
+        height: 46px;
+        transition: all 0.2s;
+        background-color: #f8fafc;
+        color: #0f172a;
+    }
+
+    .form-control-custom:focus {
+        background-color: #ffffff;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+
+    .form-control-custom:disabled {
+        background-color: #f1f5f9;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    /* NÚT BẤM */
+    .btn-action {
+        border-radius: 8px;
+        font-weight: 700;
+        padding: 10px 24px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    /* RESPONSIVE */
+    @@media (max-width: 768px) {
+        .avatar-section {
+            border-right: none;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .form-section {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="container-fluid py-4 px-md-4">
+    <div class="card-custom">
+        
+        <!-- HEADER -->
+        <div class="card-header-custom">
+            <h4>Chỉnh Sửa Hồ Sơ Cá Nhân</h4>
+            <p>Cập nhật thông tin tài khoản và chi tiết cá nhân của bạn</p>
+        </div>
+
+        <!-- BODY -->
+        <div class="row m-0">
+            <!-- CỘT TRÁI: AVATAR -->
+            <div class="col-md-3 avatar-section d-flex flex-column align-items-center justify-content-center">
+                
+                <img src="@avatarUrl" alt="Avatar" class="avatar-preview" id="imgAvatarPreview" />
+                
+                <!-- Input file ẩn -->
+                <input type="file" id="fileAvatarInput" accept="image/png, image/jpeg, image/jpg" style="display: none;" />
+                
+                <!-- Nút kích hoạt upload -->
+                <button type="button" class="btn-upload" onclick="document.getElementById('fileAvatarInput').click();">
+                    <i class="fas fa-camera"></i> Thay đổi ảnh
+                </button>
+                
+                <div class="avatar-note">
+                    Hỗ trợ JPG, PNG, JPEG.<br>Dung lượng tối đa 2MB.
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI: FORM THÔNG TIN -->
+            <div class="col-md-9 form-section">
+                <form asp-action="Sua" method="post" id="profileForm">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-4" style="font-size: 0.9rem; border-radius: 8px;"></div>
+
+                    <!-- Khóa chính ẩn -->
+                    <input type="hidden" asp-for="MaNguoiDung" />
+                    <input type="hidden" asp-for="AnhDaiDien" id="hiddenAvatarName" value="@Model.AnhDaiDien" />
+
+                    <div class="row">
+                        <!-- Họ tên -->
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="HoTen" class="form-label">Họ và tên</label>
+                            <input asp-for="HoTen" class="form-control form-control-custom" placeholder="Nhập họ tên..." />
+                            <span asp-validation-for="HoTen" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="Email" class="form-label">Địa chỉ Email</label>
+                            <input asp-for="Email" class="form-control form-control-custom" placeholder="Nhập email..." />
+                            <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <!-- Số điện thoại -->
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="SoDienThoai" class="form-label">Số điện thoại</label>
+                            <input asp-for="SoDienThoai" class="form-control form-control-custom" placeholder="Nhập số điện thoại..." />
+                            <span asp-validation-for="SoDienThoai" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <!-- Địa chỉ -->
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="DiaChi" class="form-label">Địa chỉ liên hệ</label>
+                            <input asp-for="DiaChi" class="form-control form-control-custom" placeholder="Nhập địa chỉ..." />
+                            <span asp-validation-for="DiaChi" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+
+                    <!-- NÚT BẤM -->
+                    <div class="d-flex align-items-center justify-content-end mt-4 pt-4 border-top">
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-action mr-3">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                        <button type="submit" class="btn btn-success btn-action" id="btnSaveProfile">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            // Lắng nghe sự kiện khi người dùng chọn file ảnh
+            $('#fileAvatarInput').on('change', function () {
+                var file = this.files[0];
+                if (!file) return;
+
+                // Validate sơ bộ dung lượng (Client-side)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert("Kích thước ảnh không được vượt quá 2MB.");
+                    $(this).val(''); // Reset input
+                    return;
+                }
+
+                // Hiển thị trạng thái đang tải (có thể thêm spinner nếu muốn)
+                var $btnUpload = $('.btn-upload');
+                var originalText = $btnUpload.html();
+                $btnUpload.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang tải...');
+
+                // Chuẩn bị dữ liệu gửi lên Server
+                var formData = new FormData();
+                formData.append("file", file);
+
+                // Gọi AJAX lên Controller
+                $.ajax({
+                    url: '/Profile/DoiAvatar',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,  // Bắt buộc để gửi file
+                    contentType: false,  // Bắt buộc để gửi file
+                    success: function (res) {
+                        if (res.success) {
+                            // Cập nhật ảnh mới kèm theo tham số chống cache
+                            var newUrl = res.url + "?v=" + new Date().getTime();
+                            $('#imgAvatarPreview').attr('src', newUrl);
+                            
+                            // Cập nhật thẻ input hidden để khi submit form không bị mất ảnh
+                            // (Lấy tên file từ URL trả về)
+                            var fileName = res.url.split('/').pop();
+                            $('#hiddenAvatarName').val(fileName);
+
+                            alert("Cập nhật ảnh đại diện thành công!");
+                        } else {
+                            alert("Lỗi: " + res.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Có lỗi xảy ra trong quá trình tải ảnh lên.");
+                    },
+                    complete: function () {
+                        // Khôi phục trạng thái nút
+                        $btnUpload.prop('disabled', false).html(originalText);
+                        $('#fileAvatarInput').val(''); // Reset input file
+                    }
+                });
+            });
+
+            // Hiệu ứng Loading khi bấm Lưu thay đổi
+            $('#profileForm').on('submit', function () {
+                var $btn = $('#btnSaveProfile');
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang lưu...');
+            });
+        });
+    </script>
+}

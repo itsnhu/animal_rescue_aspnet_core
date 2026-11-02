@@ -1,0 +1,194 @@
+<!-- Views/Shared/_PublicHeader.cshtml -->
+@{
+    var controller = ViewContext.RouteData.Values["Controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["Action"]?.ToString();
+}
+
+<style>
+    :root {
+        --ri-navy: #071D2A;
+        --ri-gold: #D4A373;
+        --ri-teal: #0F3832;
+    }
+
+    .ri-header {
+        background-color: var(--ri-navy);
+        color: white;
+        padding: 12px 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .ri-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: white;
+    }
+
+    .ri-brand-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: var(--ri-gold);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .ri-brand-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.45rem;
+        font-weight: 800;
+        line-height: 1;
+        color: white;
+    }
+
+    .ri-brand-title small {
+        display: block;
+        font-family: 'Be Vietnam Pro', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--ri-gold);
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin-top: 3px;
+    }
+
+    .ri-nav-link {
+        font-family: 'Be Vietnam Pro', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: rgba(255, 255, 255, 0.88) !important;
+        padding: 8px 14px !important;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .ri-nav-link:hover, .ri-nav-link.active {
+        color: var(--ri-gold) !important;
+    }
+
+    .ri-social-btn {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.12);
+        color: white;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+
+    .ri-social-btn:hover {
+        background: var(--ri-gold);
+        color: var(--ri-navy);
+        transform: scale(1.1);
+    }
+
+    .btn-ri-search {
+        width: 38px;
+        height: 38px;
+        background: var(--ri-teal);
+        color: white;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.25s ease;
+    }
+
+    .btn-ri-search:hover {
+        background: var(--ri-gold);
+        color: var(--ri-navy);
+    }
+</style>
+
+<!-- ================= TOP HEADER / NAVBAR ================= -->
+<header class="ri-header" id="mainHeader">
+    <div class="container-fluid px-lg-5">
+        <div class="d-flex align-items-center justify-content-between">
+            
+            <!-- Logo & Brand Name -->
+            <a href="/Home/Welcome#trang-chu" class="ri-brand">
+                <div class="ri-brand-logo">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <div class="ri-brand-title">
+                    <span>RescuePets</span>
+                    <small>Cứu Hộ & Bảo Trợ Động Vật</small>
+                </div>
+            </a>
+
+            <!-- Nav Links -->
+            <nav class="d-none d-lg-flex align-items-center gap-1">
+                <a href="/Home/Welcome#trang-chu" class="ri-nav-link @(controller == "Home" && action == "Welcome" ? "active" : "")">Trang Chủ</a>
+                <a href="/Home/Welcome#ve-tram" class="ri-nav-link">Về Trạm</a>
+                <a href="/Home/Welcome#thu-cung" class="ri-nav-link">Thú Cưng</a>
+                <a href="/Home/TinTuc" class="ri-nav-link @(action == "TinTuc" ? "active" : "")">Tin Tức & Tạp Chí</a>
+                <a href="/Home/Welcome#quyen-gop" class="ri-nav-link">Quyên Góp</a>
+                <a href="/Home/Welcome#lien-he" class="ri-nav-link">Liên Hệ</a>
+            </nav>
+
+            <!-- Right Controls & Socials -->
+            <div class="d-flex align-items-center gap-2">
+                <div class="d-none d-md-flex align-items-center gap-1 me-2">
+                    <a href="https://facebook.com" target="_blank" class="ri-social-btn" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://instagram.com" target="_blank" class="ri-social-btn" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://youtube.com" target="_blank" class="ri-social-btn" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="mailto:rescuepets@gmail.com" class="ri-social-btn" title="Email"><i class="fas fa-envelope"></i></a>
+                </div>
+                
+                <a href="/Home/Welcome#thu-cung" class="btn-ri-search text-decoration-none" title="Tìm kiếm">
+                    <i class="fas fa-magnifying-glass"></i>
+                </a>
+
+                <a asp-controller="Home" asp-action="BaoCao" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-uppercase ms-1 d-none d-sm-inline-block" style="font-size: 0.78rem;">
+                    <i class="fas fa-truck-medical me-1"></i>Báo Cứu Hộ
+                </a>
+
+                <!-- Account / Login Button Group -->
+                @if (Context.Session.GetString("TenDangNhap") != null)
+                {
+                    <div class="dropdown ms-1">
+                        <button class="btn btn-outline-warning btn-sm rounded-pill px-3 fw-bold dropdown-toggle text-uppercase d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.78rem;">
+                            <i class="fas fa-user-circle fs-6 me-1"></i>
+                            <span>@Context.Session.GetString("TenDangNhap")</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+                            <li><a class="dropdown-item fw-semibold" href="/Home/Index"><i class="fas fa-gauge me-2 text-primary"></i>Giao Diện Hệ Thống</a></li>
+                            <li><a class="dropdown-item fw-semibold" href="/Profile/Index"><i class="fas fa-user-gear me-2 text-info"></i>Trang Cá Nhân</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item fw-semibold text-danger" href="/Login/DangXuat"><i class="fas fa-right-from-bracket me-2"></i>Đăng Xuất</a></li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a href="/Login" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold text-uppercase ms-1" style="font-size: 0.78rem; border-color: rgba(255,255,255,0.4);">
+                        <i class="fas fa-right-to-bracket me-1 text-warning"></i>Đăng Nhập
+                    </a>
+                    <a href="/Login/DangKy" class="btn btn-gold btn-sm rounded-pill px-3 fw-bold text-uppercase d-none d-lg-inline-block ms-1" style="font-size: 0.78rem; background: #D4A373; color: #071D2A;">
+                        <i class="fas fa-user-plus me-1"></i>Đăng Ký
+                    </a>
+                }
+            </div>
+
+        </div>
+    </div>
+</header>

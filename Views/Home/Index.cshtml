@@ -1,0 +1,584 @@
+@{
+    ViewData["Title"] = "Tổng quan hệ thống";
+}
+
+<style>
+    :root {
+        --dash-bg: #f8fafc;
+        --dash-card-bg: #ffffff;
+        --dash-text-main: #0f172a;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-primary: #0F3832;
+        --dash-emerald: #10b981;
+        --dash-gold: #D4A373;
+    }
+
+    /* 1 & 2. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .card, .btn, .badge, p, span, div, label, input, select, textarea, table, th, td {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: var(--dash-bg);
+        font-size: 0.95rem; /* Giảm nhẹ font chữ tổng thể */
+    }
+
+    /* ===== PAGE HEADER (Thu gọn) ===== */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .dashboard-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.4px;
+        margin-bottom: 2px;
+    }
+
+    .dashboard-subtitle {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+    .header-badge-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #475569;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    /* ===== STAT METRIC CARDS (Thu gọn tối đa) ===== */
+    .stat-card-modern {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 10px 15px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        transition: all 0.25s ease;
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .stat-card-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+        border-color: #cbd5e1;
+    }
+
+    .stat-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 5px;
+    }
+
+    .stat-icon-wrapper {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .stat-badge-tag {
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .stat-number {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1;
+        letter-spacing: -0.5px;
+        margin-bottom: 2px;
+    }
+
+    .stat-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+    .stat-card-footer {
+        margin-top: 8px;
+        padding-top: 6px;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.72rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .stat-card-footer .stat-link-arrow {
+        color: #0F3832;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+    }
+
+    .stat-card-modern:hover .stat-link-arrow {
+        color: #10b981;
+    }
+
+    /* Color Themes */
+    .theme-sky .stat-icon-wrapper { background: #e0f2fe; color: #0284c7; }
+    .theme-sky .stat-badge-tag { background: #e0f2fe; color: #0369a1; }
+    .theme-emerald .stat-icon-wrapper { background: #dcfce7; color: #16a34a; }
+    .theme-emerald .stat-badge-tag { background: #dcfce7; color: #15803d; }
+    .theme-amber .stat-icon-wrapper { background: #fef3c7; color: #d97706; }
+    .theme-amber .stat-badge-tag { background: #fef3c7; color: #b45309; }
+    .theme-rose .stat-icon-wrapper { background: #ffe4e6; color: #e11d48; }
+    .theme-rose .stat-badge-tag { background: #ffe4e6; color: #be123c; }
+    .theme-indigo .stat-icon-wrapper { background: #e0e7ff; color: #4f46e5; }
+    .theme-indigo .stat-badge-tag { background: #e0e7ff; color: #4338ca; }
+    .theme-teal .stat-icon-wrapper { background: #ccfbf1; color: #0d9488; }
+    .theme-teal .stat-badge-tag { background: #ccfbf1; color: #0f766e; }
+
+    /* ===== STATUS SUMMARY CARDS (Thu gọn) ===== */
+    .action-strip {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 10px 15px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        transition: all 0.2s ease;
+    }
+
+    .action-strip:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+    }
+
+    .action-strip.strip-warning { border-left: 4px solid #f59e0b; }
+    .action-strip.strip-info { border-left: 4px solid #0ea5e9; }
+
+    .action-strip-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .action-strip-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .strip-warning .action-strip-icon { background: #fef3c7; color: #d97706; }
+    .strip-info .action-strip-icon { background: #e0f2fe; color: #0284c7; }
+
+    .action-strip-title {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #0f172a;
+        margin-bottom: 1px;
+    }
+
+    .action-strip-sub {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+    /* ===== CONTENT PANELS (Thu gọn) ===== */
+    .dashboard-panel {
+        background: #ffffff;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        margin-bottom: 10px;
+        overflow: hidden;
+    }
+
+    .dashboard-panel-header {
+        padding: 10px 15px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .dashboard-panel-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .dashboard-panel-title i { color: #0F3832; }
+
+    .dashboard-panel-body { padding: 12px; }
+
+    /* Table */
+    .custom-table { width: 100%; margin-bottom: 0; }
+    .custom-table thead th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 6px 10px;
+        border-top: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .custom-table tbody td {
+        padding: 8px 10px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.8rem;
+        color: #334155;
+    }
+
+    .custom-table tbody tr:last-child td { border-bottom: none; }
+    .custom-table tbody tr:hover { background-color: #f8fafc; }
+
+    .badge-status-pill {
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        display: inline-block;
+    }
+    .badge-status-pill.status-pending { background: #fef3c7; color: #b45309; }
+    .badge-status-pill.status-rescuing { background: #e0f2fe; color: #0369a1; }
+    .badge-status-pill.status-completed { background: #dcfce7; color: #15803d; }
+</style>
+
+<div class="content pt-1 pb-2">
+    <div class="container-fluid">
+
+        <!-- 1. CLEAN PAGE HEADER -->
+        <div class="dashboard-header">
+            <div>
+                <h1 class="dashboard-title">Tổng quan Hệ thống</h1>
+                <p class="dashboard-subtitle">Dữ liệu tổng hợp và tình trạng cứu hộ động vật</p>
+            </div>
+            <div class="d-flex align-items-center">
+                <span class="header-badge-date d-none d-sm-inline-flex mr-2">
+                    <i class="far fa-calendar-alt text-muted"></i>
+                    @DateTime.Now.ToString("dd/MM/yyyy")
+                </span>
+                <a asp-controller="BaoCao" asp-action="Index" class="btn btn-sm btn-outline-secondary font-weight-bold px-3 py-1 ml-2" style="border-radius: 6px; font-size: 0.8rem;">
+                    <i class="fas fa-list mr-1"></i> Báo cáo
+                </a>
+                <a asp-controller="CuuHo" asp-action="Index" class="btn btn-sm btn-success font-weight-bold px-3 py-1 ml-2" style="background: #0F3832; border-color: #0F3832; border-radius: 6px; font-size: 0.8rem;">
+                    <i class="fas fa-ambulance mr-1"></i> Điều phối cứu hộ
+                </a>
+            </div>
+        </div>
+
+        <!-- 2. GRID 6 STAT METRIC CARDS -->
+        <div class="row">
+            <!-- Báo cáo mới -->
+            <div class="col-xl-4 col-md-6">
+                <a asp-controller="BaoCao" asp-action="Index" class="stat-card-modern theme-sky">
+                    <div class="stat-card-top">
+                        <div class="stat-icon-wrapper"><i class="fas fa-bullhorn"></i></div>
+                        <span class="stat-badge-tag">Tiếp nhận</span>
+                    </div>
+                    <div class="stat-number">@ViewBag.SoBaoCao</div>
+                    <div class="stat-title">Báo cáo cứu hộ</div>
+                    <div class="stat-card-footer">
+                        <span>Người dân gửi về</span>
+                        <span class="stat-link-arrow"><i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Đang cứu hộ -->
+            <div class="col-xl-4 col-md-6">
+                <a asp-controller="CuuHo" asp-action="Index" class="stat-card-modern theme-emerald">
+                    <div class="stat-card-top">
+                        <div class="stat-icon-wrapper"><i class="fas fa-ambulance"></i></div>
+                        <span class="stat-badge-tag">Đang xử lý</span>
+                    </div>
+                    <div class="stat-number">@ViewBag.SoCuuHo</div>
+                    <div class="stat-title">Đang điều phối cứu hộ</div>
+                    <div class="stat-card-footer">
+                        <span>Đội cứu hộ đang hỗ trợ</span>
+                        <span class="stat-link-arrow"><i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Ca điều trị -->
+            <div class="col-xl-4 col-md-6">
+                <a asp-controller="DieuTri" asp-action="Index" class="stat-card-modern theme-amber">
+                    <div class="stat-card-top">
+                        <div class="stat-icon-wrapper"><i class="fas fa-stethoscope"></i></div>
+                        <span class="stat-badge-tag">Y tế</span>
+                    </div>
+                    <div class="stat-number">@ViewBag.SoDieuTri</div>
+                    <div class="stat-title">Hồ sơ điều trị y tế</div>
+                    <div class="stat-card-footer">
+                        <span>Ca bệnh đang điều trị</span>
+                        <span class="stat-link-arrow"><i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Lượt nhận nuôi -->
+            <div class="col-xl-4 col-md-6">
+                <a asp-controller="NhanNuoi" asp-action="Index" class="stat-card-modern theme-rose">
+                    <div class="stat-card-top">
+                        <div class="stat-icon-wrapper"><i class="fas fa-hand-holding-heart"></i></div>
+                        <span class="stat-badge-tag">Nhận nuôi</span>
+                    </div>
+                    <div class="stat-number">@ViewBag.SoNhanNuoi</div>
+                    <div class="stat-title">Đơn xin nhận nuôi</div>
+                    <div class="stat-card-footer">
+                        <span>@ViewBag.DonChoDuyet đơn chờ duyệt</span>
+                        <span class="stat-link-arrow"><i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Động vật quản lý -->
+            <div class="col-xl-4 col-md-6">
+                <a asp-controller="DongVat" asp-action="Index" class="stat-card-modern theme-teal">
+                    <div class="stat-card-top">
+                        <div class="stat-icon-wrapper"><i class="fas fa-paw"></i></div>
+                        <span class="stat-badge-tag">Bảo trợ</span>
+                    </div>
+                    <div class="stat-number">@ViewBag.SoDongVat</div>
+                    <div class="stat-title">Động vật tại trạm</div>
+                    <div class="stat-card-footer">
+                        <span>Đang được nuôi dưỡng</span>
+                        <span class="stat-link-arrow"><i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Tình nguyện viên -->
+            <div class="col-xl-4 col-md-6">
+                <a asp-controller="TinhNguyenVien" asp-action="Index" class="stat-card-modern theme-indigo">
+                    <div class="stat-card-top">
+                        <div class="stat-icon-wrapper"><i class="fas fa-users"></i></div>
+                        <span class="stat-badge-tag">Tình nguyện</span>
+                    </div>
+                    <div class="stat-number">@ViewBag.SoTinhNguyenVien</div>
+                    <div class="stat-title">Tình nguyện viên</div>
+                    <div class="stat-card-footer">
+                        <span>Thành viên hệ thống</span>
+                        <span class="stat-link-arrow"><i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 3. ACTION STRIPS -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="action-strip strip-warning">
+                    <div class="action-strip-content">
+                        <div class="action-strip-icon"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <div class="action-strip-title">Báo cáo chờ xử lý</div>
+                            <p class="action-strip-sub">Có <strong>@ViewBag.BaoCaoChoXuLy</strong> ca cần phân công</p>
+                        </div>
+                    </div>
+                    <a asp-controller="BaoCao" asp-action="Index" class="btn btn-sm btn-outline-warning font-weight-bold px-3 py-1" style="border-radius: 6px; color: #b45309; border-color: #f59e0b; font-size: 0.8rem;">
+                        Xử lý ngay
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="action-strip strip-info">
+                    <div class="action-strip-content">
+                        <div class="action-strip-icon"><i class="fas fa-sync"></i></div>
+                        <div>
+                            <div class="action-strip-title">Báo cáo đang cứu hộ</div>
+                            <p class="action-strip-sub">Có <strong>@ViewBag.BaoCaoDangCuuHo</strong> ca đang triển khai</p>
+                        </div>
+                    </div>
+                    <a asp-controller="CuuHo" asp-action="Index" class="btn btn-sm btn-outline-info font-weight-bold px-3 py-1" style="border-radius: 6px; color: #0369a1; border-color: #0ea5e9; font-size: 0.8rem;">
+                        Xem tiến độ
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. BIỂU ĐỒ & BÁO CÁO MỚI TIẾP NHẬN -->
+        <div class="row">
+            <!-- Biểu đồ -->
+            <div class="col-lg-8">
+                <div class="dashboard-panel h-100">
+                    <div class="dashboard-panel-header">
+                        <h3 class="dashboard-panel-title">
+                            <i class="fas fa-chart-bar text-success"></i> Thống kê báo cáo cứu hộ
+                        </h3>
+                        <span class="badge bg-light text-secondary border font-weight-bold px-2 py-1" style="border-radius: 6px; font-size: 0.72rem;">
+                            Năm @DateTime.Now.Year
+                        </span>
+                    </div>
+                    <div class="dashboard-panel-body">
+                        <canvas id="chartBaoCao" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách báo cáo mới -->
+            <div class="col-lg-4">
+                <div class="dashboard-panel h-100 d-flex flex-column">
+                    <div class="dashboard-panel-header">
+                        <h3 class="dashboard-panel-title">
+                            <i class="fas fa-list text-primary"></i> Báo cáo mới
+                        </h3>
+                    </div>
+                    <div class="dashboard-panel-body p-0 flex-grow-1">
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã</th>
+                                        <th>Loài</th>
+                                        <th class="text-right">Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.BaoCaoMoi != null && ((IEnumerable<dynamic>)ViewBag.BaoCaoMoi).Any())
+                                    {
+                                        foreach (var item in ViewBag.BaoCaoMoi)
+                                        {
+                                            <tr>
+                                                <!-- 3. Bỏ dấu # ở mã -->
+                                                <td class="font-weight-bold text-secondary">@item.MaBaoCao</td>
+                                                <td>@item.LoaiDongVat</td>
+                                                <td class="text-right">
+                                                    @if (item.TrangThai == "Chờ xử lý")
+                                                    {
+                                                        <span class="badge-status-pill status-pending">Chờ xử lý</span>
+                                                    }
+                                                    else if (item.TrangThai == "Đang cứu hộ")
+                                                    {
+                                                        <span class="badge-status-pill status-rescuing">Đang cứu hộ</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge-status-pill status-completed">Hoàn thành</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="3" class="text-center py-4 text-muted">Chưa có báo cáo nào</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="p-2 border-top bg-white text-center">
+                        <a asp-controller="BaoCao" asp-action="Index" class="btn btn-sm btn-outline-secondary px-3 py-1" style="border-radius: 6px; font-size: 0.8rem;">
+                            Xem tất cả
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts{
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('chartBaoCao');
+    if (ctx) {
+        const chartContext = ctx.getContext('2d');
+
+        const gradient = chartContext.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.85)');
+        gradient.addColorStop(1, 'rgba(16, 185, 129, 0.08)');
+
+        const chartData = [18, 32, 22, 42, 28, 54, 36, 48, 26, 38, 50, 34];
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                datasets: [{
+                    label: 'Số lượng ca cứu hộ',
+                    data: chartData,
+                    backgroundColor: gradient,
+                    borderColor: '#10b981',
+                    borderWidth: 1.5,
+                    borderRadius: 4,
+                    borderSkipped: false,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#071D2A',
+                        padding: 8,
+                        cornerRadius: 6,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) { return ' ' + context.parsed.y + ' ca'; }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#64748b', font: { weight: '600', size: 11 } }
+                    },
+                    y: {
+                        grid: { color: '#f1f5f9' },
+                        ticks: { color: '#64748b', precision: 0, font: { size: 11 } },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+}

@@ -1,0 +1,284 @@
+﻿@model HeThongCuuHo.Models.DongVat
+
+@{
+    ViewData["Title"] = "Cập nhật thông tin động vật";
+    
+    // Xử lý đường dẫn ảnh hiện tại
+    var imgPath = string.IsNullOrEmpty(Model.HinhAnh) 
+        ? "/images/default-avatar.png" 
+        : (Model.HinhAnh.StartsWith("/") || Model.HinhAnh.StartsWith("http") 
+            ? Model.HinhAnh 
+            : "/uploads/" + Model.HinhAnh);
+}
+
+<style>
+    /* 1. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, 
+    .card, .btn, p, span, div, small, b, strong, a, input, select, textarea, label {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+        font-size: 1rem;
+    }
+
+    /* Card Thu gọn */
+    .card-custom {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .card-header-custom {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: #ffffff;
+        padding: 12px 20px;
+    }
+
+    .form-label {
+        font-weight: 700;
+        color: #334155;
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+    }
+
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        font-size: 1rem;
+        padding: 6px 12px;
+        height: auto;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
+    }
+
+    .input-group-text {
+        border-radius: 6px 0 0 6px;
+        background-color: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-right: none;
+        color: #64748b;
+    }
+
+    .input-group .form-control {
+        border-left: none;
+        border-radius: 0 6px 6px 0;
+    }
+
+    /* Khung ảnh thu gọn */
+    .img-preview-box {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+    }
+
+    /* Nút bấm */
+    .btn-custom {
+        border-radius: 6px;
+        font-weight: 700;
+        padding: 8px 20px;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-submit {
+        background: #f59e0b;
+        color: #1e293b;
+        border: none;
+        box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
+    }
+    .btn-submit:hover { background: #d97706; color: #ffffff; transform: translateY(-1px); }
+    
+    .btn-back {
+        background: #ffffff;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+    .btn-back:hover { background: #f1f5f9; color: #0f172a; }
+</style>
+
+<div class="container-fluid py-3 px-md-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            
+            <!-- KHUNG FORM -->
+            <div class="card card-custom">
+                
+                <!-- Header -->
+                <div class="card-header-custom">
+                    <h4 class="mb-0 font-weight-bold" style="font-size: 1.3rem;">
+                        <i class="fas fa-edit mr-2"></i>Cập Nhật Thông Tin Động Vật
+                    </h4>
+                    <p class="mb-0 small" style="opacity: 0.8;">Chỉnh sửa chi tiết hồ sơ cứu hộ</p>
+                </div>
+
+                <!-- Nội dung Form -->
+                <div class="card-body p-3 bg-white">
+                    <form asp-action="Sua" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-3" style="font-size: 0.95rem;"></div>
+                        
+                        <!-- Hidden inputs -->
+                        <input type="hidden" asp-for="MaDongVat" />
+                        <input type="hidden" asp-for="HinhAnh" />
+
+                        <div class="row">
+                            <!-- Tên động vật -->
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="Ten" class="form-label">Tên động vật <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                    </div>
+                                    <input asp-for="Ten" class="form-control" placeholder="Ví dụ: Bơ, Misa..." required />
+                                </div>
+                                <span asp-validation-for="Ten" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Loài -->
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="Loai" class="form-label">Loài <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-shield-alt"></i></span>
+                                    </div>
+                                    <input asp-for="Loai" class="form-control" placeholder="Chó, Mèo..." required />
+                                </div>
+                                <span asp-validation-for="Loai" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Giống -->
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="Giong" class="form-label">Giống</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-dna"></i></span>
+                                    </div>
+                                    <input asp-for="Giong" class="form-control" placeholder="Corgi, Mèo ta..." />
+                                </div>
+                                <span asp-validation-for="Giong" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Giới tính -->
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="GioiTinh" class="form-label">Giới tính</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
+                                    </div>
+                                    <select asp-for="GioiTinh" class="form-control">
+                                        <option value="Đực">Đực</option>
+                                        <option value="Cái">Cái</option>
+                                        <option value="Chưa rõ">Chưa rõ</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="GioiTinh" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Tuổi -->
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="Tuoi" class="form-label">Tuổi (Tháng)</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    </div>
+                                    <input asp-for="Tuoi" type="number" class="form-control" min="0" placeholder="1" />
+                                </div>
+                                <span asp-validation-for="Tuoi" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Trạm cứu hộ -->
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="MaTram" class="form-label">Trạm cứu hộ</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                    </div>
+                                    <select asp-for="MaTram" class="form-control" asp-items="ViewBag.DanhSachTram">
+                                        <option value="">-- Chọn trạm cứu hộ --</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="MaTram" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Upload & Xem trước Hình Ảnh (Ngang hàng, thu gọn) -->
+                            <div class="col-12 mb-2">
+                                <label class="form-label">Hình ảnh đại diện</label>
+                                <div class="d-flex align-items-center p-2 border rounded bg-light" style="gap: 15px;">
+                                    <!-- Ảnh xem trước -->
+                                    <div style="flex-shrink: 0;">
+                                        <img id="imgPreview" src="@imgPath" alt="Hình ảnh động vật" 
+                                             class="img-preview-box shadow-sm" 
+                                             onerror="this.onerror=null; this.src='/images/default-avatar.png';" />
+                                    </div>
+
+                                    <!-- Input File -->
+                                    <div class="flex-grow-1">
+                                        <div class="custom-file">
+                                            <input type="file" name="hinhAnhFile" id="hinhAnhFile" 
+                                                   class="custom-file-input" accept="image/*" onchange="previewImage(this);" />
+                                            <label class="custom-file-label" for="hinhAnhFile" style="border-radius: 6px; height: 36px; line-height: 22px;">Chọn ảnh mới...</label>
+                                        </div>
+                                        <small class="text-muted d-block mt-1" style="font-size: 0.85rem;">
+                                            <i class="fas fa-info-circle mr-1"></i>Bỏ trống nếu muốn giữ lại ảnh cũ.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tình trạng sức khỏe -->
+                            <div class="col-12 mb-2">
+                                <label asp-for="TinhTrangSucKhoe" class="form-label">Tình trạng sức khỏe</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text align-items-start pt-2"><i class="fas fa-heartbeat"></i></span>
+                                    </div>
+                                    <textarea asp-for="TinhTrangSucKhoe" class="form-control" rows="2" placeholder="Mô tả tình trạng sức khỏe chi tiết..."></textarea>
+                                </div>
+                                <span asp-validation-for="TinhTrangSucKhoe" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Khu vực nút bấm điều hướng -->
+                            <div class="col-12 d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                <a asp-action="Index" class="btn btn-custom btn-back">
+                                    <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                                </a>
+                                <button type="submit" class="btn btn-custom btn-submit">
+                                    <i class="fas fa-save mr-1"></i> Lưu Thay Đổi
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Hiển thị tên file và thay đổi ảnh ngay lập tức khi chọn file mới
+        $('.custom-file-input').on('change', function() {
+            var fileName = $(this).val().split('\\').pop(); 
+            $(this).next('.custom-file-label').addClass("selected").html(fileName);
+            
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('imgPreview').src = e.target.result;
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    </script>
+}

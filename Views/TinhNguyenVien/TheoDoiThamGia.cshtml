@@ -1,0 +1,84 @@
+﻿@model IEnumerable<HeThongCuuHo.Models.TinhNguyenVien>
+
+@{
+    ViewData["Title"] = "Theo dõi đơn tình nguyện";
+}
+
+<div class="content-wrapper">
+    <!-- Content Header -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Theo dõi đơn tình nguyện</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách đăng ký của bạn</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    @if (Model != null && Model.Any())
+                    {
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Họ tên</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int stt = 1; }
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@(stt++)</td>
+                                        <td>@item.HoTen</td>
+                                        <td>@item.SoDienThoai</td>
+                                        <td>
+                                            @if (item.TrangThai == "Đã duyệt" || item.TrangThai == "Hoạt động")
+                                            {
+                                                <span class="badge bg-success">@item.TrangThai</span>
+                                            }
+                                            else if (item.TrangThai == "Từ chối")
+                                            {
+                                                <span class="badge bg-danger">@item.TrangThai</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">@(string.IsNullOrEmpty(item.TrangThai) ? "Đang chờ duyệt" : item.TrangThai)</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <a asp-action="ViTri" asp-route-id="@item.MaTinhNguyenVien" class="btn btn-info btn-sm">
+                                                <i class="fas fa-map-marker-alt"></i> Vị trí
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            Bạn chưa có đơn đăng ký tình nguyện nào trong hệ thống.
+                        </div>
+                    }
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+    </section>
+</div>

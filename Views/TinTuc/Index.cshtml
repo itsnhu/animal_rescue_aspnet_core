@@ -1,0 +1,159 @@
+﻿@model IEnumerable<HeThongCuuHo.Models.TinTuc>
+@using Microsoft.AspNetCore.Http
+
+@{
+    Layout = null; // Tắt Layout mặc định để không bị đè thanh menu hệ thống
+    ViewData["Title"] = "Tin Tức & Hoạt Động";
+    string? vaiTro = Context.Session.GetString("VaiTro");
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RescuePets</title>
+
+    <!-- Thư viện CSS đồng bộ với trang Welcome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fdfbf7; /* Màu nền kem đồng bộ với trang Welcome */
+            color: #2d3748;
+        }
+
+        /* Card tin tức & hiệu ứng */
+        .news-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            border: 1px solid #eef2f5;
+        }
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.08) !important;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nhúng thanh Topbar/Header chuẩn -->
+    @await Html.PartialAsync("_PublicHeader")
+
+    <div class="container py-4 py-md-5" style="max-width: 1140px;">
+
+        <!-- Tiêu đề & Nút đăng bài cho Admin -->
+        <div class="position-relative text-center mb-4">
+            <h2 class="fw-bold text-dark d-flex align-items-center justify-content-center gap-2 mb-1">
+                <i class="fas fa-newspaper text-danger"></i> Tin Tức & Hoạt Động
+            </h2>
+            <p class="text-muted small mb-0">Cập nhật tin tức cứu hộ, chia sẻ kinh nghiệm chăm sóc thú cưng</p>
+
+            @if (vaiTro == "Admin")
+            {
+                <div class="position-md-absolute end-0 top-0 mt-3 mt-md-0">
+                    <a asp-action="Them" class="btn btn-danger rounded-pill px-3 fw-bold shadow-sm">
+                        <i class="fas fa-plus me-1"></i> Đăng Bài Mới
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Thanh tìm kiếm -->
+        <form method="get" class="d-flex justify-content-center mb-5">
+            <div class="input-group shadow-sm border rounded-pill overflow-hidden bg-white" style="max-width: 480px; width: 100%;">
+                <input type="text" name="timKiem" class="form-control border-0 px-4 py-2" placeholder="Tìm kiếm bài viết..." value="@Context.Request.Query["timKiem"]">
+                <button class="btn btn-white text-danger px-4 border-0" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+
+        <!-- Danh sách bài viết dạng Lưới 3 Cột -->
+        @if (Model == null || !Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-folder-open fa-3x text-muted mb-3 d-block"></i>
+                <p class="text-muted fs-5">Không tìm thấy bài viết nào phù hợp.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var item in Model)
+                {
+                    <div class="col">
+                        <div class="card h-100 bg-white rounded-4 overflow-hidden news-card">
+                            
+                            @{
+                                string imagePath = string.IsNullOrEmpty(item.HinhAnh) 
+                                    ? "/images/default-news.jpg" 
+                                    : item.HinhAnh;
+                            }
+
+                            <!-- Ảnh bài viết -->
+                            <div class="bg-light" style="height: 210px; overflow: hidden;">
+                                <img src="@imagePath" 
+                                     class="w-100 h-100" 
+                                     style="object-fit: cover;" 
+                                     alt="@item.TieuDe" 
+                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/400x250?text=Tin+Tuc+Cuu+Ho';" />
+                            </div>
+
+                            <!-- Nội dung Card -->
+                            <div class="card-body d-flex flex-column p-4">
+                                <div class="text-muted small mb-2 d-flex align-items-center gap-1">
+                                    <i class="far fa-calendar-alt"></i> 
+                                    @(item.NgayDang?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy"))
+                                </div>
+                                
+                                <h5 class="card-title fw-bold text-dark mb-2 line-clamp-2" style="font-size: 1.05rem; line-height: 1.4;">
+                                    @item.TieuDe
+                                </h5>
+
+                                <p class="card-text text-muted small flex-grow-1 mb-3 line-clamp-3" style="line-height: 1.5;">
+                                    @item.TomTat
+                                </p>
+
+                                <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
+                                    <a asp-action="ChiTiet" asp-route-id="@item.MaTinTuc" class="text-danger fw-bold text-decoration-none small d-flex align-items-center gap-1">
+                                        Đọc tiếp <i class="fas fa-arrow-right"></i>
+                                    </a>
+
+                                    @if (vaiTro == "Admin")
+                                    {
+                                        <form asp-action="Xoa" asp-route-id="@item.MaTinTuc" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?');" class="m-0">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger border-0 p-1" title="Xóa bài viết">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+﻿@model HeThongCuuHo.Models.DonNhanNuoi
+
+@{
+    ViewData["Title"] = "Cập nhật đơn nhận nuôi";
+}
+
+<style>
+    /* ĐỒNG BỘ FONT TIMES NEW ROMAN */
+    body, h1, h2, h3, h4, h5, h6, .card, .btn, .badge, p, span, div, label, input, select, textarea {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+    }
+
+    .card-custom {
+        max-width: 850px;
+        margin: 0 auto;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        overflow: hidden;
+    }
+
+    .card-header-custom {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        color: white;
+        padding: 15px 20px;
+        border-bottom: none;
+    }
+
+    .form-label {
+        font-weight: 700;
+        color: #334155;
+        font-size: 0.95rem;
+        margin-bottom: 5px;
+    }
+
+    .form-control-custom {
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        font-size: 0.95rem;
+        padding: 8px 12px;
+        height: auto;
+        transition: all 0.2s;
+    }
+
+    .form-control-custom:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
+    }
+
+    .btn-action {
+        border-radius: 6px;
+        font-weight: 700;
+        padding: 8px 20px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+</style>
+
+<div class="container-fluid py-3 px-md-4">
+    <div class="card-custom">
+        
+        <!-- HEADER (Bỏ icon) -->
+        <div class="card-header-custom d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div>
+                <h4 class="mb-1 font-weight-bold">Cập Nhật Đơn Nhận Nuôi</h4>
+                <p class="mb-0 small" style="opacity: 0.85;">Chỉnh sửa thông tin và trạng thái xét duyệt đơn</p>
+            </div>
+            <span class="badge badge-light text-primary px-3 py-2 mt-2 mt-md-0" style="font-size: 0.95rem; border-radius: 20px;">
+                Mã đơn: #@Model.MaDon
+            </span>
+        </div>
+
+        <!-- BODY FORM -->
+        <div class="card-body p-3 p-md-4">
+            <form asp-action="Sua" method="post">
+                
+                <!-- Giữ nguyên các trường ẩn -->
+                <input type="hidden" asp-for="MaDon" />
+                <input type="hidden" asp-for="MaDongVat" />
+                <input type="hidden" asp-for="NgayDangKy" />
+
+                <div class="row">
+                    <!-- Người nhận nuôi -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="MaNguoiDung" class="form-label">
+                            <i class="fas fa-user text-primary mr-1"></i> Người nhận nuôi
+                        </label>
+                        <select asp-for="MaNguoiDung" 
+                                class="form-control form-control-custom" 
+                                asp-items="@(new SelectList(ViewBag.NguoiDung, "MaNguoiDung", "HoTen", Model.MaNguoiDung))">
+                        </select>
+                        <span asp-validation-for="MaNguoiDung" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- Trạng thái đơn -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="TrangThai" class="form-label">
+                            <i class="fas fa-tasks text-primary mr-1"></i> Trạng thái đơn
+                        </label>
+                        <select asp-for="TrangThai" class="form-control form-control-custom">
+                            <option value="Chờ duyệt">Chờ duyệt</option>
+                            <option value="Đã duyệt">Đã duyệt</option>
+                            <option value="Từ chối">Từ chối</option>
+                        </select>
+                        <span asp-validation-for="TrangThai" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- Lý do nhận nuôi -->
+                    <div class="col-12 mb-3">
+                        <label asp-for="LyDo" class="form-label">
+                            <i class="fas fa-comment-dots text-primary mr-1"></i> Lý do nhận nuôi
+                        </label>
+                        <textarea asp-for="LyDo" class="form-control form-control-custom" rows="3" placeholder="Nhập lý do nhận nuôi..."></textarea>
+                        <span asp-validation-for="LyDo" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+
+                <!-- Cụm nút bấm thao tác -->
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-action mb-2 mb-sm-0">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại danh sách
+                    </a>
+
+                    <button type="submit" class="btn btn-primary btn-action shadow-sm">
+                        <i class="fas fa-save mr-1"></i> Lưu thay đổi
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

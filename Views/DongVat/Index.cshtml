@@ -1,0 +1,443 @@
+﻿@model IEnumerable<HeThongCuuHo.Models.DongVat>
+@using HeThongCuuHo.Helpers
+@{
+    ViewData["Title"] = "Danh sách động vật";
+}
+
+<style>
+    /* 1. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, 
+    .card, .btn, .badge, table, th, td, p, span, div, input, select, a {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+        font-size: 1rem; 
+    }
+
+    /* TÙY CHỈNH BẢNG - CỐ ĐỊNH CỘT ĐỂ KHÔNG BỊ VỠ */
+    .table-custom {
+        table-layout: fixed;
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    .table-custom th {
+        background-color: #f8fafc;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-top: none;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: middle;
+        white-space: nowrap;
+        padding: 10px 5px;
+        text-align: center;
+    }
+    
+    .table-custom td {
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.85rem;
+        color: #334155;
+        padding: 8px 5px;
+    }
+
+    .table-custom tbody tr {
+        transition: background-color 0.2s;
+    }
+    
+    .table-custom tbody tr:hover {
+        background-color: #fcfcfd;
+    }
+
+    /* 2. BADGE TRẠNG THÁI & SỨC KHỎE (Có hiệu ứng hover) */
+    .badge-custom {
+        padding: 5px 10px;
+        border-radius: 20px; /* Bo tròn nhẹ giống NhanNuoi */
+        font-size: 0.75rem;
+        font-weight: 700;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 90px;
+        transition: all 0.2s ease;
+        cursor: default;
+    }
+
+    /* Hiệu ứng hover nhẹ cho badge */
+    .badge-custom:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        filter: brightness(0.95);
+    }
+
+    .badge-health-good { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-health-warn { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .badge-health-none { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+    .badge-status-ready { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .badge-status-adopted { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    .badge-status-treating { background: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; }
+
+    /* 3. NÚT THAO TÁC (Icon + Chữ, hover mượt) */
+    .action-group {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        flex-wrap: nowrap;
+    }
+
+    .btn-action {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s;
+        white-space: nowrap;
+        border: 1px solid transparent;
+        text-decoration: none !important;
+        line-height: 1.2;
+    }
+    
+    .btn-action:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    
+    .btn-view { color: #0284c7; background: #f0f9ff; border-color: #bae6fd; }
+    .btn-view:hover { background: #e0f2fe; color: #0369a1; }
+    
+    .btn-edit { color: #d97706; background: #fffbeb; border-color: #fde68a; }
+    .btn-edit:hover { background: #fef3c7; color: #b45309; }
+    
+    .btn-delete { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
+    .btn-delete:hover { background: #fee2e2; color: #b91c1c; }
+
+    .avatar-thumb {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* Cắt chữ dài */
+    .text-truncate-custom {
+        max-width: 140px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .fs-8 { font-size: 0.75rem; }
+
+    /* STYLE CHO PHÂN TRANG (PAGINATION) */
+    .pagination .page-link {
+        color: #0f172a;
+        border: 1px solid #e2e8f0;
+        margin: 0 2px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 4px 10px;
+        transition: all 0.2s;
+    }
+    .pagination .page-link:hover { background-color: #f1f5f9; color: #0f172a; }
+    .pagination .page-item.active .page-link { background-color: #0284c7; border-color: #0284c7; color: #ffffff; }
+    .pagination .page-item.disabled .page-link { color: #94a3b8; pointer-events: none; background-color: #f8fafc; }
+</style>
+
+<div class="container-fluid py-2 px-md-3">
+
+    <!-- HEADER & NÚT THÊM MỚI -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-2 bg-white p-2 rounded-lg shadow-sm border">
+        <div>
+            <h5 class="font-weight-bold text-dark mb-1" style="font-size: 1.2rem;">
+                Danh Sách Động Vật Cứu Hộ
+            </h5>
+            <p class="text-muted small mb-0" style="font-size: 0.85rem;">Quản lý thông tin, sức khỏe và lịch sử tiếp nhận động vật.</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <a asp-action="ThemMoi" class="btn btn-sm btn-primary font-weight-bold px-3 py-1" style="border-radius: 4px; background-color: #0284c7; border-color: #0284c7; font-size: 0.85rem;">
+                <i class="fas fa-plus-circle mr-1"></i> Tiếp Nhận Mới
+            </a>
+        </div>
+    </div>
+
+    <!-- THÔNG BÁO LỖI HOẶC THÀNH CÔNG -->
+    @if (TempData["Loi"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm py-2 mb-2" role="alert" style="font-size: 0.9rem;">
+            <i class="fas fa-exclamation-circle mr-2"></i> @TempData["Loi"]
+            <button type="button" class="close py-2" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm py-2 mb-2" role="alert" style="font-size: 0.9rem;">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["ThongBao"]
+            <button type="button" class="close py-2" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <!-- KHUNG CHỨA BẢNG DỮ LIỆU -->
+    <div class="card border-0 shadow-sm rounded-lg overflow-hidden">
+        
+        <div class="card-header bg-white border-bottom py-2 px-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <h6 class="font-weight-bold text-secondary mb-2 mb-md-0 d-flex align-items-center" style="font-size: 1rem;">
+                <i class="fas fa-list-ul text-primary mr-1"></i> Dữ liệu động vật
+            </h6>
+            <div class="input-group input-group-sm" style="max-width: 220px;">
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm động vật..." style="font-size: 0.85rem;">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom" id="dongVatTable">
+                    <thead>
+                        <tr>
+                            <!-- Phân bổ lại tỷ lệ % các cột cho cân đối -->
+                            <th style="width: 5%;">Mã</th>
+                            <th style="width: 7%;">Ảnh</th>
+                            <th style="width: 18%; text-align: left;">Thông tin</th>
+                            <th style="width: 12%; text-align: left;">Loài / Giống</th>
+                            <th style="width: 13%;">Sức khỏe</th>
+                            <th style="width: 13%;">Trạng thái</th>
+                            <th style="width: 12%;">Ngày nhận</th>
+                            <th style="width: 20%;">Thao tác</th> <!-- Mở rộng cột thao tác lên 20% -->
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr class="data-row">
+                                <td class="text-center font-weight-bold text-primary">@item.MaDongVat</td>
+                                
+                                <td class="text-center">
+                                    @if (!string.IsNullOrEmpty(item.HinhAnh))
+                                    {
+                                        <img src="@item.HinhAnh" alt="@item.Ten" class="avatar-thumb shadow-sm" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light text-muted rounded d-inline-flex align-items-center justify-content-center border" style="width: 36px; height: 36px;">
+                                            <i class="fas fa-paw" style="font-size: 0.8rem;"></i>
+                                        </div>
+                                    }
+                                </td>
+
+                                <td style="text-align: left;">
+                                    <div class="font-weight-bold text-dark text-truncate-custom" style="font-size: 0.9rem;" title="@item.Ten">
+                                        @(string.IsNullOrEmpty(item.Ten) ? "Chưa đặt tên" : item.Ten)
+                                    </div>
+                                    <div class="d-flex align-items-center mt-1" style="gap: 4px;">
+                                        @if (!string.IsNullOrEmpty(item.GioiTinh))
+                                        {
+                                            if (item.GioiTinh.ToLower() == "đực" || item.GioiTinh.ToLower() == "male")
+                                            {
+                                                <span class="badge badge-info text-info bg-light border border-info px-2 py-0 fs-8" style="font-weight: 600;">Đực</span>
+                                            }
+                                            else if (item.GioiTinh.ToLower() == "cái" || item.GioiTinh.ToLower() == "female")
+                                            {
+                                                <span class="badge badge-danger text-danger bg-light border border-danger px-2 py-0 fs-8" style="font-weight: 600;">Cái</span>
+                                            }
+                                        }
+                                        @if (item.Tuoi > 0)
+                                        {
+                                            <span class="badge badge-light text-secondary border px-2 py-0 fs-8" style="font-weight: 600;">@item.Tuoi tuổi</span>
+                                        }
+                                    </div>
+                                </td>
+
+                                <td style="text-align: left;">
+                                    <div class="font-weight-bold text-dark" style="font-size: 0.9rem;">@item.Loai</div>
+                                    @if (!string.IsNullOrEmpty(item.Giong))
+                                    {
+                                        <small class="text-muted fs-8 text-truncate-custom" style="max-width: 100px;" title="@item.Giong">@item.Giong</small>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    @if (item.TinhTrangSucKhoe == "Khỏe mạnh" || item.TinhTrangSucKhoe == "Đã khỏe")
+                                    {
+                                        <span class="badge-custom badge-health-good">Khỏe mạnh</span>
+                                    }
+                                    else if (item.TinhTrangSucKhoe == "Đang điều trị" || item.TinhTrangSucKhoe == "Cần theo dõi")
+                                    {
+                                        <span class="badge-custom badge-health-warn">@item.TinhTrangSucKhoe</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-custom badge-health-none">
+                                            @(string.IsNullOrEmpty(item.TinhTrangSucKhoe) ? "Chưa rõ" : item.TinhTrangSucKhoe)
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    @if (item.TrangThai == "Sẵn sàng nhận nuôi")
+                                    {
+                                        <span class="badge-custom badge-status-ready">Sẵn sàng</span>
+                                    }
+                                    else if (item.TrangThai == "Đã nhận nuôi")
+                                    {
+                                        <span class="badge-custom badge-status-adopted">Đã nhận nuôi</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-custom badge-status-treating">Đang điều trị</span>
+                                    }
+                                </td>
+
+                                <td class="text-center text-muted font-weight-bold" style="font-size: 0.85rem;">
+                                    @item.NgayTiepNhan.ToString("dd/MM/yyyy")
+                                </td>
+
+                                <!-- CỘT THAO TÁC (Đã thêm text) -->
+                                <td class="text-center">
+                                    <div class="action-group">
+                                        <a asp-action="ChiTiet" asp-route-id="@item.MaDongVat" class="btn-action btn-view" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i> Xem
+                                        </a>
+
+                                        <a asp-action="Sua" asp-route-id="@item.MaDongVat" class="btn-action btn-edit" title="Cập nhật thông tin">
+                                            <i class="fas fa-pen"></i> Sửa
+                                        </a>
+
+                                        @if (Context.Session.GetString("VaiTro") == "Admin")
+                                        {
+                                            <form asp-action="Xoa" asp-route-id="@item.MaDongVat" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa hồ sơ này?');" style="margin:0; padding:0;">
+                                                <button type="submit" class="btn-action btn-delete" title="Xóa hồ sơ">
+                                                    <i class="fas fa-trash-alt"></i> Xóa
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                <div class="py-3">
+                                    <i class="fas fa-paw fa-2x mb-2 text-secondary opacity-50"></i>
+                                    <p class="mb-0 font-weight-bold">Chưa có thông tin động vật nào trong hệ thống.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white border-0 py-2 px-3 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <span class="text-muted" style="font-size: 0.85rem;">Tổng số động vật: <strong class="text-dark">@(Model != null ? Model.Count() : 0)</strong></span>
+            
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0" id="pagination">
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const rowsPerPage = 10;
+            let currentPage = 1;
+            let filteredRows = []; 
+
+            const allRows = $('#tableBody .data-row').toArray();
+
+            function setupPagination(rows) {
+                filteredRows = rows;
+                const pageCount = Math.ceil(filteredRows.length / rowsPerPage);
+                
+                $('#pagination').empty();
+                if (pageCount <= 1) return; 
+
+                $('#pagination').append(`
+                    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">&laquo;</a>
+                    </li>
+                `);
+
+                for (let i = 1; i <= pageCount; i++) {
+                    $('#pagination').append(`
+                        <li class="page-item ${currentPage === i ? 'active' : ''}">
+                            <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
+                        </li>
+                    `);
+                }
+
+                $('#pagination').append(`
+                    <li class="page-item ${currentPage === pageCount ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">&raquo;</a>
+                    </li>
+                `);
+            }
+
+            window.changePage = function(page) {
+                const pageCount = Math.ceil(filteredRows.length / rowsPerPage);
+                if (page < 1 || page > pageCount) return;
+                
+                currentPage = page;
+                displayRows();
+                setupPagination(filteredRows); 
+            }
+
+            function displayRows() {
+                const start = (currentPage - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+
+                $(allRows).hide();
+                $(filteredRows.slice(start, end)).show();
+            }
+
+            setupPagination(allRows);
+            displayRows();
+
+            $('#searchInput').on('input', function () {
+                let filter = $(this).val().toLowerCase().trim();
+                
+                let resultRows = allRows.filter(row => {
+                    let text = $(row).text().toLowerCase();
+                    return text.includes(filter);
+                });
+
+                currentPage = 1;
+                setupPagination(resultRows);
+                
+                if (resultRows.length > 0) {
+                    displayRows();
+                } else {
+                    $(allRows).hide();
+                }
+            });
+        });
+    </script>
+}

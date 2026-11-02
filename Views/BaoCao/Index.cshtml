@@ -1,0 +1,767 @@
+@model IEnumerable<HeThongCuuHo.Models.BaoCao>
+
+@{
+    ViewData["Title"] = "Danh sách báo cáo cứu hộ";
+    string? vaiTro = Context.Session.GetString("VaiTro");
+    var currentFilter = Context.Request.Query["trangThai"].ToString();
+    var searchKeyword = Context.Request.Query["timKiem"].ToString();
+    
+    // Lấy danh sách các báo cáo đang chờ xử lý để hiển thị lên Modal Điều phối
+    var choXuLyList = Model?.Where(x => x.TrangThai == "Chờ xử lý").ToList() ?? new List<HeThongCuuHo.Models.BaoCao>();
+}
+
+<!-- Nhúng CSS Leaflet Map & FontAwesome -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+    /* ĐỒNG BỘ FONT TIMES NEW ROMAN */
+    body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, 
+    .card, .btn, .badge, table, th, td, p, span, div, input, select, a {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+        font-size: 1rem;
+    }
+
+    /* PAGE HEADER */
+    .page-header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-top: 4px;
+    }
+
+    .page-heading {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.3px;
+        margin-bottom: 3px;
+    }
+
+    .page-subheading {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .btn-create-report {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff !important;
+        font-weight: 700;
+        border-radius: 6px;
+        padding: 8px 16px;
+        border: none;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25);
+        transition: all 0.2s ease;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9rem;
+    }
+
+    .btn-create-report:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(16, 185, 129, 0.35);
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+
+    /* STYLE CHO NÚT ĐIỀU PHỐI Ở HEADER */
+    .btn-dispatch-header {
+        background: #fffbeb;
+        color: #d97706 !important;
+        border: 1px solid #fde68a;
+        font-weight: 700;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+    .btn-dispatch-header:hover, .btn-dispatch-header:focus {
+        background: #fef3c7;
+        color: #b45309 !important;
+        box-shadow: 0 3px 10px rgba(217, 119, 6, 0.15);
+    }
+
+    /* SEARCH & FILTER */
+    .search-filter-card {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 10px 15px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        margin-bottom: 12px;
+    }
+
+    .search-input-field {
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        padding: 6px 12px;
+        font-size: 0.9rem;
+        background-color: #f8fafc;
+        transition: all 0.2s;
+        height: auto;
+    }
+
+    .search-input-field:focus {
+        background-color: #ffffff;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+    }
+
+    .search-btn {
+        background: #0F3832;
+        color: #ffffff;
+        font-weight: 700;
+        border-radius: 6px;
+        padding: 6px 16px;
+        border: none;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .search-btn:hover { background: #164e43; color: #ffffff; }
+
+    /* TABLE */
+    .table-container-card {
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+        overflow: hidden;
+    }
+
+    .reports-table {
+        width: 100%;
+        margin-bottom: 0;
+        vertical-align: middle;
+        table-layout: fixed; 
+    }
+
+    .reports-table thead th {
+        background-color: #f8fafc;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 10px 4px;
+        border-top: none;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    .reports-table tbody td {
+        padding: 8px 4px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.85rem;
+        color: #334155;
+    }
+
+    .reports-table tbody tr { transition: background-color 0.2s; }
+    .reports-table tbody tr:hover { background-color: #fcfcfd; }
+
+    /* ANIMAL PROFILE & IMAGE */
+    .animal-thumb-box {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #f1f5f9;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e2e8f0;
+    }
+
+    .animal-thumb-box img { width: 100%; height: 100%; object-fit: cover; }
+    .animal-thumb-placeholder { color: #94a3b8; font-size: 0.9rem; }
+    .animal-id-code { font-weight: 700; color: #0f172a; font-size: 0.9rem; }
+    .animal-species-text { font-weight: 600; color: #334155; font-size: 0.9rem; }
+
+    /* BADGES */
+    .urgency-badge, .status-tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+        cursor: default;
+    }
+
+    .urgency-badge:hover, .status-tag:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        filter: brightness(0.95);
+    }
+
+    .urgency-high { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .urgency-high .urgency-dot {
+        width: 5px; height: 5px; border-radius: 50%; background-color: #dc2626;
+        box-shadow: 0 0 4px rgba(220, 38, 38, 0.6); animation: pulseUrgent 1.8s infinite;
+    }
+    @@keyframes pulseUrgent {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.4); opacity: 0.6; }
+    }
+    .urgency-normal { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+    .status-tag.pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .status-tag.assigned { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .status-tag.in-progress { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .status-tag.done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
+    /* LOCATION */
+    .location-text {
+        font-size: 0.85rem; color: #334155; font-weight: 600; line-height: 1.2;
+        max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        display: block;
+    }
+    .btn-map-pin {
+        font-size: 0.75rem; color: #0284c7; font-weight: 700; background: #e0f2fe;
+        border: 1px solid #bae6fd; padding: 2px 6px; border-radius: 4px;
+        display: inline-flex; align-items: center; gap: 3px; margin-top: 4px;
+        text-decoration: none; transition: all 0.2s;
+    }
+    .btn-map-pin:hover { background: #bae6fd; color: #0369a1; }
+
+    /* ACTION BUTTONS */
+    .action-btn-group {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        flex-wrap: nowrap;
+        width: 100%;
+    }
+
+    .btn-action {
+        padding: 4px 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        transition: all 0.2s;
+        white-space: nowrap;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        color: #475569;
+        text-decoration: none !important;
+    }
+
+    .btn-action:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .btn-action-primary { color: #0284c7; border-color: #bae6fd; background: #f0f9ff; }
+    .btn-action-primary:hover { background: #e0f2fe; color: #0369a1; }
+    .btn-action-edit { color: #d97706; border-color: #fde68a; background: #fffbeb; }
+    .btn-action-edit:hover { background: #fef3c7; color: #b45309; }
+    .btn-action-delete { color: #dc2626; border-color: #fecaca; background: #fef2f2; }
+    .btn-action-delete:hover { background: #fee2e2; color: #b91c1c; }
+
+    /* PAGINATION */
+    .pagination .page-link {
+        color: #0f172a;
+        border: 1px solid #e2e8f0;
+        margin: 0 2px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 4px 10px;
+        transition: all 0.2s;
+    }
+    .pagination .page-link:hover { background-color: #f1f5f9; color: #0f172a; }
+    .pagination .page-item.active .page-link { background-color: #0284c7; border-color: #0284c7; color: #ffffff; }
+    .pagination .page-item.disabled .page-link { color: #94a3b8; pointer-events: none; background-color: #f8fafc; }
+</style>
+
+<div class="container-fluid py-2 px-md-3">
+
+    <!-- HEADER -->
+    <div class="page-header-container">
+        <div>
+            <h1 class="page-heading">Danh sách báo cáo cứu hộ</h1>
+            <p class="page-subheading">Quản lý và tiếp nhận các báo cáo cứu hộ động vật từ cộng đồng</p>
+        </div>
+        
+        <div class="header-actions">
+            @if (vaiTro == "Admin")
+            {
+                <!-- Nút mở Modal Điều phối -->
+                <button type="button" class="btn-dispatch-header" data-toggle="modal" data-target="#dispatchModal" @(choXuLyList.Count == 0 ? "disabled" : "")>
+                    <i class="fas fa-ambulance"></i> Điều phối
+                </button>
+            }
+
+            @if (vaiTro == "Admin" || vaiTro == "NguoiDung" || vaiTro == "TinhNguyenVien")
+            {
+                <a asp-action="Them" class="btn-create-report">
+                    <i class="fas fa-plus-circle"></i> Tạo báo cáo mới
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- FORM TÌM KIẾM & LỌC -->
+    <div class="search-filter-card">
+        <form method="get" class="row align-items-center">
+            <div class="col-md-5 mb-2 mb-md-0 pr-md-2">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-light border-right-0 text-muted" style="border-radius: 6px 0 0 6px;">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    <input type="text" name="timKiem" class="form-control search-input-field border-left-0"
+                           style="border-radius: 0 6px 6px 0;" value="@searchKeyword"
+                           placeholder="Tìm kiếm theo loài, địa chỉ, số điện thoại..." />
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-2 mb-md-0 pr-md-2">
+                <select name="trangThai" class="form-control search-input-field">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="Chờ xử lý" selected="@(currentFilter == "Chờ xử lý")">Chờ xử lý</option>
+                    <option value="Đã phân công" selected="@(currentFilter == "Đã phân công")">Đã phân công</option>
+                    <option value="Đang cứu hộ" selected="@(currentFilter == "Đang cứu hộ")">Đang cứu hộ</option>
+                    <option value="Đã hoàn thành" selected="@(currentFilter == "Đã hoàn thành")">Đã hoàn thành</option>
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex">
+                <button type="submit" class="search-btn flex-grow-1 mr-2">
+                    <i class="fas fa-filter"></i> Lọc dữ liệu
+                </button>
+                @if (!string.IsNullOrEmpty(currentFilter) || !string.IsNullOrEmpty(searchKeyword))
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary" style="border-radius: 6px; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px;" title="Xóa bộ lọc">
+                        <i class="fas fa-undo"></i>
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <!-- BẢNG DỮ LIỆU -->
+    <div class="table-container-card">
+        <div class="table-responsive">
+            <table class="reports-table" id="baoCaoTable">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">Mã</th>
+                        <th style="width: 6%;">Hình ảnh</th>
+                        <th style="width: 12%;">Động vật</th>
+                        <th style="width: 13%;">Mức độ</th>
+                        <th style="width: 23%; text-align: left;">Địa chỉ & Vị trí</th>
+                        <th style="width: 11%;">Thời gian</th>
+                        <th style="width: 12%;">Trạng thái</th>
+                        <th style="width: 18%;">Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tableBody">
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block text-black-50"></i>
+                                Không tìm thấy báo cáo cứu hộ nào phù hợp.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr class="data-row" id="row-@item.MaBaoCao">
+                                <!-- Cột Mã -->
+                                <td class="text-center">
+                                    <span class="animal-id-code">@item.MaBaoCao</span>
+                                </td>
+                                
+                                <!-- Cột Hình ảnh -->
+                                <td class="text-center">
+                                    <div class="animal-thumb-box">
+                                        @if (!string.IsNullOrEmpty(item.HinhAnh))
+                                        {
+                                            <img src="~/uploads/@item.HinhAnh" alt="@item.LoaiDongVat" />
+                                        }
+                                        else
+                                        {
+                                            <div class="animal-thumb-placeholder">
+                                                <i class="fas fa-paw"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+
+                                <!-- Cột Động vật -->
+                                <td class="text-center">
+                                    <span class="animal-species-text">@item.LoaiDongVat</span>
+                                </td>
+
+                                <!-- Cột Mức độ -->
+                                <td class="text-center">
+                                    @if (item.MucDoKhanCap == "Rất khẩn cấp")
+                                    {
+                                        <span class="urgency-badge urgency-high">
+                                            <span class="urgency-dot"></span> Rất khẩn cấp
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="urgency-badge urgency-normal">
+                                            Bình thường
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- Cột Địa chỉ -->
+                                <td style="text-align: left;">
+                                    <div class="location-text" title="@item.DiaChi">
+                                        <i class="fas fa-map-marker-alt text-danger mr-1"></i>@item.DiaChi
+                                    </div>
+                                    <button type="button" class="btn-map-pin border-0"
+                                            onclick="xemNhanhBanDo(@item.ViDo, @item.KinhDo, '@item.LoaiDongVat', '@item.DiaChi')">
+                                        <i class="fas fa-location-arrow"></i> Bản đồ
+                                    </button>
+                                </td>
+
+                                <!-- Cột Thời gian -->
+                                <td class="text-center text-muted" style="font-size: 0.85rem;">
+                                    @item.NgayBaoCao.ToString("dd/MM/yyyy")
+                                    <div style="font-size: 0.75rem;">@item.NgayBaoCao.ToString("HH:mm")</div>
+                                </td>
+
+                                <!-- Cột Trạng thái -->
+                                <td class="text-center">
+                                    @switch (item.TrangThai)
+                                    {
+                                        case "Chờ xử lý":
+                                            <span class="status-tag pending">Chờ xử lý</span>
+                                            break;
+                                        case "Đã phân công":
+                                            <span class="status-tag assigned">Đã phân công</span>
+                                            break;
+                                        case "Đang cứu hộ":
+                                            <span class="status-tag in-progress">Đang cứu hộ</span>
+                                            break;
+                                        case "Đã hoàn thành":
+                                        case "Hoàn thành":
+                                            <span class="status-tag done">Hoàn thành</span>
+                                            break;
+                                        default:
+                                            <span class="status-tag">@item.TrangThai</span>
+                                            break;
+                                    }
+                                </td>
+
+                                <!-- Cột Thao tác -->
+                                <td class="text-center">
+                                    <div class="action-btn-group">
+                                        <a asp-action="ChiTiet" asp-route-id="@item.MaBaoCao"
+                                           class="btn-action btn-action-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i> Xem
+                                        </a>
+
+                                        @if (vaiTro == "Admin")
+                                        {
+                                            <a asp-action="Sua" asp-route-id="@item.MaBaoCao"
+                                               class="btn-action btn-action-edit" title="Chỉnh sửa">
+                                                <i class="fas fa-pen"></i> Sửa
+                                            </a>
+                                        }
+
+                                        @if (vaiTro == "Admin")
+                                        {
+                                            <a asp-action="Xoa" asp-route-id="@item.MaBaoCao"
+                                               class="btn-action btn-action-delete" title="Xóa báo cáo"
+                                               onclick="return confirm('Bạn có chắc chắn muốn xóa báo cáo này?');">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- FOOTER PHÂN TRANG -->
+        <div class="bg-white border-top py-2 px-3 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <span class="text-muted" style="font-size: 0.85rem;">Tổng số: <strong class="text-dark">@(Model != null ? Model.Count() : 0)</strong> báo cáo</span>
+            
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0" id="pagination">
+                    <!-- Nút phân trang sẽ được sinh ra tự động bằng JS -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ĐIỀU PHỐI (MỚI) -->
+<div class="modal fade" id="dispatchModal" tabindex="-1" role="dialog" aria-labelledby="dispatchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+            <div class="modal-header bg-light border-bottom-0 py-3">
+                <h5 class="modal-title font-weight-bold" id="dispatchModalLabel" style="color: #0f172a;">
+                    <i class="fas fa-ambulance text-warning mr-2"></i>Điều phối cứu hộ
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="form-group mb-4">
+                    <label class="font-weight-bold mb-2 text-dark">1. Chọn báo cáo cần điều phối:</label>
+                    <select id="selectBaoCao" class="form-control form-control-lg" style="font-size: 0.95rem; border-radius: 8px;">
+                        <option value="">-- Chọn đơn báo cáo --</option>
+                        @foreach (var item in choXuLyList)
+                        {
+                            <option value="@item.MaBaoCao">Mã #@item.MaBaoCao - @item.LoaiDongVat (@item.DiaChi)</option>
+                        }
+                    </select>
+                </div>
+                
+                <div class="form-group mb-0">
+                    <label class="font-weight-bold mb-2 text-dark">2. Chọn người điều phối (Đang sẵn sàng):</label>
+                    <select id="selectNguoiDieuPhoi" class="form-control form-control-lg" style="font-size: 0.95rem; border-radius: 8px;" disabled>
+                        <option value="">-- Vui lòng chọn báo cáo trước --</option>
+                    </select>
+                    <small class="form-text text-muted mt-2"><i class="fas fa-info-circle"></i> Chỉ hiển thị những người có trạng thái "Sẵn sàng".</small>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 bg-light" style="border-radius: 0 0 12px 12px;">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 6px;">Hủy</button>
+                <button type="button" class="btn btn-warning font-weight-bold" id="btnXacNhanDieuPhoi" style="border-radius: 6px; color: #fff; background-color: #d97706; border-color: #d97706;" disabled>
+                    <i class="fas fa-paper-plane"></i> Xác nhận điều phối
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Popup Xem Nhanh Bản Đồ -->
+<div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+            <div class="modal-header border-bottom-0 bg-light py-2">
+                <h5 class="modal-title font-weight-bold" id="mapModalTitle" style="color: #0f172a; font-size: 1rem;">
+                    Vị trí hiện trường
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="quickMap" style="height: 400px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- 1. XỬ LÝ MODAL BẢN ĐỒ ---
+        var quickMap, quickMarker;
+
+        function xemNhanhBanDo(lat, lng, loai, diaChi) {
+            $('#mapModal').modal('show');
+            document.getElementById('mapModalTitle').innerHTML = '<i class="fas fa-map-marker-alt text-danger mr-2"></i>Vị trí cứu hộ: ' + loai;
+
+            $('#mapModal').on('shown.bs.modal', function () {
+                if (!quickMap) {
+                    quickMap = L.map('quickMap').setView([lat, lng], 15);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(quickMap);
+                    quickMarker = L.marker([lat, lng]).addTo(quickMap);
+                } else {
+                    quickMap.setView([lat, lng], 15);
+                    quickMarker.setLatLng([lat, lng]);
+                }
+                quickMarker.bindPopup("<b>" + loai + "</b><br>" + diaChi).openPopup();
+                quickMap.invalidateSize();
+            });
+        }
+
+        // --- 2. XỬ LÝ PHÂN TRANG ---
+        $(document).ready(function () {
+            const rowsPerPage = 10;
+            let currentPage = 1;
+            let filteredRows = []; 
+
+            const allRows = $('#tableBody .data-row').toArray();
+
+            function setupPagination(rows) {
+                filteredRows = rows;
+                const pageCount = Math.ceil(filteredRows.length / rowsPerPage);
+                
+                $('#pagination').empty();
+                if (pageCount <= 1) return; 
+
+                $('#pagination').append(`
+                    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">&laquo;</a>
+                    </li>
+                `);
+
+                for (let i = 1; i <= pageCount; i++) {
+                    $('#pagination').append(`
+                        <li class="page-item ${currentPage === i ? 'active' : ''}">
+                            <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
+                        </li>
+                    `);
+                }
+
+                $('#pagination').append(`
+                    <li class="page-item ${currentPage === pageCount ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">&raquo;</a>
+                    </li>
+                `);
+            }
+
+            window.changePage = function(page) {
+                const pageCount = Math.ceil(filteredRows.length / rowsPerPage);
+                if (page < 1 || page > pageCount) return;
+                
+                currentPage = page;
+                displayRows();
+                setupPagination(filteredRows); 
+            }
+
+            function displayRows() {
+                const start = (currentPage - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+
+                $(allRows).hide();
+                $(filteredRows.slice(start, end)).show();
+            }
+
+            setupPagination(allRows);
+            displayRows();
+        });
+
+        // --- 3. XỬ LÝ MODAL ĐIỀU PHỐI (AJAX) ---
+        $(document).ready(function() {
+            var $selectBaoCao = $('#selectBaoCao');
+            var $selectNguoiDieuPhoi = $('#selectNguoiDieuPhoi');
+            var $btnXacNhan = $('#btnXacNhanDieuPhoi');
+
+            // Hàm kiểm tra điều kiện bật/tắt nút Xác nhận
+            function checkEnableButton() {
+                if ($selectBaoCao.val() && $selectNguoiDieuPhoi.val()) {
+                    $btnXacNhan.prop('disabled', false);
+                } else {
+                    $btnXacNhan.prop('disabled', true);
+                }
+            }
+
+            // Khi chọn Báo cáo -> Gọi AJAX lấy danh sách người sẵn sàng
+            $selectBaoCao.change(function() {
+                var maBaoCao = $(this).val();
+                
+                if (maBaoCao) {
+                    $selectNguoiDieuPhoi.empty().append('<option value="">Đang tải danh sách...</option>').prop('disabled', true);
+                    checkEnableButton();
+
+                    // Gọi API GetDanhSachTnvSanSang
+                    $.ajax({
+                        url: '/CuuHo/GetDanhSachTnvSanSang', 
+                        type: 'GET',
+                        success: function(data) {
+                            $selectNguoiDieuPhoi.empty().append('<option value="">-- Chọn người điều phối --</option>');
+                            if (data && data.length > 0) {
+                                $.each(data, function(index, item) {
+                                    $selectNguoiDieuPhoi.append(`<option value="${item.maTinhNguyenVien}">${item.hoTen} (${item.soDienThoai || 'Không có SĐT'})</option>`);
+                                });
+                                $selectNguoiDieuPhoi.prop('disabled', false);
+                            } else {
+                                $selectNguoiDieuPhoi.append('<option value="">Không có ai sẵn sàng</option>');
+                            }
+                            checkEnableButton();
+                        },
+                        error: function() {
+                            $selectNguoiDieuPhoi.empty().append('<option value="">Lỗi tải dữ liệu</option>');
+                            alert("Không thể lấy danh sách người sẵn sàng.");
+                        }
+                    });
+                } else {
+                    $selectNguoiDieuPhoi.empty().append('<option value="">-- Vui lòng chọn báo cáo trước --</option>').prop('disabled', true);
+                    checkEnableButton();
+                }
+            });
+
+            $selectNguoiDieuPhoi.change(checkEnableButton);
+
+            // Khi bấm nút Xác nhận -> Gửi AJAX điều phối
+            $btnXacNhan.click(function() {
+                var maBaoCao = $selectBaoCao.val();
+                var maNguoiDieuPhoi = $selectNguoiDieuPhoi.val();
+                var $btn = $(this);
+                var originalText = $btn.html();
+
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
+
+                // Gọi API XuLyDieuPhoiAjax
+                $.ajax({
+                    url: '/CuuHo/XuLyDieuPhoiAjax',
+                    type: 'POST',
+                    data: { maBaoCao: maBaoCao, maTinhNguyenVien: maNguoiDieuPhoi },
+                    success: function(res) {
+                        if (res.success) {
+                            alert('Điều phối thành công!');
+                            $('#dispatchModal').modal('hide');
+                            
+                            // Xóa dòng vừa điều phối khỏi bảng
+                            $('#row-' + maBaoCao).fadeOut(400, function() { $(this).remove(); });
+                            
+                            // Reset form để có thể làm tiếp đơn khác
+                            $selectBaoCao.val('');
+                            $selectNguoiDieuPhoi.empty().append('<option value="">-- Vui lòng chọn báo cáo trước --</option>').prop('disabled', true);
+                            checkEnableButton();
+                        } else {
+                            alert('Lỗi: ' + (res.message || 'Không thể điều phối'));
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra trong quá trình gửi yêu cầu.');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        });
+    </script>
+}

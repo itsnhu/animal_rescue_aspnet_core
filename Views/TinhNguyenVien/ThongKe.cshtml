@@ -1,0 +1,225 @@
+﻿@model HeThongCuuHo.Models.TinhNguyenVien
+
+@{
+    ViewData["Title"] = "Thống kê tình nguyện viên";
+    int soLan = ViewBag.SoLanCuuHo ?? 0;
+}
+
+<style>
+    /* 2. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .card, .btn, .badge, table, th, td, p, span, div, label {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+    }
+
+    .card-custom {
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+    }
+
+    /* 4. KHẮC PHỤC KHOẢNG TRỐNG - THU GỌN CÁC THẺ */
+    .profile-avatar {
+        width: 50px; 
+        height: 50px; 
+        font-size: 1.2rem;
+    }
+
+    .stat-icon {
+        width: 45px; 
+        height: 45px; 
+        font-size: 1.2rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-value {
+        font-size: 1.6rem; 
+        font-weight: 800; 
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .badge-status {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+    .status-ready { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .status-busy { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+
+    /* Tùy chỉnh bảng */
+    .table-custom th {
+        background-color: #f8fafc; color: #64748b; font-size: 0.75rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.5px; border-top: none;
+        border-bottom: 1px solid #e2e8f0; vertical-align: middle; padding: 10px 8px;
+        text-align: center; white-space: nowrap;
+    }
+    .table-custom td {
+        vertical-align: middle; border-bottom: 1px solid #f1f5f9;
+        font-size: 0.85rem; color: #334155; padding: 8px;
+    }
+</style>
+
+<div class="container-fluid py-2 px-md-3">
+
+    <!-- HEADER (Bỏ icon) -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-2 bg-white p-2 rounded-lg shadow-sm border">
+        <div>
+            <h5 class="font-weight-bold text-dark mb-1" style="font-size: 1.2rem;">
+                Thống Kê Tình Nguyện Viên
+            </h5>
+            <p class="text-muted small mb-0" style="font-size: 0.85rem;">Hiệu suất hoạt động và thông tin chi tiết trong hệ thống.</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary font-weight-bold px-3 py-1" style="border-radius: 4px; font-size: 0.9rem;">
+                <i class="fas fa-arrow-left mr-1"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+    <!-- KHỐI TỔNG QUAN (Thu gọn, gom lên 1 hàng) -->
+    <div class="row mb-2">
+        
+        <!-- 1. Thẻ Profile (Dạng ngang) -->
+        <div class="col-lg-4 mb-2 mb-lg-0">
+            <div class="card card-custom h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center mb-2 pb-2 border-bottom">
+                        <div class="profile-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center font-weight-bold mr-2">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-weight-bold text-dark mb-0" style="font-size: 1.1rem;">@Model.HoTen</h5>
+                            @if (Model.TrangThai == "Sẵn sàng")
+                            {
+                                <span class="badge-status status-ready">Sẵn sàng</span>
+                            }
+                            else if (Model.TrangThai == "Đang làm nhiệm vụ")
+                            {
+                                <span class="badge-status status-busy">Đang làm nhiệm vụ</span>
+                            }
+                            else
+                            {
+                                <span class="badge-status" style="background:#f1f5f9; color:#475569; border:1px solid #e2e8f0;">@Model.TrangThai</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span><i class="fas fa-phone-alt mr-1"></i> @Model.SoDienThoai</span>
+                        <span><i class="fas fa-id-badge mr-1"></i> Mã: @Model.MaTinhNguyenVien</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Thẻ Thống kê 1 -->
+        <div class="col-md-4 mb-2 mb-md-0">
+            <div class="card card-custom h-100">
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="stat-icon bg-primary text-white mr-3" style="background-color: #0284c7 !important;">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted font-weight-bold d-block" style="font-size: 0.75rem; text-transform: uppercase;">Tổng số ca cứu hộ</span>
+                        <div class="stat-value text-dark">@soLan</div>
+                        <span class="text-muted" style="font-size: 0.75rem;">Nhiệm vụ đã hỗ trợ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Thẻ Thống kê 2 -->
+        <div class="col-md-4">
+            <div class="card card-custom h-100">
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="stat-icon @(soLan == 0 ? "bg-secondary" : soLan <= 5 ? "bg-info" : soLan <= 15 ? "bg-warning" : "bg-success") text-white mr-3">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted font-weight-bold d-block" style="font-size: 0.75rem; text-transform: uppercase;">Đánh giá đóng góp</span>
+                        @if (soLan == 0)
+                        {
+                            <div class="stat-value text-secondary">Chưa tham gia</div>
+                        }
+                        else if (soLan <= 5)
+                        {
+                            <div class="stat-value text-info">Mới tham gia</div>
+                        }
+                        else if (soLan <= 15)
+                        {
+                            <div class="stat-value text-warning">Thường xuyên</div>
+                        }
+                        else
+                        {
+                            <div class="stat-value text-success">Tích cực cao</div>
+                        }
+                        <span class="text-muted" style="font-size: 0.75rem;">Dựa trên tần suất</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BẢNG CHI TIẾT (Bỏ icon) -->
+    <div class="card card-custom">
+        <div class="card-header bg-white py-2 px-3 border-bottom">
+            <h6 class="font-weight-bold text-secondary mb-0" style="font-size: 0.95rem;">
+                Chi tiết hoạt động
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">Mã TNV</th>
+                            <th style="width: 25%; text-align: left;">Họ tên tình nguyện viên</th>
+                            <th style="width: 20%;">Số điện thoại</th>
+                            <th style="width: 20%;">Số ca cứu hộ</th>
+                            <th style="width: 25%;">Trạng thái hiện tại</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <!-- Bỏ dấu # -->
+                            <td class="text-center font-weight-bold text-primary">@Model.MaTinhNguyenVien</td>
+                            <td style="text-align: left;">
+                                <span class="font-weight-bold text-dark">@Model.HoTen</span>
+                            </td>
+                            <td class="text-center text-muted font-weight-bold">
+                                @Model.SoDienThoai
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-primary px-2 py-1" style="font-size: 0.8rem;">
+                                    @soLan lượt
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                @if (Model.TrangThai == "Sẵn sàng")
+                                {
+                                    <span class="badge-status status-ready">Sẵn sàng</span>
+                                }
+                                else if (Model.TrangThai == "Đang làm nhiệm vụ")
+                                {
+                                    <span class="badge-status status-busy">Đang làm nhiệm vụ</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-status" style="background:#f1f5f9; color:#475569; border:1px solid #e2e8f0;">@Model.TrangThai</span>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

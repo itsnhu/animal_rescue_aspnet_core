@@ -1,0 +1,220 @@
+﻿@{
+    Layout = null; // Tắt layout mặc định để dùng _PublicHeader chuẩn
+    ViewData["Title"] = "Về Chúng Tôi";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RescuePets</title>
+
+    <!-- Thư viện CSS & Font -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-cream: #faf7f2;
+            --theme-coral: #eb6b56;
+            --theme-coral-hover: #d9533f;
+            --color-dark: #2d3748;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-cream);
+            color: var(--color-dark);
+        }
+
+        /* Banner Hero */
+        .about-hero {
+            background: linear-gradient(135deg, rgba(235, 107, 86, 0.1) 0%, rgba(250, 247, 242, 1) 100%);
+            padding: 60px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* Card tùy chỉnh */
+        .about-card {
+            border: 1px solid #eef2f5;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .about-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.08) !important;
+        }
+
+        /* Icon Box */
+        .icon-box-coral {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background-color: rgba(235, 107, 86, 0.12);
+            color: var(--theme-coral);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Thống kê */
+        .stat-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid #eef2f5;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--theme-coral);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nhúng Header Công Khai -->
+    @await Html.PartialAsync("_PublicHeader")
+
+    <!-- HERO BANNER -->
+    <section class="about-hero text-center mb-5">
+        <div class="container" style="max-width: 900px;">
+            <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-2 fw-bold mb-3">
+                🐾 VỀ TỔ CHỨC RESCUEPETS
+            </span>
+            <h1 class="fw-extrabold display-5 text-dark mb-3">Mỗi Mạng Sống Đều Đáng Được Cứu Chuộc</h1>
+            <p class="text-muted fs-5 leading-relaxed">
+                RescuePets là nền tảng kết nối cứu hộ động vật đường phố, hỗ trợ tiếp nhận thông tin khẩn cấp, chăm sóc y tế và tìm mái ấm mới cho các em thú cưng bị bỏ rơi.
+            </p>
+        </div>
+    </section>
+
+    <div class="container mb-5" style="max-width: 1140px;">
+
+        <!-- 1. SỨ MỆNH & TẦM NHÌN -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <div class="card h-100 bg-white about-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="icon-box-coral">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h4 class="fw-bold mb-0">Sứ Mệnh Của Chúng Tôi</h4>
+                    </div>
+                    <p class="text-muted mb-0">
+                        Xây dựng mạng lưới phản ứng nhanh hỗ trợ các ca tai nạn, thương tích hoặc bị bỏ rơi của động vật đường phố. Chúng tôi đảm bảo mọi thông tin báo cáo đều được xử lý minh bạch và kịp thời nhất.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 bg-white about-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="icon-box-coral">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h4 class="fw-bold mb-0">Tầm Nhìn Tương Lai</h4>
+                    </div>
+                    <p class="text-muted mb-0">
+                        Trở thành hệ sinh thái cứu hộ động vật nhân văn và hiện đại hàng đầu, nơi cộng đồng cùng chung tay nâng cao ý thức bảo vệ thú cưng và chấm dứt nạn ngược đãi động vật.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. THỐNG KÊ ẤN TƯỢNG -->
+        <div class="row row-cols-2 row-cols-md-4 g-3 mb-5">
+            <div class="col">
+                <div class="stat-card shadow-sm">
+                    <div class="stat-number">1,200+</div>
+                    <div class="text-muted small fw-semibold">Ca Cứu Hộ Thành Công</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card shadow-sm">
+                    <div class="stat-number">850+</div>
+                    <div class="text-muted small fw-semibold">Thú Cưng Tìm Được Nhà</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card shadow-sm">
+                    <div class="stat-number">150+</div>
+                    <div class="text-muted small fw-semibold">Tình Nguyện Viên Active</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card shadow-sm">
+                    <div class="stat-number">100%</div>
+                    <div class="text-muted small fw-semibold">Minh Bạch Quỹ Hoạt Động</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. GIÁ TRỊ CỐT LÕI -->
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-dark">Giá Trị Cốt Lõi</h3>
+            <p class="text-muted small">Những nguyên tắc định hình mọi hoạt động của trạm cứu hộ</p>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+            <div class="col">
+                <div class="card h-100 bg-white about-card p-4 text-center">
+                    <div class="icon-box-coral mx-auto mb-3">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h5 class="fw-bold">Phản Ứng Tốc Độ</h5>
+                    <p class="text-muted small mb-0">Tích hợp GPS vị trí giúp các đội tình nguyện viên tiếp cận hiện trường nhanh nhất có thể.</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 bg-white about-card p-4 text-center">
+                    <div class="icon-box-coral mx-auto mb-3">
+                        <i class="fas fa-hands-holding-child"></i>
+                    </div>
+                    <h5 class="fw-bold">Tận Tâm Chăm Sóc</h5>
+                    <p class="text-muted small mb-0">Đảm bảo điều trị y tế, tiêm phòng và nuôi dưỡng thể trạng tốt nhất trước khi mở nhận nuôi.</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 bg-white about-card p-4 text-center">
+                    <div class="icon-box-coral mx-auto mb-3">
+                        <i class="fas fa-shield-heart"></i>
+                    </div>
+                    <h5 class="fw-bold">Minh Bạch & Trách Nhiệm</h5>
+                    <p class="text-muted small mb-0">Sàng lọc kỹ lưỡng người nhận nuôi (Foster/Adopt) để tránh nguy cơ tái bỏ rơi.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Kêu Gọi Hành Động (CTA) -->
+        <div class="card border-0 rounded-4 p-5 text-center text-white shadow-sm" style="background-color: var(--theme-coral);">
+            <h2 class="fw-bold mb-2">Bạn Muốn Đồng Hành Cùng RescuePets?</h2>
+            <p class="opacity-90 mb-4" style="max-width: 600px; margin: 0 auto;">
+                Dù là báo cáo ca cứu hộ, đăng ký làm tình nguyện viên hay nhận nuôi một bé chó/mèo, sự đóng góp của bạn đều mang lại hi vọng sống cho các em.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="/BaoCao/Them" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-danger">
+                    <i class="fas fa-ambulance me-1"></i> Báo Cáo Ca Cứu Hộ
+                </a>
+                <button type="button" class="btn btn-outline-light rounded-pill px-4 py-2 fw-bold" data-bs-toggle="modal" data-bs-target="#quickRegisterModal">
+                    Tham Gia Trạm Ngay
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-4 border-top bg-white">
+        <p class="text-muted mb-0 small">© 2026 Hệ Thống Cứu Hộ Động Vật Đường Phố - RescuePets.</p>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,418 @@
+﻿@model IEnumerable<HeThongCuuHo.Models.HoSoDieuTri>
+
+@{
+    ViewData["Title"] = "Danh sách hồ sơ điều trị";
+}
+
+<style>
+    /* 1 & 2. ĐỒNG BỘ FONT VÀ TỐI ƯU KHÔNG GIAN */
+    body, h1, h2, h3, h4, h5, h6, .card, .btn, .badge, table, th, td, p, span, div, input, select, a, label {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body { background-color: #f8fafc; font-size: 1rem; }
+
+    /* Thẻ thống kê thu gọn */
+    .stat-card {
+        background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02); padding: 10px 15px;
+        display: flex; align-items: center; justify-content: space-between; height: 100%;
+    }
+    .stat-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; display: block; }
+    .stat-value { font-size: 1.4rem; font-weight: 800; color: #0f172a; line-height: 1; margin: 0; }
+    .stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+
+    /* Tùy chỉnh bảng */
+    .table-custom { table-layout: fixed; width: 100%; margin-bottom: 0; }
+    .table-custom th {
+        background-color: #f8fafc; color: #64748b; font-size: 0.75rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.5px; border-top: none;
+        border-bottom: 1px solid #e2e8f0; vertical-align: middle; padding: 8px 5px;
+        text-align: center; white-space: nowrap;
+    }
+    .table-custom td {
+        vertical-align: middle; border-bottom: 1px solid #f1f5f9;
+        font-size: 0.85rem; color: #334155; padding: 6px 5px; 
+    }
+    .table-custom tbody tr { transition: background-color 0.2s; }
+    .table-custom tbody tr:hover { background-color: #f8fafc; }
+
+    /* Cột Trạng thái */
+    .badge-status {
+        display: inline-flex; align-items: center; justify-content: center;
+        min-width: 100px; padding: 4px 8px; border-radius: 6px;
+        font-size: 0.75rem; font-weight: 700; white-space: nowrap;
+    }
+    .status-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .status-treating { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+
+    /* Nút thao tác */
+    .action-group { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: nowrap; }
+    .btn-action {
+        padding: 4px 8px; font-size: 0.75rem; font-weight: 700; border-radius: 4px;
+        display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+        transition: all 0.2s; white-space: nowrap; border: 1px solid transparent;
+        text-decoration: none !important; line-height: 1.2;
+    }
+    .btn-action:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .btn-view { color: #0284c7; background: #f0f9ff; border-color: #bae6fd; }
+    .btn-view:hover { background: #e0f2fe; color: #0369a1; }
+    .btn-edit { color: #d97706; background: #fffbeb; border-color: #fde68a; }
+    .btn-edit:hover { background: #fef3c7; color: #b45309; }
+
+    /* Nút Khỏi bệnh hàng loạt */
+    .btn-batch-recover {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        color: #fff !important; font-weight: 700; border-radius: 6px;
+        padding: 8px 16px; border: none; display: inline-flex; align-items: center; gap: 6px;
+        transition: all 0.2s; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(22, 163, 74, 0.3);
+    }
+    .btn-batch-recover:hover:not(:disabled) {
+        transform: translateY(-2px); box-shadow: 0 4px 10px rgba(22, 163, 74, 0.4);
+    }
+    .btn-batch-recover:disabled {
+        background: #cbd5e1; color: #64748b !important; box-shadow: none; cursor: not-allowed;
+    }
+
+    /* Checkbox */
+    .custom-checkbox { width: 16px; height: 16px; cursor: pointer; accent-color: #16a34a; }
+    .custom-checkbox:disabled { cursor: not-allowed; opacity: 0.3; accent-color: #94a3b8; }
+
+    /* Phân trang */
+    .pagination .page-link {
+        color: #0f172a; border: 1px solid #e2e8f0; margin: 0 2px;
+        border-radius: 4px; font-weight: 700; font-size: 0.85rem; padding: 4px 10px; transition: all 0.2s;
+    }
+    .pagination .page-link:hover { background-color: #f1f5f9; color: #0f172a; }
+    .pagination .page-item.active .page-link { background-color: #0284c7; border-color: #0284c7; color: #ffffff; }
+    .pagination .page-item.disabled .page-link { color: #94a3b8; pointer-events: none; background-color: #f8fafc; }
+</style>
+
+<div class="container-fluid py-2 px-md-3">
+
+    <!-- HEADER -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-2 bg-white p-3 rounded-lg shadow-sm border">
+        <div>
+            <h5 class="font-weight-bold text-dark mb-1" style="font-size: 1.2rem;">
+                Quản Lý Hồ Sơ Điều Trị Y Tế
+            </h5>
+            <p class="text-muted small mb-0" style="font-size: 0.85rem;">Theo dõi phác đồ điều trị, chi phí và tình trạng sức khỏe của động vật cứu hộ.</p>
+        </div>
+        
+        <div class="mt-3 mt-md-0 d-flex align-items-center">
+            <!-- NÚT XÁC NHẬN KHỎI BỆNH HÀNG LOẠT -->
+            <button type="button" id="btnBatchRecover" class="btn-batch-recover mr-2" disabled>
+                Xác nhận khỏi bệnh (<span id="countSelected">0</span>)
+            </button>
+
+            <a asp-action="Them" class="btn btn-sm btn-primary font-weight-bold px-3 py-1" style="border-radius: 4px; background-color: #0284c7; border-color: #0284c7; font-size: 0.9rem; height: 100%;">
+                <i class="fas fa-plus-circle mr-1"></i> Thêm Hồ Sơ
+            </a>
+        </div>
+    </div>
+
+    <!-- THỐNG KÊ NHANH -->
+    <div class="row mb-2">
+        <div class="col-4">
+            <div class="stat-card">
+                <div>
+                    <span class="stat-label">Tổng số hồ sơ</span>
+                    <h3 class="stat-value">@(Model != null ? Model.Count() : 0)</h3>
+                </div>
+                <div class="stat-icon bg-primary text-white" style="background-color: #0284c7 !important;"><i class="fas fa-file-medical-alt"></i></div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="stat-card">
+                <div>
+                    <span class="stat-label">Đang điều trị</span>
+                    <h3 class="stat-value">@(Model != null ? Model.Count(x => x.TrangThai != "Hoàn thành" && x.GhiChu != "Đã khỏi") : 0)</h3>
+                </div>
+                <div class="stat-icon bg-warning text-dark" style="background-color: #f59e0b !important;"><i class="fas fa-hospital-user"></i></div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="stat-card">
+                <div>
+                    <span class="stat-label">Đã hoàn thành</span>
+                    <h3 class="stat-value">@(Model != null ? Model.Count(x => x.TrangThai == "Hoàn thành" || x.GhiChu == "Đã khỏi") : 0)</h3>
+                </div>
+                <div class="stat-icon bg-success text-white" style="background-color: #16a34a !important;"><i class="fas fa-check-circle"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- THÔNG BÁO LỖI -->
+    @if (TempData["Loi"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm py-2 mb-2" role="alert" style="font-size: 0.9rem;">
+            <i class="fas fa-exclamation-circle mr-2"></i> @TempData["Loi"]
+            <button type="button" class="close py-2" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <!-- BẢNG DỮ LIỆU -->
+    <div class="card border-0 shadow-sm rounded-lg overflow-hidden">
+        
+        <div class="card-header bg-white border-bottom py-2 px-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <h6 class="font-weight-bold text-secondary mb-2 mb-md-0 d-flex align-items-center" style="font-size: 1rem;">
+                <i class="fas fa-list-ul text-primary mr-1"></i> Danh sách hồ sơ điều trị
+            </h6>
+            <div class="input-group input-group-sm" style="max-width: 250px;">
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm hồ sơ..." style="font-size: 0.85rem;">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom" id="hoSoTable">
+                    <thead>
+                        <tr>
+                            <!-- Thêm cột Checkbox -->
+                            <th style="width: 4%;"><input type="checkbox" id="checkAll" class="custom-checkbox" title="Chọn tất cả hồ sơ đang điều trị" /></th>
+                            <th style="width: 4%;">Mã</th>
+                            <th style="width: 12%; text-align: left;">Động vật</th>
+                            <th style="width: 9%;">Ngày khám</th>
+                            <th style="width: 17%; text-align: left;">Chẩn đoán</th>
+                            <th style="width: 20%; text-align: left;">Phác đồ điều trị</th>
+                            <th style="width: 10%; text-align: right;">Chi phí</th>
+                            <th style="width: 10%;">Trạng thái</th>
+                            <th style="width: 14%;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            bool isDone = item.TrangThai == "Hoàn thành" || item.GhiChu == "Đã khỏi";
+                            
+                            <tr class="data-row" id="row-@item.MaHoSo">
+                                <!-- Cột Checkbox -->
+                                <td class="text-center">
+                                    @if (!isDone)
+                                    {
+                                        <input type="checkbox" class="custom-checkbox row-checkbox" value="@item.MaHoSo" />
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" class="custom-checkbox" disabled title="Hồ sơ đã hoàn thành" />
+                                    }
+                                </td>
+
+                                <td class="text-center font-weight-bold text-primary">@item.MaHoSo</td>
+                                
+                                <td style="text-align: left;">
+                                    <span class="font-weight-bold text-dark text-truncate" style="max-width: 120px; display: block;" title="@item.DongVat?.Ten">
+                                        @(item.DongVat?.Ten ?? "Chưa xác định")
+                                    </span>
+                                </td>
+                                
+                                <td class="text-center text-muted font-weight-bold">
+                                    @item.NgayKham.ToString("dd/MM/yyyy")
+                                </td>
+                                
+                                <td style="text-align: left;">
+                                    <span class="text-dark text-truncate" style="max-width: 180px; display: block;" title="@item.ChanDoan">
+                                        @(string.IsNullOrEmpty(item.ChanDoan) ? "---" : item.ChanDoan)
+                                    </span>
+                                </td>
+                                
+                                <td style="text-align: left;">
+                                    <span class="text-muted text-truncate" style="max-width: 200px; display: block;" title="@item.DieuTri">
+                                        @(string.IsNullOrEmpty(item.DieuTri) ? "---" : item.DieuTri)
+                                    </span>
+                                </td>
+                                
+                                <td class="text-right font-weight-bold text-danger">
+                                    @(item.ChiPhi.HasValue ? item.ChiPhi.Value.ToString("N0") + " đ" : "0 đ")
+                                </td>
+                                
+                                <td class="text-center">
+                                    @if (isDone)
+                                    {
+                                        <span class="badge-status status-done">Hoàn thành</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status status-treating">@(string.IsNullOrEmpty(item.TrangThai) ? "Đang điều trị" : item.TrangThai)</span>
+                                    }
+                                </td>
+                                
+                                <td class="text-center">
+                                    <div class="action-group">
+                                        <a asp-action="ChiTiet" asp-route-id="@item.MaHoSo" class="btn-action btn-view" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i> Xem
+                                        </a>
+                                        <a asp-action="Sua" asp-route-id="@item.MaHoSo" class="btn-action btn-edit" title="Cập nhật">
+                                            <i class="fas fa-pen"></i> Sửa
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">
+                                <i class="fas fa-notes-medical fa-2x mb-2 text-secondary opacity-50 d-block"></i>
+                                <p class="mb-0 font-weight-bold">Chưa có hồ sơ điều trị nào.</p>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- FOOTER PHÂN TRANG -->
+        <div class="card-footer bg-white border-0 py-2 px-3 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <span class="text-muted" style="font-size: 0.85rem;">Tổng số: <strong class="text-dark">@(Model != null ? Model.Count() : 0)</strong> hồ sơ</span>
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0" id="pagination"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // --- 1. XỬ LÝ PHÂN TRANG & TÌM KIẾM ---
+            const rowsPerPage = 10;
+            let currentPage = 1;
+            let filteredRows = []; 
+            const allRows = $('#tableBody .data-row').toArray();
+
+            function setupPagination(rows) {
+                filteredRows = rows;
+                const pageCount = Math.ceil(filteredRows.length / rowsPerPage);
+                $('#pagination').empty();
+                if (pageCount <= 1) return; 
+
+                $('#pagination').append(`<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">&laquo;</a></li>`);
+                for (let i = 1; i <= pageCount; i++) {
+                    $('#pagination').append(`<li class="page-item ${currentPage === i ? 'active' : ''}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a></li>`);
+                }
+                $('#pagination').append(`<li class="page-item ${currentPage === pageCount ? 'disabled' : ''}"><a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">&raquo;</a></li>`);
+            }
+
+            window.changePage = function(page) {
+                const pageCount = Math.ceil(filteredRows.length / rowsPerPage);
+                if (page < 1 || page > pageCount) return;
+                currentPage = page;
+                displayRows();
+                setupPagination(filteredRows); 
+            }
+
+            function displayRows() {
+                const start = (currentPage - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+                $(allRows).hide();
+                $(filteredRows.slice(start, end)).show();
+            }
+
+            setupPagination(allRows);
+            displayRows();
+
+            $('#searchInput').on('input', function () {
+                let filter = $(this).val().toLowerCase().trim();
+                let resultRows = allRows.filter(row => {
+                    let text = $(row).text().toLowerCase();
+                    return text.includes(filter);
+                });
+                currentPage = 1;
+                setupPagination(resultRows);
+                if (resultRows.length > 0) { displayRows(); } 
+                else { $(allRows).hide(); }
+            });
+
+            // --- 2. XỬ LÝ CHECKBOX & KHỎI BỆNH HÀNG LOẠT ---
+            const $btnBatchRecover = $('#btnBatchRecover');
+            const $countSelected = $('#countSelected');
+            const $checkAll = $('#checkAll');
+
+            function updateRecoverButton() {
+                let selectedCount = $('.row-checkbox:visible:checked').length;
+                $countSelected.text(selectedCount);
+                
+                if (selectedCount > 0) {
+                    $btnBatchRecover.prop('disabled', false);
+                } else {
+                    $btnBatchRecover.prop('disabled', true);
+                }
+            }
+
+            $(document).on('change', '.row-checkbox', function() {
+                updateRecoverButton();
+                let totalVisibleCheckbox = $('.row-checkbox:visible:not(:disabled)').length;
+                let totalVisibleChecked = $('.row-checkbox:visible:not(:disabled):checked').length;
+                $checkAll.prop('checked', totalVisibleCheckbox > 0 && totalVisibleCheckbox === totalVisibleChecked);
+            });
+
+            $checkAll.change(function() {
+                let isChecked = $(this).prop('checked');
+                $('.row-checkbox:visible:not(:disabled)').prop('checked', isChecked);
+                updateRecoverButton();
+            });
+
+            // Khi bấm nút "Xác nhận khỏi bệnh"
+            $btnBatchRecover.click(function() {
+                let selectedIds = $('.row-checkbox:checked').map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (selectedIds.length === 0) return;
+
+                let confirmMsg = `Bạn có chắc chắn muốn xác nhận KHỎI BỆNH cho ${selectedIds.length} hồ sơ này?`;
+                if (!confirm(confirmMsg)) return;
+
+                let $btn = $(this);
+                let originalText = $btn.html();
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
+
+                $.ajax({
+                    url: '/DieuTri/HoanThanhHangLoat', 
+                    type: 'POST',
+                    data: { ids: selectedIds },
+                    traditional: true,
+                    success: function(res) {
+                        if (res.success) {
+                            alert(`Đã cập nhật khỏi bệnh thành công ${selectedIds.length} hồ sơ!`);
+                            
+                            selectedIds.forEach(id => {
+                                let $row = $('#row-' + id);
+                                $row.find('.badge-status').removeClass('status-treating').addClass('status-done').text('Hoàn thành');
+                                let $cb = $row.find('.row-checkbox');
+                                $cb.prop('checked', false).prop('disabled', true).attr('title', 'Hồ sơ đã hoàn thành');
+                            });
+
+                            $checkAll.prop('checked', false);
+                            updateRecoverButton();
+                        } else {
+                            alert('Lỗi từ Server: ' + (res.message || 'Không thể cập nhật'));
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        let errorMsg = `Mã lỗi: ${xhr.status} - ${error}\n`;
+                        if (xhr.status === 404) {
+                            errorMsg += "=> Lỗi 404: Không tìm thấy Action 'HoanThanhHangLoat'. Bạn đã Build lại code chưa?";
+                        } else if (xhr.status === 500) {
+                            errorMsg += "=> Lỗi 500: Có lỗi xảy ra bên trong Controller. Hãy kiểm tra cửa sổ Output.";
+                        }
+                        alert("Có lỗi xảy ra:\n\n" + errorMsg);
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        });
+    </script>
+}

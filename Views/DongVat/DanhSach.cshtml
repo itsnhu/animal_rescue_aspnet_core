@@ -1,0 +1,58 @@
+﻿@model IEnumerable<HeThongCuuHo.Models.DongVat>
+
+@{
+    ViewData["Title"] = "Danh sách thú cưng chờ nhận nuôi";
+}
+
+<div class="container my-4">
+    <h2 class="mb-4 text-center">Thú Cưng Đang Cần Mái Ấm</h2>
+
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <!-- Khung ảnh đại diện -->
+                        <div class="position-relative overflow-hidden" style="height: 220px; background-color: #f8f9fa;">
+                            <img src="@(string.IsNullOrEmpty(item.HinhAnh) ? "/images/default-pet.jpg" : item.HinhAnh)" 
+                                 class="card-img-top w-100 h-100" 
+                                 alt="@item.Ten" 
+                                 style="object-fit: cover;" />
+                        </div>
+
+                        <div class="card-body">
+                            <h5 class="card-title text-primary font-weight-bold">
+                                @(string.IsNullOrEmpty(item.Ten) ? "Chưa đặt tên" : item.Ten)
+                            </h5>
+                            <p class="card-text mb-1"><strong>Loài:</strong> @item.Loai</p>
+                            <p class="card-text mb-1"><strong>Giống:</strong> @item.Giong</p>
+                            <p class="card-text mb-1"><strong>Giới tính:</strong> @item.GioiTinh</p>
+                            <p class="card-text mb-1"><strong>Tuổi:</strong> @item.Tuoi</p>
+                            <p class="card-text mb-3">
+                                <strong>Tình trạng:</strong> 
+                                <span class="badge bg-info text-dark">@item.TinhTrangSucKhoe</span>
+                            </p>
+                        </div>
+                        
+                        <div class="card-footer bg-white border-top-0">
+                            <!-- Nút bấm gọi sang NhanNuoi/Them kèm theo mã động vật -->
+                            <a asp-controller="NhanNuoi" asp-action="Them" asp-route-maDongVat="@item.MaDongVat" class="btn btn-success btn-block w-100">
+                                <i class="fas fa-heart"></i> Đăng ký nhận nuôi
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-warning text-center">
+                    Hiện tại không có thú cưng nào đang chờ nhận nuôi.
+                </div>
+            </div>
+        }
+    </div>
+</div>

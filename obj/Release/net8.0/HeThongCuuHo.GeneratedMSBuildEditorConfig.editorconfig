@@ -1,0 +1,305 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = HeThongCuuHo
+build_property.RootNamespace = HeThongCuuHo
+build_property.ProjectDir = C:\Users\Nhu\Videos\HeThongCuuHo\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\Nhu\Videos\HeThongCuuHo
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/BaoCao/ChiTiet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmFvQ2FvXENoaVRpZXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/BaoCao/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmFvQ2FvXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/BaoCao/Sua.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmFvQ2FvXFN1YS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/BaoCao/Them.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmFvQ2FvXFRoZW0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/BaoCao/Xoa.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmFvQ2FvXFhvYS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/CuuHo/ChiTiet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3V1SG9cQ2hpVGlldC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/CuuHo/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3V1SG9cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/CuuHo/PhanCong.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3V1SG9cUGhhbkNvbmcuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/CuuHo/ViTri.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3V1SG9cVmlUcmkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/DieuTri/ChiTiet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlldVRyaVxDaGlUaWV0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/DieuTri/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlldVRyaVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/DieuTri/Sua.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlldVRyaVxTdWEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/DieuTri/Them.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlldVRyaVxUaGVtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/DongVat/ChiTiet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uZ1ZhdFxDaGlUaWV0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/DongVat/DanhSach.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uZ1ZhdFxEYW5oU2FjaC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/DongVat/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uZ1ZhdFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/DongVat/Sua.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uZ1ZhdFxTdWEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/DongVat/Them.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uZ1ZhdFxUaGVtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/DonNhanNuoi/Them.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uTmhhbk51b2lcVGhlbS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Home/BaoCao.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxCYW9DYW8uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Home/Contact.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxDb250YWN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Home/TinTuc.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxUaW5UdWMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Home/UserDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxVc2VyRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Home/VeChungToi.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxWZUNodW5nVG9pLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Home/Welcome.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxXZWxjb21lLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Login/DangKy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cRGFuZ0t5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Login/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Login/QuenMatKhau.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cUXVlbk1hdEtoYXUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/LuuTru/ChiTiet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTHV1VHJ1XENoaVRpZXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/LuuTru/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTHV1VHJ1XEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/LuuTru/Sua.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTHV1VHJ1XFN1YS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/LuuTru/Them.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTHV1VHJ1XFRoZW0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/NhanNuoi/ChiTiet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmhhbk51b2lcQ2hpVGlldC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/NhanNuoi/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmhhbk51b2lcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/NhanNuoi/Sua.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmhhbk51b2lcU3VhLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/NhanNuoi/Them.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmhhbk51b2lcVGhlbS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/NhanNuoi/TheoDoiDon.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmhhbk51b2lcVGhlb0RvaURvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/NhatKy/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTmhhdEt5XEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Profile/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Profile/Sua.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxTdWEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Shared/_AdminLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BZG1pbkxheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Shared/_LoginLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpbkxheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Shared/_PublicHeader.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9QdWJsaWNIZWFkZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TaiKhoan/DangNhap.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFpS2hvYW5cRGFuZ05oYXAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TaiKhoan/DoiMatKhau.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFpS2hvYW5cRG9pTWF0S2hhdS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/ThongBao/ChiTiet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGhvbmdCYW9cQ2hpVGlldC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/ThongBao/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGhvbmdCYW9cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/ThongKe/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGhvbmdLZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TinhNguyenVien/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGluaE5ndXllblZpZW5cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TinhNguyenVien/NguoiDungIndex.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGluaE5ndXllblZpZW5cTmd1b2lEdW5nSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TinhNguyenVien/Sua.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGluaE5ndXllblZpZW5cU3VhLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TinhNguyenVien/Them.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGluaE5ndXllblZpZW5cVGhlbS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TinhNguyenVien/TheoDoiThamGia.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGluaE5ndXllblZpZW5cVGhlb0RvaVRoYW1HaWEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TinhNguyenVien/ThongKe.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGluaE5ndXllblZpZW5cVGhvbmdLZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TinhNguyenVien/ViTri.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGluaE5ndXllblZpZW5cVmlUcmkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TinTuc/ChiTiet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGluVHVjXENoaVRpZXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TinTuc/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGluVHVjXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TramCuuHo/ChiTiet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbUN1dUhvXENoaVRpZXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TramCuuHo/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbUN1dUhvXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TramCuuHo/Sua.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbUN1dUhvXFN1YS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/TramCuuHo/Them.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbUN1dUhvXFRoZW0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Volunteer/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVm9sdW50ZWVyXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Nhu/Videos/HeThongCuuHo/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-40ad1e5iu1

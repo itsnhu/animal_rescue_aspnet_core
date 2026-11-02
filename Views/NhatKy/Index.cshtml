@@ -1,0 +1,400 @@
+﻿@model IEnumerable<HeThongCuuHo.Models.NhatKyHoatDong>
+
+@{
+    ViewData["Title"] = "Nhật ký hoạt động";
+    int page = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalItems = ViewBag.TotalItems ?? 0;
+    
+    // Lưu ý: Để phân trang 10 dòng, bạn cần set pageSize = 10 trong Controller.
+    // Biến stt ở đây được tính toán để đánh số thứ tự đúng theo trang.
+    int pageSize = ViewBag.PageSize ?? 10; 
+    int stt = (page - 1) * pageSize + 1;
+}
+
+<style>
+    /* 1 & 2. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .card, .btn, .badge, table, th, td, p, span, div, label, input, select, a, button {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+        font-size: 1rem;
+    }
+
+    .page-title {
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 1.4rem;
+        margin-bottom: 2px;
+    }
+
+    /* 3 & 7. THU GỌN BỘ LỌC VÀ BẢNG ĐỂ VỪA 1 MÀN HÌNH */
+    .filter-box {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 12px 15px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .custom-input, .custom-select {
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        padding: 6px 10px;
+        font-size: 0.9rem;
+        height: auto;
+    }
+
+    .custom-input:focus, .custom-select:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
+    }
+
+    .table-card {
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+        overflow: hidden;
+    }
+
+    .custom-table {
+        margin-bottom: 0;
+        vertical-align: middle;
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .custom-table thead th {
+        background-color: #f8fafc;
+        color: #64748b;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-top: none;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 10px 8px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .custom-table tbody td {
+        padding: 8px;
+        color: #334155;
+        font-size: 0.85rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+
+    .custom-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    /* Avatar thu gọn */
+    .avatar-circle {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background-color: #e2e8f0;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    /* Badges */
+    .badge-soft-success {
+        background-color: #dcfce7;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+    }
+
+    .badge-soft-danger {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+    }
+
+    .badge-soft-entity {
+        background-color: #f0f9ff;
+        color: #0284c7;
+        border: 1px solid #bae6fd;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    /* 6. PHÂN TRANG */
+    .pagination .page-link {
+        color: #0f172a;
+        border: 1px solid #e2e8f0;
+        margin: 0 2px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 4px 10px;
+        transition: all 0.2s;
+    }
+    .pagination .page-link:hover { background-color: #f1f5f9; color: #0f172a; }
+    .pagination .page-item.active .page-link { background-color: #0284c7; border-color: #0284c7; color: #ffffff; }
+    .pagination .page-item.disabled .page-link { color: #94a3b8; pointer-events: none; background-color: #f8fafc; }
+
+    .btn-clean {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+        font-weight: 700;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .btn-clean:hover {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+</style>
+
+<div class="container-fluid py-2 px-md-3">
+
+    <!-- HEADER (3. Bỏ icon) -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-2 bg-white p-3 rounded-lg shadow-sm border">
+        <div>
+            <h1 class="page-title">Nhật ký hoạt động hệ thống</h1>
+            <p class="text-muted small mb-0" style="font-size: 0.85rem;">Theo dõi vết truy vết (Audit Log) toàn bộ thao tác trong hệ thống</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <button type="button" class="btn btn-clean" data-toggle="modal" data-target="#modalXoaLog">
+                Dọn dẹp log cũ
+            </button>
+        </div>
+    </div>
+
+    <!-- FORM LỌC (Thu gọn) -->
+    <div class="filter-box">
+        <form method="get" asp-action="Index" class="row align-items-end">
+            <div class="col-md-3 mb-2 mb-md-0">
+                <label class="text-muted small font-weight-bold mb-1">Từ khóa</label>
+                <div class="input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-light border-right-0 text-muted"><i class="fas fa-search"></i></span>
+                    </div>
+                    <input type="text" name="timKiem" value="@ViewBag.TimKiem" class="form-control custom-input border-left-0" placeholder="Tên user, hành động..." />
+                </div>
+            </div>
+
+            <div class="col-md-2 mb-2 mb-md-0">
+                <label class="text-muted small font-weight-bold mb-1">Trạng thái</label>
+                <select name="trangThai" class="form-control custom-select">
+                    <option value="">-- Tất cả --</option>
+                    <option value="Thành công" selected="@(ViewBag.TrangThai == "Thành công")">Thành công</option>
+                    <option value="Thất bại" selected="@(ViewBag.TrangThai == "Thất bại")">Thất bại</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 mb-2 mb-md-0">
+                <label class="text-muted small font-weight-bold mb-1">Thực thể</label>
+                <select name="tenEntity" class="form-control custom-select">
+                    <option value="">-- Tất cả --</option>
+                    <option value="BaoCao" selected="@(ViewBag.TenEntity == "BaoCao")">Báo cáo</option>
+                    <option value="CuuHo" selected="@(ViewBag.TenEntity == "CuuHo")">Cứu hộ</option>
+                    <option value="NguoiDung" selected="@(ViewBag.TenEntity == "NguoiDung")">Người dùng</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 mb-2 mb-md-0">
+                <label class="text-muted small font-weight-bold mb-1">Từ ngày</label>
+                <input type="date" name="tuNgay" value="@ViewBag.TuNgay" class="form-control custom-input" />
+            </div>
+
+            <div class="col-md-2 mb-2 mb-md-0">
+                <label class="text-muted small font-weight-bold mb-1">Đến ngày</label>
+                <input type="date" name="denNgay" value="@ViewBag.DenNgay" class="form-control custom-input" />
+            </div>
+
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-sm btn-success font-weight-bold w-100" style="border-radius: 6px; padding: 6px;">
+                    Lọc
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- BẢNG HIỂN THỊ -->
+    <div class="table-card">
+        <div class="table-responsive">
+            <table class="table custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 4%;">STT</th>
+                        <th style="width: 16%;">Thời gian</th>
+                        <th style="width: 22%; text-align: left;">Người thực hiện</th>
+                        <th style="width: 22%; text-align: left;">Hành động</th>
+                        <th style="width: 12%;">Trạng thái</th>
+                        <th style="width: 24%; text-align: left;">IP & Thiết bị</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="fas fa-history fa-2x mb-2 d-block text-secondary opacity-50"></i>
+                                <p class="mb-0 font-weight-bold">Không tìm thấy nhật ký hoạt động nào.</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            string tenNguoiDung = !string.IsNullOrEmpty(item.TenNguoiDung)
+                                ? item.TenNguoiDung
+                                : (item.NguoiDung?.HoTen ?? "Khách / System");
+
+                            string avatarChar = tenNguoiDung.Substring(0, 1).ToUpper();
+
+                            <tr>
+                                <td class="text-center text-muted font-weight-bold">@stt</td>
+
+                                <!-- 4. Bỏ icon thời gian -->
+                                <td class="text-center text-secondary font-weight-bold">
+                                    @item.ThoiGian.ToString("dd/MM/yyyy HH:mm:ss")
+                                </td>
+
+                                <td style="text-align: left;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle mr-2">@avatarChar</div>
+                                        <div class="text-truncate">
+                                            <div class="font-weight-bold text-dark" style="font-size: 0.9rem;" title="@tenNguoiDung">@tenNguoiDung</div>
+                                            @if (item.MaNguoiDung.HasValue)
+                                            {
+                                                <!-- 5. Bỏ dấu # ở ID -->
+                                                <div class="text-muted" style="font-size: 0.75rem;">ID: @item.MaNguoiDung</div>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td style="text-align: left;">
+                                    <span class="font-weight-bold text-dark">@item.HanhDong</span>
+                                    @if (!string.IsNullOrEmpty(item.TenEntity))
+                                    {
+                                        <div class="mt-1">
+                                            <span class="badge badge-soft-entity">
+                                                @item.TenEntity
+                                                @(item.MaDoiTuong.HasValue ? $"#{item.MaDoiTuong}" : "")
+                                            </span>
+                                        </div>
+                                    }
+                                </td>
+
+                                <!-- 4. Bỏ icon trạng thái -->
+                                <td class="text-center">
+                                    @if (item.TrangThai == "Thất bại")
+                                    {
+                                        <span class="badge-soft-danger">Thất bại</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-soft-success">Thành công</span>
+                                    }
+                                </td>
+
+                                <!-- 3. Bỏ icon IP & Thiết bị -->
+                                <td style="text-align: left;">
+                                    <div class="font-weight-bold text-secondary" style="font-size: 0.85rem;">
+                                        @(item.DiaChiIP ?? "N/A")
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(item.TrinhDuyet))
+                                    {
+                                        <span class="text-muted text-truncate d-block" style="font-size: 0.75rem; max-width: 200px;" title="@item.TrinhDuyet">
+                                            @item.TrinhDuyet
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                            stt++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 6. PHÂN TRANG -->
+        @if (totalPages > 1)
+        {
+            <div class="d-flex align-items-center justify-content-between p-2 border-top bg-white">
+                <div class="text-muted small">
+                    Hiển thị <b>@Model.Count()</b> / <b>@totalItems</b> bản ghi
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(page <= 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = page - 1, timKiem = ViewBag.TimKiem, trangThai = ViewBag.TrangThai, tenEntity = ViewBag.TenEntity, tuNgay = ViewBag.TuNgay, denNgay = ViewBag.DenNgay })">Trước</a>
+                        </li>
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == page ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { page = i, timKiem = ViewBag.TimKiem, trangThai = ViewBag.TrangThai, tenEntity = ViewBag.TenEntity, tuNgay = ViewBag.TuNgay, denNgay = ViewBag.DenNgay })">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = page + 1, timKiem = ViewBag.TimKiem, trangThai = ViewBag.TrangThai, tenEntity = ViewBag.TenEntity, tuNgay = ViewBag.TuNgay, denNgay = ViewBag.DenNgay })">Sau</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal Dọn Dẹp Log Cũ (Sửa lỗi Bootstrap 5 thành 4) -->
+<div class="modal fade" id="modalXoaLog" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title font-weight-bold text-danger">
+                    Dọn dẹp nhật ký cũ
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="XoaLogCu" method="post">
+                <div class="modal-body py-3">
+                    <p class="text-muted small">Hành động này sẽ xóa vĩnh viễn các bản ghi nhật ký hoạt động cũ để giúp giải phóng dung lượng CSDL.</p>
+                    <div class="form-group mb-0">
+                        <label class="font-weight-bold small text-dark">Xóa nhật ký cũ hơn:</label>
+                        <select name="soNgay" class="form-control custom-select">
+                            <option value="30">30 ngày trước</option>
+                            <option value="60">60 ngày trước</option>
+                            <option value="90">90 ngày trước</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-light font-weight-bold px-4" style="border-radius: 6px;" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger font-weight-bold px-4" style="border-radius: 6px;">Xác nhận xóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

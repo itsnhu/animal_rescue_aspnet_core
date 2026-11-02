@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - RescuePets</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --ri-navy: #071D2A;
+            --ri-navy-dark: #04121B;
+            --ri-teal: #0F3832;
+            --ri-teal-light: #EAF2EF;
+            --ri-gold: #D4A373;
+            --ri-gold-hover: #FAEDCD;
+            --ri-emerald: #10b981;
+            --ri-emerald-dark: #059669;
+            --ri-white: #FFFFFF;
+            --ri-text-dark: #122129;
+            --ri-muted: #5A6D77;
+            --ri-border: #E1E7E5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: var(--ri-navy);
+        }
+
+        /* ===== SPLIT LAYOUT ===== */
+        .login-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== LEFT PANEL - Branding ===== */
+        .login-brand-panel {
+            flex: 0 0 50%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2.5rem 3rem;
+            overflow: hidden;
+            background: linear-gradient(155deg, #071D2A 0%, #0F3832 40%, #1a5c4c 70%, #0F3832 100%);
+        }
+
+        /* Animated background circles */
+        .login-brand-panel::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212,163,115,0.12) 0%, transparent 70%);
+            top: -100px;
+            right: -150px;
+            animation: floatCircle 8s ease-in-out infinite;
+        }
+
+        .login-brand-panel::after {
+            content: '';
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
+            bottom: -50px;
+            left: -100px;
+            animation: floatCircle 6s ease-in-out infinite reverse;
+        }
+
+        @@keyframes floatCircle {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -20px) scale(1.1); }
+        }
+
+        @@keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @@keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-12px) rotate(5deg); }
+            66% { transform: translateY(6px) rotate(-3deg); }
+        }
+
+        @@keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.5; }
+            50% { transform: translateY(-18px) rotate(10deg); opacity: 0.8; }
+        }
+
+        @@keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.15); opacity: 1; }
+        }
+
+        @@keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @@keyframes heroFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* ===== HERO IMAGE ===== */
+        .brand-hero-image {
+            position: relative;
+            margin-bottom: 1.8rem;
+            animation: heroFloat 4s ease-in-out infinite;
+        }
+
+        .brand-hero-image img {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid rgba(212,163,115,0.35);
+            box-shadow:
+                0 0 40px rgba(212,163,115,0.2),
+                0 0 80px rgba(15,56,50,0.3),
+                0 20px 60px rgba(0,0,0,0.3);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .brand-hero-image img:hover {
+            transform: scale(1.04);
+            box-shadow:
+                0 0 50px rgba(212,163,115,0.35),
+                0 0 100px rgba(15,56,50,0.4),
+                0 25px 70px rgba(0,0,0,0.35);
+        }
+
+        /* Glowing ring around image */
+        .brand-hero-image::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 316px;
+            height: 316px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, rgba(212,163,115,0.4), transparent, rgba(16,185,129,0.3)) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        /* ===== FLOATING PAWS DECORATION ===== */
+        .floating-paws {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .floating-paw {
+            position: absolute;
+            color: rgba(212,163,115,0.12);
+            font-size: 1.4rem;
+        }
+
+        .floating-paw:nth-child(1) {
+            top: 8%;
+            left: 12%;
+            font-size: 1.6rem;
+            animation: floatSlow 7s ease-in-out infinite;
+            animation-delay: 0s;
+        }
+        .floating-paw:nth-child(2) {
+            top: 15%;
+            right: 15%;
+            font-size: 1.2rem;
+            color: rgba(16,185,129,0.12);
+            animation: floatSlow 9s ease-in-out infinite;
+            animation-delay: 1s;
+        }
+        .floating-paw:nth-child(3) {
+            bottom: 20%;
+            left: 8%;
+            font-size: 1.8rem;
+            animation: floatSlow 8s ease-in-out infinite;
+            animation-delay: 2s;
+        }
+        .floating-paw:nth-child(4) {
+            bottom: 12%;
+            right: 10%;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.08);
+            animation: floatSlow 6s ease-in-out infinite;
+            animation-delay: 0.5s;
+        }
+        .floating-paw:nth-child(5) {
+            top: 40%;
+            left: 5%;
+            font-size: 1.1rem;
+            color: rgba(212,163,115,0.08);
+            animation: floatSlow 10s ease-in-out infinite;
+            animation-delay: 3s;
+        }
+        .floating-paw:nth-child(6) {
+            top: 55%;
+            right: 6%;
+            font-size: 1.5rem;
+            color: rgba(16,185,129,0.08);
+            animation: floatSlow 7.5s ease-in-out infinite;
+            animation-delay: 1.5s;
+        }
+        .floating-paw:nth-child(7) {
+            top: 5%;
+            left: 45%;
+            font-size: 0.9rem;
+            animation: floatSlow 11s ease-in-out infinite;
+            animation-delay: 4s;
+        }
+        .floating-paw:nth-child(8) {
+            bottom: 5%;
+            left: 35%;
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.06);
+            animation: floatSlow 8.5s ease-in-out infinite;
+            animation-delay: 2.5s;
+        }
+
+        .brand-logo {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--ri-gold), #C08B5C);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--ri-navy);
+            margin-bottom: 1rem;
+            box-shadow: 0 12px 30px rgba(212,163,115,0.3);
+            transform: rotate(-5deg);
+            transition: transform 0.4s ease;
+        }
+
+        .brand-logo:hover {
+            transform: rotate(0deg) scale(1.05);
+        }
+
+        .brand-title {
+            font-family: 'Playfair Display', serif;
+            color: var(--ri-white);
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-title span {
+            color: var(--ri-gold);
+        }
+
+        .brand-subtitle {
+            color: rgba(255,255,255,0.65);
+            font-size: 0.92rem;
+            font-weight: 400;
+            max-width: 380px;
+            line-height: 1.7;
+            margin: 0 auto;
+        }
+
+        /* Feature highlights */
+        .brand-features {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .brand-feature {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.88rem;
+            font-weight: 500;
+            animation: fadeInUp 0.8s ease-out both;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 10px 16px;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .brand-feature:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(212,163,115,0.2);
+            transform: translateX(6px);
+        }
+
+        .brand-feature:nth-child(1) { animation-delay: 0.2s; }
+        .brand-feature:nth-child(2) { animation-delay: 0.4s; }
+        .brand-feature:nth-child(3) { animation-delay: 0.6s; }
+
+        .brand-feature-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(212,163,115,0.15);
+            border: 1px solid rgba(212,163,115,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: var(--ri-gold);
+            flex-shrink: 0;
+        }
+
+        /* ===== STATS BAR ===== */
+        .brand-stats {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .brand-stat {
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out 0.8s both;
+        }
+
+        .brand-stat-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--ri-gold), #FAEDCD);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .brand-stat-label {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.45);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== RIGHT PANEL - Form ===== */
+        .login-form-panel {
+            flex: 0 0 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: var(--ri-white);
+            position: relative;
+        }
+
+        /* Decorative corner */
+        .login-form-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--ri-teal-light) 0%, transparent 60%);
+            border-bottom-right-radius: 60px;
+        }
+
+        .login-form-panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(212,163,115,0.08) 0%, transparent 70%);
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @@media (max-width: 991.98px) {
+            .login-wrapper {
+                flex-direction: column;
+            }
+
+            .login-brand-panel {
+                flex: 0 0 auto;
+                padding: 2.5rem 2rem;
+                min-height: auto;
+            }
+
+            .brand-hero-image img {
+                width: 180px;
+                height: 180px;
+            }
+
+            .brand-hero-image::before {
+                width: 196px;
+                height: 196px;
+            }
+
+            .brand-title {
+                font-size: 2rem;
+            }
+
+            .brand-features {
+                display: none;
+            }
+
+            .brand-stats {
+                display: none;
+            }
+
+            .login-form-panel {
+                flex: 1;
+            }
+        }
+
+        @@media (max-width: 575.98px) {
+            .login-form-panel {
+                padding: 1.5rem;
+            }
+
+            .brand-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 26px;
+            }
+
+            .brand-hero-image img {
+                width: 140px;
+                height: 140px;
+            }
+
+            .brand-hero-image::before {
+                width: 156px;
+                height: 156px;
+            }
+        }
+
+        /* Fix Font Awesome */
+        i.fas, i.far, i.fab, .fa, .fas, .far, .fab {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+        }
+        i.fab {
+            font-family: "Font Awesome 6 Brands" !important;
+            font-weight: 400 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-wrapper">
+
+        <!-- LEFT: Brand Panel -->
+        <div class="login-brand-panel d-none d-lg-flex">
+
+            <!-- Floating paw decorations -->
+            <div class="floating-paws">
+                <i class="fas fa-paw floating-paw"></i>
+                <i class="fas fa-paw floating-paw"></i>
+                <i class="fas fa-paw floating-paw"></i>
+                <i class="fas fa-paw floating-paw"></i>
+                <i class="fas fa-heart floating-paw"></i>
+                <i class="fas fa-paw floating-paw"></i>
+                <i class="fas fa-heart floating-paw"></i>
+                <i class="fas fa-paw floating-paw"></i>
+            </div>
+
+            <div class="brand-content">
+                <!-- Hero Image -->
+                <div class="brand-hero-image">
+                    <img src="/images/rescue_hero.jpg?v=@DateTime.Now.Ticks" alt="RescuePets - Cứu hộ & bảo trợ động vật" />
+                </div>
+
+                <div class="brand-logo">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <h1 class="brand-title">Rescue<span>Pets</span></h1>
+                <p class="brand-subtitle">
+                    Hệ thống quản lý cứu hộ & bảo trợ động vật — kết nối yêu thương, bảo vệ sự sống.
+                </p>
+
+                <div class="brand-features">
+                    <div class="brand-feature">
+                        <div class="brand-feature-icon">
+                            <i class="fas fa-shield-heart"></i>
+                        </div>
+                        <span>Tiếp nhận & cứu hộ động vật nhanh chóng</span>
+                    </div>
+                    <div class="brand-feature">
+                        <div class="brand-feature-icon">
+                            <i class="fas fa-hand-holding-heart"></i>
+                        </div>
+                        <span>Kết nối nhận nuôi — tìm mái ấm mới</span>
+                    </div>
+                    <div class="brand-feature">
+                        <div class="brand-feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <span>Theo dõi & báo cáo minh bạch</span>
+                    </div>
+                </div>
+
+                <div class="brand-stats">
+                    <div class="brand-stat">
+                        <div class="brand-stat-number">500+</div>
+                        <div class="brand-stat-label">Đã cứu hộ</div>
+                    </div>
+                    <div class="brand-stat">
+                        <div class="brand-stat-number">320+</div>
+                        <div class="brand-stat-label">Được nhận nuôi</div>
+                    </div>
+                    <div class="brand-stat">
+                        <div class="brand-stat-number">50+</div>
+                        <div class="brand-stat-label">Tình nguyện viên</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Form Panel -->
+        <div class="login-form-panel">
+            <div class="form-container">
+                @RenderBody()
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

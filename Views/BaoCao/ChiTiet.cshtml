@@ -1,0 +1,476 @@
+﻿@model HeThongCuuHo.Models.BaoCao
+
+@{
+    ViewData["Title"] = "Chi tiết báo cáo #" + Model.MaBaoCao;
+    var cuuHo = ViewBag.CuuHo as HeThongCuuHo.Models.CuuHo;
+    string vaiTro = Context.Session.GetString("VaiTro") ?? "";
+}
+
+<!-- Nhúng CSS Leaflet Map & FontAwesome -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+    /* 1. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+    body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, 
+    .card, .btn, .badge, table, th, td, p, span, div, input, select, a, label {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    body {
+        background-color: #f8fafc;
+        font-size: 1rem;
+    }
+
+    /* 2. THU GỌN THẺ CARD */
+    .custom-card {
+        background: #ffffff;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        margin-bottom: 15px; /* Giảm từ 20px */
+        overflow: hidden;
+    }
+
+    .custom-card-header {
+        padding: 12px 15px; /* Giảm padding */
+        border-bottom: 1px solid #f1f5f9;
+        background: #ffffff;
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 1.05rem;
+    }
+
+    .custom-card-body {
+        padding: 15px; /* Giảm padding */
+    }
+
+    /* 3. THU GỌN DANH SÁCH THÔNG TIN */
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-item {
+        display: flex;
+        padding: 8px 0; /* Giảm từ 10px */
+        border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .info-label {
+        width: 140px;
+        font-weight: 700;
+        color: #64748b;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .info-value {
+        color: #1e293b;
+        font-size: 0.95rem;
+        font-weight: 600;
+        flex-grow: 1;
+    }
+
+    /* Badge Trạng thái & Mức độ */
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .status-pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .status-assigned { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .status-in-progress { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .status-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
+    .urgency-high { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .urgency-normal { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+    /* 4. THU NHỎ BẢN ĐỒ */
+    #map {
+        height: 250px;
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        z-index: 1;
+    }
+
+    /* Nút bấm */
+    .btn-custom {
+        border-radius: 6px;
+        font-weight: 700;
+        padding: 8px 15px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .btn-dispatch {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff;
+        border: none;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25);
+    }
+    .btn-dispatch:hover { transform: translateY(-1px); color: #ffffff; box-shadow: 0 5px 12px rgba(16, 185, 129, 0.35); }
+
+    .btn-edit {
+        background: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fde68a;
+    }
+    .btn-edit:hover { background: #fef3c7; color: #92400e; }
+
+    .btn-back {
+        background: #ffffff;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+    .btn-back:hover { background: #f1f5f9; color: #0f172a; }
+
+    .btn-success-volunteer {
+        background: #0ea5e9;
+        color: white;
+        border: none;
+    }
+    .btn-success-volunteer:hover { background: #0284c7; color: white; }
+
+    /* 5. THU GỌN TIMELINE */
+    .timeline {
+        list-style: none;
+        padding: 0;
+        position: relative;
+        margin-left: 10px;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 15px;
+        width: 2px;
+        background: #e2e8f0;
+    }
+    .timeline-item {
+        position: relative;
+        padding-left: 45px;
+        margin-bottom: 15px; /* Giảm từ 20px */
+    }
+    .timeline-item:last-child { margin-bottom: 0; }
+    .timeline-icon {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        border: 2px solid #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 0.8rem;
+        z-index: 2;
+    }
+    .timeline-item.active .timeline-icon {
+        background: #dcfce7;
+        border-color: #10b981;
+        color: #059669;
+    }
+    .timeline-content {
+        background: #f8fafc;
+        padding: 8px 12px; /* Giảm padding */
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+    }
+    .timeline-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #0f172a;
+        margin-bottom: 2px;
+    }
+    .timeline-time {
+        font-size: 0.8rem;
+        color: #64748b;
+        display: block;
+    }
+</style>
+
+<div class="container-fluid py-2 px-md-3">
+    
+    <!-- 1. Page Header (Bỏ icon) -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="h5 font-weight-bold mb-1" style="color: #0f172a; font-size: 1.3rem;">
+                Chi tiết báo cáo
+            </h2>
+            <p class="text-muted small mb-0">Mã hồ sơ: <span class="font-weight-bold text-dark">#@Model.MaBaoCao</span></p>
+        </div>
+        <div>
+            @switch (Model.TrangThai)
+            {
+                case "Chờ xử lý":
+                    <span class="status-badge status-pending"><i class="fas fa-clock"></i> Chờ xử lý</span>
+                    break;
+                case "Đã phân công":
+                    <span class="status-badge status-assigned"><i class="fas fa-clipboard-list"></i> Đã phân công</span>
+                    break;
+                case "Đang cứu hộ":
+                    <span class="status-badge status-in-progress"><i class="fas fa-ambulance"></i> Đang cứu hộ</span>
+                    break;
+                default:
+                    <span class="status-badge status-done"><i class="fas fa-check-circle"></i> Hoàn thành</span>
+                    break;
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        
+        <!-- CỘT TRÁI: Thông tin & Tiến trình -->
+        <div class="col-lg-7 col-md-12">
+            
+            <!-- Card: Thông tin chung -->
+            <div class="custom-card">
+                <div class="custom-card-header">
+                    <i class="fas fa-info-circle text-primary mr-1"></i> Thông tin sự cố
+                </div>
+                <div class="custom-card-body">
+                    <ul class="info-list">
+                        <li class="info-item">
+                            <div class="info-label">Loài động vật</div>
+                            <div class="info-value">
+                                <span class="badge bg-light text-dark border px-2 py-1" style="font-size:0.85rem;">
+                                    <i class="fas fa-paw text-muted mr-1"></i> @Model.LoaiDongVat
+                                </span>
+                            </div>
+                        </li>
+                        <li class="info-item">
+                            <div class="info-label">Mức độ khẩn cấp</div>
+                            <div class="info-value">
+                                @if (Model.MucDoKhanCap == "Rất khẩn cấp")
+                                {
+                                    <span class="status-badge urgency-high"><i class="fas fa-exclamation-triangle"></i> Rất khẩn cấp</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge urgency-normal"><i class="fas fa-check-circle"></i> Bình thường</span>
+                                }
+                            </div>
+                        </li>
+                        <li class="info-item">
+                            <div class="info-label">Mô tả tình trạng</div>
+                            <div class="info-value text-muted" style="line-height: 1.5; font-weight: normal;">
+                                @(string.IsNullOrEmpty(Model.MoTa) ? "Không có mô tả chi tiết" : Model.MoTa)
+                            </div>
+                        </li>
+                        <li class="info-item">
+                            <div class="info-label">Địa chỉ hiện trường</div>
+                            <div class="info-value">
+                                <i class="fas fa-map-marker-alt text-danger mr-1"></i> @Model.DiaChi
+                            </div>
+                        </li>
+                        <li class="info-item">
+                            <div class="info-label">Ngày báo cáo</div>
+                            <div class="info-value">
+                                <i class="far fa-clock text-muted mr-1"></i> @Model.NgayBaoCao.ToString("HH:mm - dd/MM/yyyy")
+                            </div>
+                        </li>
+                        <li class="info-item pt-2">
+                            <div class="info-label">Hình ảnh</div>
+                            <div class="info-value">
+                                @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                                {
+                                    <a href="~/uploads/@Model.HinhAnh" target="_blank">
+                                        <img src="~/uploads/@Model.HinhAnh" class="img-fluid rounded border shadow-sm" 
+                                             style="max-width: 100%; max-height: 180px; object-fit: cover;" alt="Ảnh sự cố" />
+                                    </a>
+                                }
+                                else
+                                {
+                                    <div class="text-muted font-italic bg-light p-2 text-center rounded border" style="font-size: 0.85rem;">Chưa có hình ảnh đính kèm</div>
+                                }
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card: Timeline Tiến trình (Bỏ icon tiêu đề) -->
+            <div class="custom-card">
+                <div class="custom-card-header">
+                    Tiến trình cứu hộ
+                </div>
+                <div class="custom-card-body">
+                    <ul class="timeline">
+                        <!-- Bước 1: Tạo báo cáo -->
+                        <li class="timeline-item active">
+                            <div class="timeline-icon"><i class="fas fa-bullhorn"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Báo cáo được tạo</div>
+                                <span class="timeline-time">@Model.NgayBaoCao.ToString("HH:mm - dd/MM/yyyy")</span>
+                            </div>
+                        </li>
+
+                        <!-- Bước 2: Phân công -->
+                        @if (cuuHo != null)
+                        {
+                            <li class="timeline-item active">
+                                <div class="timeline-icon"><i class="fas fa-user-check"></i></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Phân công tình nguyện viên</div>
+                                    <span class="timeline-time">
+                                        Nhận bởi: <b>@(cuuHo.TinhNguyenVien?.HoTen ?? "TNV #" + cuuHo.MaTinhNguyenVien)</b>
+                                        @if (cuuHo.ThoiGianNhan != null)
+                                        {
+                                            <br />@cuuHo.ThoiGianNhan?.ToString("HH:mm - dd/MM/yyyy")
+                                        }
+                                    </span>
+                                </div>
+                            </li>
+                        }
+
+                        <!-- Bước 3: Tiếp cận -->
+                        @if (cuuHo != null && cuuHo.ThoiGianDen != null)
+                        {
+                            <li class="timeline-item active">
+                                <div class="timeline-icon"><i class="fas fa-map-marked-alt"></i></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Đã tiếp cận hiện trường</div>
+                                    <span class="timeline-time">@cuuHo.ThoiGianDen?.ToString("HH:mm - dd/MM/yyyy")</span>
+                                </div>
+                            </li>
+                        }
+
+                        <!-- Bước 4: Hoàn thành -->
+                        @if (cuuHo != null && cuuHo.ThoiGianHoanThanh != null)
+                        {
+                            <li class="timeline-item active">
+                                <div class="timeline-icon" style="background:#dcfce7; border-color:#22c55e; color:#16a34a;"><i class="fas fa-check-double"></i></div>
+                                <div class="timeline-content" style="background:#f0fdf4; border-color:#bbf7d0;">
+                                    <div class="timeline-title text-success">Hoàn thành cứu hộ</div>
+                                    <span class="timeline-time text-success">@cuuHo.ThoiGianHoanThanh?.ToString("HH:mm - dd/MM/yyyy")</span>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CỘT PHẢI: Bản đồ & Thao tác -->
+        <div class="col-lg-5 col-md-12">
+            
+            <!-- Card: Bản đồ -->
+            <div class="custom-card">
+                <div class="custom-card-header">
+                    <i class="fas fa-map-marker-alt text-danger mr-1"></i> Vị trí hiện trường
+                </div>
+                <div class="custom-card-body p-2">
+                    <div id="map"></div>
+                    <div class="text-center mt-2">
+                        <small class="text-muted"><i class="fas fa-info-circle mr-1"></i>Vĩ độ: @Model.ViDo | Kinh độ: @Model.KinhDo</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card: Thao tác (Dành cho Admin) -->
+            @if (vaiTro == "Admin")
+            {
+                <div class="custom-card">
+                    <div class="custom-card-header">
+                        <i class="fas fa-bolt text-warning mr-1"></i> Thao tác quản trị
+                    </div>
+                    <div class="custom-card-body">
+                        @if (Model.TrangThai == "Chờ xử lý")
+                        {
+                            <a asp-controller="CuuHo" asp-action="PhanCong" asp-route-maBaoCao="@Model.MaBaoCao" class="btn btn-custom btn-dispatch">
+                                <i class="fas fa-ambulance"></i> Điều phối / Phân công
+                            </a>
+                        }
+                        <a asp-action="Sua" asp-route-id="@Model.MaBaoCao" class="btn btn-custom btn-edit">
+                            <i class="fas fa-pen"></i> Chỉnh sửa báo cáo
+                        </a>
+                        <a asp-action="Index" class="btn btn-custom btn-back mb-0">
+                            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Nếu không phải Admin, chỉ hiện nút Quay lại -->
+                 <div class="custom-card">
+                    <div class="custom-card-body">
+                        <a asp-action="Index" class="btn btn-custom btn-back mb-0">
+                            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <!-- Card: Cập nhật tiến trình (Dành cho Tình nguyện viên) -->
+            @if (vaiTro == "TinhNguyenVien" && cuuHo != null && Model.TrangThai != "Đã hoàn thành" && Model.TrangThai != "Hoàn thành")
+            {
+                <div class="custom-card" style="border-left: 4px solid #0ea5e9;">
+                    <div class="custom-card-header">
+                        <i class="fas fa-clipboard-check text-info mr-1"></i> Cập nhật ca cứu hộ
+                    </div>
+                    <div class="custom-card-body">
+                        <p class="text-muted small mb-2">Bạn được phân công xử lý ca này. Bấm xác nhận sau khi đã đưa động vật về trạm an toàn.</p>
+                        <form asp-controller="CuuHo" asp-action="HoanThanhCuuHo" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="maBaoCao" value="@Model.MaBaoCao" />
+                            <button type="submit" class="btn btn-custom btn-success-volunteer mb-0" onclick="return confirm('Xác nhận bạn đã hoàn thành ca cứu hộ này?');">
+                                <i class="fas fa-check-double"></i> Xác nhận hoàn thành
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Sửa lỗi CS0019: Dùng toán tử 3 ngôi thay vì ??
+            // Nếu ViDo/KinhDo bằng 0 thì mới lấy tọa độ mặc định (TP.HCM)
+            var lat = @(Model.ViDo == 0 ? 10.7769 : Model.ViDo);
+            var lng = @(Model.KinhDo == 0 ? 106.7009 : Model.KinhDo);
+
+            var map = L.map('map').setView([lat, lng], 16);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Marker ghim
+            var marker = L.marker([lat, lng]).addTo(map);
+            marker.bindPopup("<div class='text-center'><b>@Model.LoaiDongVat</b><br><small>@Model.DiaChi</small></div>").openPopup();
+
+            // Fix lỗi bản đồ bị xám khi load trong div ẩn
+            setTimeout(function(){ map.invalidateSize(); }, 200);
+        });
+    </script>
+}

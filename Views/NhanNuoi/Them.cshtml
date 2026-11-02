@@ -1,0 +1,33 @@
+﻿@model HeThongCuuHo.Models.DonNhanNuoi
+
+@{
+    ViewData["Title"] = "Đăng ký nhận nuôi";
+}
+
+<div class="container mt-4" style="max-width: 700px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">🐾 Đăng Ký Nhận Nuôi Động Vật</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="Them" method="post">
+                <!-- Giữ ngầm mã động vật -->
+                <input type="hidden" asp-for="MaDongVat" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Lý do / Mong muốn nhận nuôi</label>
+                    <textarea asp-for="LyDo" class="form-control" rows="4" placeholder="Hãy chia sẻ đôi điều về kinh nghiệm chăm sóc thú cưng hoặc lý do bạn muốn nhận nuôi bé nhé..." required></textarea>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-controller="DongVat" asp-action="DanhSach" asp-route-id="@Model.MaDongVat" class="btn btn-secondary">
+                        ⬅️ Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4 fw-bold">
+                        🚀 Gửi Đơn Đăng Ký
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

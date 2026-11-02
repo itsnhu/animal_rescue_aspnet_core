@@ -1,0 +1,54 @@
+﻿@model HeThongCuuHo.Models.BaoCao
+
+@{
+    ViewData["Title"] = "Xóa báo cáo";
+}
+
+<h2>Xác nhận xóa báo cáo</h2>
+
+<div class="alert alert-danger">
+    Bạn có chắc chắn muốn xóa báo cáo này không?
+</div>
+
+<table class="table table-bordered">
+
+    <tr>
+        <th>Mã báo cáo</th>
+        <td>@Model.MaBaoCao</td>
+    </tr>
+
+    <tr>
+        <th>Loài động vật</th>
+        <td>@Model.LoaiDongVat</td>
+    </tr>
+
+    <tr>
+        <th>Mô tả</th>
+        <td>@Model.MoTa</td>
+    </tr>
+
+    <tr>
+        <th>Địa chỉ</th>
+        <td>@Model.DiaChi</td>
+    </tr>
+
+    <tr>
+        <th>Trạng thái</th>
+        <td>@Model.TrangThai</td>
+    </tr>
+
+</table>
+
+<form asp-action="Xoa" method="post">
+
+    <input type="hidden" asp-for="MaBaoCao" />
+
+    <button type="submit" class="btn btn-danger">
+        Xóa
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Hủy
+    </a>
+
+</form>

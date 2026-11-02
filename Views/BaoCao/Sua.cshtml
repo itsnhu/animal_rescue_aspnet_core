@@ -1,0 +1,363 @@
+﻿@model HeThongCuuHo.Models.BaoCao
+
+@{
+    ViewData["Title"] = "Chỉnh sửa báo cáo";
+}
+
+<!-- Nhúng FontAwesome Icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<!-- Thư viện Leaflet CSS cho Bản đồ -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Be Vietnam Pro', 'Source Sans Pro', sans-serif;
+    }
+
+    /* Container Card */
+    .form-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        max-width: 1100px; /* Mở rộng ra một chút để chứa 2 cột */
+        margin: 0 auto;
+        overflow: hidden;
+    }
+
+    .form-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        background-color: #ffffff;
+    }
+
+    .form-body {
+        padding: 20px;
+    }
+
+    /* Thu gọn Labels & Inputs */
+    .form-label {
+        font-weight: 600;
+        color: #334155;
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+    }
+
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+        height: auto;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .form-control:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    /* Khung ảnh nhỏ gọn */
+    .image-preview-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px dashed #cbd5e1;
+        margin-bottom: 8px;
+    }
+
+    .img-preview {
+        width: 45px;
+        height: 45px;
+        border-radius: 6px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* Map container styling */
+    #map {
+        height: 240px; /* Thu nhỏ bản đồ để vừa màn hình */
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        z-index: 1;
+    }
+
+    /* Custom Buttons */
+    .btn-submit {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff;
+        font-weight: 600;
+        padding: 8px 20px;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-submit:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    .btn-back {
+        background-color: #ffffff;
+        color: #475569;
+        font-weight: 600;
+        padding: 8px 20px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        text-decoration: none !important;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+        background-color: #f1f5f9;
+        color: #0f172a;
+    }
+
+    .badge-code {
+        background-color: #f0fdf4;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+</style>
+
+<div class="container-fluid py-3">
+    <div class="form-card">
+        
+        <!-- Header -->
+        <div class="form-header d-flex align-items-center justify-content-between">
+            <div>
+                <h2 class="h5 font-weight-bold mb-1" style="color: #0f172a;">
+                    <i class="fas fa-edit text-success mr-2"></i>Chỉnh sửa báo cáo
+                </h2>
+                <p class="text-muted small mb-0">Cập nhật chi tiết thông tin báo cáo</p>
+            </div>
+            <span class="badge-code">
+                Mã BC: @Model.MaBaoCao
+            </span>
+        </div>
+
+        <!-- Form Body -->
+        <div class="form-body">
+            <form asp-action="Sua" method="post" enctype="multipart/form-data">
+                
+                <input type="hidden" asp-for="MaBaoCao" />
+                <input type="hidden" asp-for="HinhAnh" />
+
+                <!-- Hàng 1: Loài và Mức độ (2 cột) -->
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-2 mb-md-0">
+                        <label asp-for="LoaiDongVat" class="form-label">
+                            <i class="fas fa-paw text-muted mr-1"></i> Loài động vật
+                        </label>
+                        <input asp-for="LoaiDongVat" class="form-control" placeholder="Ví dụ: Chó, Mèo..." />
+                        <span asp-validation-for="LoaiDongVat" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="MucDoKhanCap" class="form-label">
+                            <i class="fas fa-exclamation-triangle text-muted mr-1"></i> Mức độ khẩn cấp
+                        </label>
+                        <select asp-for="MucDoKhanCap" class="form-control">
+                            <option value="Bình thường">Bình thường</option>
+                            <option value="Rất khẩn cấp">Rất khẩn cấp</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Chia 2 cột chính: Trái (Thông tin) - Phải (Bản đồ) -->
+                <div class="row">
+                    
+                    <!-- CỘT TRÁI: Mô tả, Ảnh, Địa chỉ -->
+                    <div class="col-md-6">
+                        <!-- Mô tả -->
+                        <div class="mb-3">
+                            <label asp-for="MoTa" class="form-label">
+                                <i class="fas fa-align-left text-muted mr-1"></i> Mô tả chi tiết
+                            </label>
+                            <textarea asp-for="MoTa" class="form-control" rows="2" placeholder="Mô tả tình trạng, đặc điểm..."></textarea>
+                        </div>
+
+                        <!-- Hình ảnh -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-image text-muted mr-1"></i> Hình ảnh sự cố
+                            </label>
+                            
+                            <!-- Ảnh cũ (Nếu có) -->
+                            @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                            {
+                                <div class="image-preview-container">
+                                    <img src="~/uploads/@Model.HinhAnh" class="img-preview" alt="Ảnh" />
+                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                        <span class="font-weight-bold text-dark">Ảnh hiện tại</span><br />
+                                        @Model.HinhAnh
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Input ảnh mới -->
+                            <div class="custom-file">
+                                <input type="file" name="file" class="custom-file-input" id="customFile" accept="image/*" />
+                                <label class="custom-file-label" for="customFile" style="border-radius: 6px; font-size: 0.85rem; height: 34px; line-height: 20px;">Chọn ảnh mới...</label>
+                            </div>
+                        </div>
+
+                        <!-- Địa chỉ -->
+                        <div class="mb-3">
+                            <label asp-for="DiaChi" class="form-label">
+                                <i class="fas fa-map-marker-alt text-muted mr-1"></i> Địa chỉ hiện trường <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="DiaChi" class="form-control" placeholder="Nhập địa chỉ chi tiết..." />
+                            <span asp-validation-for="DiaChi" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- CỘT PHẢI: Bản đồ & Tọa độ -->
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label mb-0">
+                                <i class="fas fa-map text-muted mr-1"></i> Vị trí bản đồ
+                            </label>
+                            <button type="button" id="btnGetLocation" class="btn btn-sm btn-outline-success px-2 py-1" style="font-size: 0.75rem; border-radius: 4px;">
+                                <i class="fas fa-crosshairs mr-1"></i> Lấy GPS
+                            </button>
+                        </div>
+                        
+                        <div id="map" class="mb-2"></div>
+
+                        <!-- Tọa độ (2 cột nhỏ) -->
+                        <div class="row">
+                            <div class="col-6">
+                                <label asp-for="ViDo" class="form-label" style="font-size: 0.75rem;">
+                                    Vĩ độ (Lat)
+                                </label>
+                                <input asp-for="ViDo" type="number" step="any" class="form-control" />
+                            </div>
+                            <div class="col-6">
+                                <label asp-for="KinhDo" class="form-label" style="font-size: 0.75rem;">
+                                    Kinh độ (Lng)
+                                </label>
+                                <input asp-for="KinhDo" type="number" step="any" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thao tác Footer -->
+                <div class="d-flex align-items-center justify-content-between pt-3 mt-2 border-top">
+                    <a asp-action="Index" class="btn btn-back">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-submit">
+                        <i class="fas fa-save mr-1"></i> Lưu thay đổi
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <!-- Thư viện Leaflet JS cho Bản đồ -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Cập nhật tên file khi chọn ảnh
+            $('.custom-file-input').on('change', function() {
+                var fileName = $(this).val().split('\\').pop(); 
+                $(this).next('.custom-file-label').addClass("selected").html(fileName);
+            });
+
+            // Lấy tọa độ từ model
+            let currentLat = parseFloat($("#ViDo").val());
+            let currentLng = parseFloat($("#KinhDo").val());
+
+            let lat = !isNaN(currentLat) && currentLat !== 0 ? currentLat : 10.7615;
+            let lng = !isNaN(currentLng) && currentLng !== 0 ? currentLng : 106.7025;
+
+            // Khởi tạo bản đồ
+            let map = L.map('map').setView([lat, lng], 15);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            let marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+
+            function updateLatLngInputs(latitude, longitude) {
+                $("#ViDo").val(latitude.toFixed(6));
+                $("#KinhDo").val(longitude.toFixed(6));
+            }
+
+            marker.on('dragend', function (e) {
+                let position = marker.getLatLng();
+                updateLatLngInputs(position.lat, position.lng);
+            });
+
+            map.on('click', function (e) {
+                marker.setLatLng(e.latlng);
+                updateLatLngInputs(e.latlng.lat, e.latlng.lng);
+            });
+
+            // Lấy GPS
+            $("#btnGetLocation").click(function () {
+                let $btn = $(this);
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        let userLat = position.coords.latitude;
+                        let userLng = position.coords.longitude;
+
+                        map.setView([userLat, userLng], 16);
+                        marker.setLatLng([userLat, userLng]);
+                        updateLatLngInputs(userLat, userLng);
+
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLng}&accept-language=vi`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data && data.display_name) {
+                                    let parts = data.display_name.split(',');
+                                    $("#DiaChi").val(parts.slice(0, -2).join(',').trim());
+                                }
+                            })
+                            .finally(() => {
+                                $btn.prop('disabled', false).html('<i class="fas fa-crosshairs mr-1"></i> Lấy GPS');
+                            });
+
+                    }, function (error) {
+                        alert("Không thể lấy vị trí. Vui lòng kiểm tra quyền GPS!");
+                        $btn.prop('disabled', false).html('<i class="fas fa-crosshairs mr-1"></i> Lấy GPS');
+                    });
+                } else {
+                    alert("Trình duyệt không hỗ trợ GPS.");
+                    $btn.prop('disabled', false).html('<i class="fas fa-crosshairs mr-1"></i> Lấy GPS');
+                }
+            });
+        });
+    </script>
+}

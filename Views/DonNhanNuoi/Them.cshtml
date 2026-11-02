@@ -1,0 +1,33 @@
+﻿@model HeThongCuuHo.Models.DonNhanNuoi
+
+<h2>Đăng ký nhận nuôi</h2>
+
+<form asp-action="Create" method="post">
+
+    <input type="hidden" asp-for="MaDongVat" />
+
+    <!-- Tạm thời nhập mã người dùng.
+         Sau này nếu có đăng nhập thì sẽ tự lấy -->
+    <div class="mb-3">
+        <label asp-for="MaNguoiDung" class="form-label">Người đăng ký</label>
+        <select asp-for="MaNguoiDung" class="form-control">
+            <option value="1">Nguyễn Văn A</option>
+            <option value="2">Trần Thị B</option>
+            <option value="3">Lê Văn C</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LyDo" class="form-label">Lý do nhận nuôi</label>
+        <textarea asp-for="LyDo" class="form-control" rows="5"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        Gửi đơn
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Quay lại
+    </a>
+
+</form>

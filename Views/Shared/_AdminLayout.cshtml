@@ -1,0 +1,729 @@
+@{
+    string? vaiTro = Context.Session.GetString("VaiTro");
+    string? tenDangNhap = Context.Session.GetString("TenDangNhap");
+    string? anhDaiDien = Context.Session.GetString("AnhDaiDien");
+
+    // Logic lấy ảnh: Nếu có ảnh thật thì dùng, không thì dùng API ui-avatars
+    string avatarUrl = string.IsNullOrEmpty(anhDaiDien) 
+        ? $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(string.IsNullOrEmpty(tenDangNhap) ? "User" : tenDangNhap)}&background=D4A373&color=071D2A&size=128&font-size=0.4&bold=true"
+        : Url.Content($"~/uploads/avatars/{anhDaiDien}?v={DateTime.Now.Ticks}");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hệ thống cứu hộ động vật | Starter</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css">
+    <!-- Theme style (AdminLTE) -->
+    <link rel="stylesheet" href="~/dist/css/adminlte.min.css">
+    
+    <!-- CSS TÙY CHỈNH GIAO DIỆN -->
+    <style>
+        /* 1. ĐỒNG BỘ FONT TIMES NEW ROMAN TOÀN TRANG */
+        body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, 
+        .card, .btn, .badge, table, th, td, p, span, div, input, select, textarea, label, a, .nav-link {
+            font-family: 'Times New Roman', Times, serif !important;
+        }
+
+        /* =========================================
+           1 & 2. LỚP OVERLAY MỜ VÀ Z-INDEX
+           ========================================= */
+        #sidebar-custom-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.45); 
+            backdrop-filter: blur(2px); 
+            -webkit-backdrop-filter: blur(2px);
+            z-index: 1050 !important; 
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out; 
+        }
+        #sidebar-custom-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Đảm bảo Sidebar nằm TRÊN overlay */
+        .main-sidebar {
+            z-index: 1060 !important; 
+            background: #111827 !important; 
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* ===== DROPDOWN USER ===== */
+        .dropdown-menu {
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 6px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+            margin-top: 10px;
+            z-index: 1070; 
+        }
+        .dropdown-item {
+            border-radius: 6px;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            transition: all 0.2s;
+            font-weight: 600;
+            white-space: normal;
+            color: #333 !important;
+        }
+        .dropdown-item:hover {
+            background-color: #f1f5f9;
+            color: #0f172a !important;
+            transform: translateX(3px);
+        }
+        .dropdown-item i { width: 18px; text-align: center; }
+
+        /* =========================================
+           REDESIGN SIDEBAR THEO PHONG CÁCH HIỆN ĐẠI
+           ========================================= */
+        .main-sidebar .sidebar { padding-bottom: 20px; }
+
+        .sidebar-brand {
+            padding: 20px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            text-decoration: none !important;
+            height: 70px;
+            cursor: default; 
+        }
+
+        .sidebar-brand-icon {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            color: #D4A373;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand-text {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #ffffff;
+            margin-left: 10px;
+            white-space: nowrap;
+            letter-spacing: -0.5px;
+        }
+
+        /* KHỐI WORKSPACE SELECTOR */
+        .sidebar-workspace {
+            background: #1f2937;
+            margin: 0 15px 20px 15px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .sidebar-workspace:hover { border-color: #374151; }
+        
+        .workspace-avatar {
+            width: 24px;
+            height: 24px;
+            background: #374151;
+            color: #D4A373;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .workspace-name {
+            flex-grow: 1;
+            color: #e5e7eb;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        /* TIÊU ĐỀ NHÓM MENU */
+        .sidebar-section-title {
+            padding: 10px 25px 5px 25px !important;
+            font-size: 0.7rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 1px !important;
+            text-transform: uppercase;
+            color: #6b7280 !important;
+        }
+
+        /* 3. MENU ITEMS MỚI */
+        .nav-sidebar .nav-item {
+            margin: 2px 12px !important;
+        }
+
+        .nav-sidebar .nav-link {
+            padding: 10px 12px !important;
+            font-size: 0.95rem !important;
+            border-radius: 8px !important;
+            color: #9ca3af !important;
+            display: flex !important;
+            align-items: center !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .nav-sidebar .nav-link i.nav-icon {
+            width: 20px;
+            font-size: 1rem;
+            margin-right: 12px !important;
+            color: #9ca3af;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        .nav-sidebar .nav-link p {
+            margin: 0 !important;
+            white-space: nowrap;
+        }
+
+        /* ===== 1. HOVER STATE (Rê chuột vào) ===== */
+        .nav-sidebar .nav-link:hover {
+            background: linear-gradient(90deg, rgba(17, 24, 39, 0) 0%, rgba(16, 185, 129, 0.15) 100%) !important;
+            color: #ffffff !important;
+            border-right: 3px solid #10b981;
+            box-shadow: inset -10px 0 15px -10px rgba(16, 185, 129, 0.6), 0 0 10px rgba(16,185,129,0.2) !important;
+            position: relative;
+        }
+        
+        .nav-sidebar .nav-link:hover i.nav-icon {
+            color: #9ca3af !important;
+        }
+
+        /* ===== 2. ACTIVE STATE (Mục đang được chọn) ===== */
+        .nav-sidebar .nav-link.active {
+            background: linear-gradient(90deg, rgba(17, 24, 39, 0) 0%, rgba(16, 185, 129, 0.15) 100%) !important;
+            color: #ffffff !important;
+            border-right: 3px solid #10b981;
+            box-shadow: inset -10px 0 15px -10px rgba(16, 185, 129, 0.6), 0 0 10px rgba(16,185,129,0.2) !important;
+            position: relative;
+        }
+        
+        .nav-sidebar .nav-link.active:hover {
+            background: linear-gradient(90deg, rgba(17, 24, 39, 0) 0%, rgba(16, 185, 129, 0.25) 100%) !important;
+        }
+
+        .nav-sidebar .nav-link.active i.nav-icon,
+        .nav-sidebar .nav-link.active:hover i.nav-icon {
+            color: #10b981 !important;
+        }
+        
+        .nav-sidebar .nav-link.active::before {
+            display: none;
+        }
+
+        /* Nút Đăng xuất */
+        .nav-link-logout {
+            margin-top: 10px !important;
+            background: rgba(239, 68, 68, 0.05) !important;
+            color: #ef4444 !important;
+        }
+        .nav-link-logout i.nav-icon {
+            color: #ef4444 !important;
+        }
+        .nav-link-logout:hover {
+            background: rgba(239, 68, 68, 0.15) !important;
+            color: #ef4444 !important;
+        }
+
+        /* Ẩn tiêu đề nhóm khi thu gọn */
+        .sidebar-collapse .sidebar-section-title,
+        .sidebar-collapse .sidebar-workspace {
+            display: none !important;
+        }
+
+        /* ===== NAVBAR & CONTENT ===== */
+        .main-header {
+            padding: 8px 20px;
+            min-height: 55px;
+        }
+        
+        .user-dropdown img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #10b981;
+            object-fit: cover;
+        }
+
+        .content-wrapper {
+            padding: 20px 25px;
+            background-color: #f8fafc;
+        }
+
+        .card {
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            margin-bottom: 20px;
+        }
+        .card-body { padding: 1.25rem; }
+        .card h2, .card .h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.2rem;
+            font-weight: bold;
+        }
+
+        /* =========================================================================
+           XỬ LÝ MỞ RỘNG SIDEBAR VÀ LỖI MẤT ICON KHI HOVER
+        ========================================================================= */
+        @@media (min-width: 768px) {
+            .sidebar-mini.sidebar-collapse .main-sidebar {
+                margin-left: 0 !important;
+                width: 4.6rem !important;
+                transform: none !important;
+            }
+            .sidebar-mini.sidebar-collapse .content-wrapper, 
+            .sidebar-mini.sidebar-collapse .main-footer {
+                margin-left: 4.6rem !important;
+            }
+            .sidebar-mini.sidebar-collapse .sidebar-brand-text,
+            .sidebar-mini.sidebar-collapse .nav-sidebar .nav-link p {
+                display: none !important;
+            }
+            .sidebar-mini.sidebar-collapse .nav-sidebar .nav-link {
+                justify-content: center;
+                padding: 10px 0 !important;
+            }
+            .sidebar-mini.sidebar-collapse .nav-sidebar .nav-link i.nav-icon {
+                margin-right: 0 !important;
+            }
+            .sidebar-mini.sidebar-collapse .sidebar-brand {
+                justify-content: center;
+                padding: 15px 0;
+            }
+
+            /* --- KHI HOVER VÀO SIDEBAR ĐỂ MỞ RỘNG --- */
+            .sidebar-mini.sidebar-collapse .main-sidebar:hover .nav-link {
+                justify-content: flex-start !important;
+                padding: 10px 12px !important;
+            }
+            /* SỬA LỖI MẤT ICON: Dùng inline-block thay vì flex */
+            .sidebar-mini.sidebar-collapse .main-sidebar:hover .nav-link i.nav-icon {
+                display: inline-block !important;
+                margin-right: 12px !important;
+            }
+            .sidebar-mini.sidebar-collapse .main-sidebar:hover .nav-link p,
+            .sidebar-mini.sidebar-collapse .main-sidebar:hover .sidebar-brand-text {
+                display: block !important;
+            }
+            .sidebar-mini.sidebar-collapse .main-sidebar:hover {
+                width: 250px !important;
+            }
+
+            /* Đảm bảo khi mở rộng thì nội dung bị đẩy sang phải chứ không đè lên */
+            .sidebar-mini .main-sidebar {
+                margin-left: 0 !important;
+                width: 250px !important; 
+                transform: none !important;
+            }
+            .sidebar-mini .content-wrapper, .sidebar-mini .main-footer {
+                margin-left: 250px !important;
+            }
+        }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini sidebar-collapse">
+<div class="wrapper">
+
+    <!-- 1. LỚP OVERLAY (Bao phủ toàn bộ giao diện, kể cả Header) -->
+    <div id="sidebar-custom-overlay"></div>
+
+    <!-- Navbar -->
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom" style="box-shadow: none; border-color: #f1f5f9 !important;">
+        <!-- ĐÃ BỎ NÚT MENU 3 GẠCH Ở ĐÂY -->
+
+        <!-- Right navbar links -->
+        <ul class="navbar-nav ml-auto align-items-center">
+            <!-- Dropdown Thông Báo -->
+            <li class="nav-item dropdown mr-3">
+                <a class="nav-link text-secondary position-relative" data-toggle="dropdown" href="#">
+                    <i class="far fa-bell" style="font-size: 1.2rem;"></i>
+                    <span class="badge badge-danger navbar-badge" id="badgeThongBao" style="font-size: 0.7rem; position: absolute; top: 5px; right: 5px;">0</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                    <span class="dropdown-header font-weight-bold text-success">Thông báo mới</span>
+                    <div class="dropdown-divider mt-1 mb-2"></div>
+                    <div id="dsThongBao" style="max-height: 300px; overflow-y: auto;"></div>
+                    <div class="dropdown-divider mb-2"></div>
+                    <a asp-controller="ThongBao" asp-action="Index" class="dropdown-item text-center text-success font-weight-bold">
+                        Xem tất cả
+                    </a>
+                </div>
+            </li>
+
+            <!-- KHỐI USER ADMIN -->
+            <li class="nav-item dropdown user-dropdown">
+                <a class="nav-link d-flex align-items-center p-1" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor: pointer;">
+                    <img src="@avatarUrl" alt="Avatar">
+                    <div class="ml-2 d-none d-md-block text-left" style="line-height: 1.1;">
+                        <div class="font-weight-bold" style="font-size: 0.95rem; color: #333;">
+                            @(string.IsNullOrEmpty(tenDangNhap) ? "Khách" : tenDangNhap)
+                        </div>
+                        <small class="text-muted" style="font-size: 0.8rem;">
+                            @(vaiTro == "Admin" ? "Quản trị viên" : (vaiTro == "TinhNguyenVien" ? "Tình nguyện viên" : "Thành viên"))
+                        </small>
+                    </div>
+                    <i class="fas fa-chevron-down ml-2 text-muted" style="font-size: 0.8rem;"></i>
+                </a>
+
+                <div class="dropdown-menu dropdown-menu-right shadow-lg" aria-labelledby="userDropdown" style="min-width: 220px;">
+                    <div class="text-center p-3 border-bottom mb-2" style="background-color: #f8fafc; border-radius: 8px 8px 0 0;">
+                        <img src="@avatarUrl" alt="User Image" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <h6 class="font-weight-bold text-dark mb-0" style="font-size: 1rem;">
+                            @(string.IsNullOrEmpty(tenDangNhap) ? "Khách" : tenDangNhap)
+                        </h6>
+                        <small class="text-muted" style="font-size: 0.8rem;">
+                            @(vaiTro == "Admin" ? "Quản trị viên" : (vaiTro == "TinhNguyenVien" ? "Tình nguyện viên" : "Thành viên"))
+                        </small>
+                    </div>
+                    
+                    <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
+                        <i class="fas fa-user-circle text-primary mr-2"></i> Hồ sơ cá nhân
+                    </a>
+                    <a class="dropdown-item" asp-controller="TaiKhoan" asp-action="DoiMatKhau">
+                        <i class="fas fa-key text-warning mr-2"></i> Đổi mật khẩu
+                    </a>
+                    <a class="dropdown-item" asp-controller="NhatKy" asp-action="Index">
+                        <i class="fas fa-history text-info mr-2"></i> Nhật ký hoạt động
+                    </a>
+                    
+                    <div class="dropdown-divider my-2"></div>
+                    
+                    <a class="dropdown-item text-danger" asp-controller="Login" asp-action="DangXuat">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Sidebar Container -->
+    <aside class="main-sidebar sidebar-dark-primary">
+        
+        <!-- 2. Brand Logo -->
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon">
+                <i class="fas fa-paw"></i>
+            </div>
+            <div class="sidebar-brand-text">Rescue<span style="color: #D4A373;">Pets</span></div>
+        </div>
+
+        <!-- Workspace Selector -->
+        <div class="sidebar-workspace">
+            <div class="workspace-avatar">R</div>
+            <div class="workspace-name">Không gian làm việc</div>
+            <i class="fas fa-chevron-down text-muted" style="font-size: 12px;"></i>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+                    <li class="sidebar-section-title">Tổng quan</li>
+
+                    <li class="nav-item">
+                        <a asp-controller="Home" asp-action="Dashboard" class="nav-link">
+                            <i class="nav-icon fas fa-chart-pie"></i>
+                            <p>Trang chủ</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a asp-controller="BaoCao" asp-action="Index" class="nav-link">
+                            <i class="nav-icon fas fa-bullhorn"></i>
+                            <p>Báo cáo cứu hộ</p>
+                        </a>
+                    </li>
+
+                    @* ================= ADMIN + TÌNH NGUYỆN VIÊN ================= *@
+                    @if (vaiTro == "Admin" || vaiTro == "TinhNguyenVien")
+                    {
+                        <li class="sidebar-section-title">Quản lý cứu hộ</li>
+
+                        <li class="nav-item">
+                            <a asp-controller="CuuHo" asp-action="Index" class="nav-link">
+                                <i class="nav-icon fas fa-ambulance"></i>
+                                <p>Quản lý cứu hộ</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-controller="DongVat" asp-action="Index" class="nav-link">
+                                <i class="nav-icon fas fa-dog"></i>
+                                <p>Quản lý động vật</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-controller="NhanNuoi" asp-action="Index" class="nav-link">
+                                <i class="nav-icon fas fa-hand-holding-heart"></i>
+                                <p>Quản lý đơn nhận nuôi</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-controller="DieuTri" asp-action="Index" class="nav-link">
+                                <i class="nav-icon fas fa-stethoscope"></i>
+                                <p>Quản lý điều trị</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-controller="LuuTru" asp-action="Index" class="nav-link">
+                                <i class="nav-icon fas fa-hotel"></i>
+                                <p>Quản lý lưu trú</p>
+                            </a>
+                        </li>
+                    }
+
+                    @* ================= NHẬN NUÔI ================= *@
+                    @if (vaiTro != "Admin" && vaiTro != "TinhNguyenVien")
+                    {
+                        <li class="sidebar-section-title">Nhận nuôi & Tình nguyện</li>
+
+                        <li class="nav-item">
+                            <a asp-controller="DongVat" asp-action="DanhSach" class="nav-link">
+                                <i class="nav-icon fas fa-paw"></i>
+                                <p>Nhận nuôi thú cưng</p>
+                            </a>
+                        </li>
+                    }
+
+                    <li class="nav-item">
+                        <a asp-controller="TinhNguyenVien" asp-action="Index" class="nav-link">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>Tình nguyện viên</p>
+                        </a>
+                    </li>
+
+                    @* ================= HOẠT ĐỘNG CỦA TÔI ================= *@
+                    @if (vaiTro != "Admin")
+                    {
+                        <li class="nav-item">
+                            <a asp-controller="NhanNuoi" asp-action="TheoDoiDon" class="nav-link">
+                                <i class="nav-icon fas fa-file-invoice"></i>
+                                <p>Đơn nhận nuôi của tôi</p>
+                            </a>
+                        </li>
+                    }
+
+                    @* ================= CHỈ ADMIN ================= *@
+                    @if (vaiTro == "Admin")
+                    {
+                        <li class="sidebar-section-title">Hệ thống</li>
+
+                        <li class="nav-item">
+                            <a asp-controller="ThongBao" asp-action="Index" class="nav-link">
+                                <i class="nav-icon fas fa-bell"></i>
+                                <p>Thông báo hệ thống</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-controller="NhatKy" asp-action="Index" class="nav-link">
+                                <i class="nav-icon fas fa-history"></i>
+                                <p>Nhật ký hoạt động</p>
+                            </a>
+                        </li>
+                    }
+
+                    @* ================= ĐĂNG NHẬP / ĐĂNG XUẤT ================= *@
+                    @if (!string.IsNullOrEmpty(vaiTro))
+                    {
+                        <li class="nav-item mt-2">
+                            <a asp-controller="Login" asp-action="DangXuat" class="nav-link nav-link-logout">
+                                <i class="nav-icon fas fa-sign-out-alt"></i>
+                                <p>Đăng xuất</p>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item mt-2">
+                            <a asp-controller="Login" asp-action="Index" class="nav-link">
+                                <i class="nav-icon fas fa-sign-in-alt"></i>
+                                <p>Đăng nhập</p>
+                            </a>
+                        </li>
+                    }
+
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <section class="content pt-2">
+            <div class="container-fluid">
+                <!-- Thông báo TempData -->
+                @if (TempData["ThongBao"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="icon fas fa-check mr-2"></i> @TempData["ThongBao"]
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="icon fas fa-ban mr-2"></i> @TempData["Error"]
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+
+                @RenderBody()
+            </div>
+        </section>
+    </div>
+
+    <!-- Main Footer -->
+    <footer class="main-footer text-sm">
+        <div class="float-right d-none d-sm-inline">
+            Hệ thống cứu hộ động vật
+        </div>
+        <strong>Hệ thống quản lý cứu hộ động vật đường phố</strong>
+    </footer>
+</div>
+
+<!-- REQUIRED SCRIPTS -->
+<script src="~/plugins/jquery/jquery.min.js"></script>
+<script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="~/dist/js/adminlte.min.js"></script>
+
+@await RenderSectionAsync("Scripts", required: false)
+
+<!-- Script xử lý Thông báo & Menu Active -->
+<script>
+    // --- 1. XỬ LÝ THÔNG BÁO ---
+    async function loadThongBao() {
+        try {
+            let response = await fetch('/ThongBao/DemChuaDoc');
+            let count = await response.text();
+            let badge = document.getElementById("badgeThongBao");
+            if(badge) {
+                badge.innerHTML = count;
+                badge.style.display = (count === "0") ? "none" : "inline-block";
+            }
+        } catch (error) {
+            console.error("Lỗi tải số lượng thông báo:", error);
+        }
+    }
+
+    async function loadDanhSachThongBao() {
+        try {
+            let response = await fetch('/ThongBao/LayThongBaoMoi');
+            let ds = await response.json();
+            let html = "";
+
+            if (!ds || ds.length === 0) {
+                 html = `<div class="text-center text-muted p-3 small">Không có thông báo mới</div>`;
+            } else {
+                ds.forEach(tb => {
+                    html += `
+                        <a class="dropdown-item" href="/ThongBao/DaDoc/${tb.maThongBao}">
+                            <div class="text-wrap text-dark" style="font-size: 13px;"><b>${tb.noiDung}</b></div>
+                            <small class="text-muted" style="font-size: 11px;"><i class="far fa-clock mr-1"></i>${tb.ngayGui}</small>
+                        </a>
+                        <div class="dropdown-divider my-1"></div>
+                    `;
+                });
+            }
+            let container = document.getElementById("dsThongBao");
+            if(container) container.innerHTML = html;
+        } catch (error) {
+            console.error("Lỗi tải danh sách thông báo:", error);
+        }
+    }
+
+    // --- 2. CHẠY KHI TẢI TRANG ---
+    document.addEventListener("DOMContentLoaded", function () {
+        loadThongBao();
+        loadDanhSachThongBao();
+        
+        setInterval(function () {
+            loadThongBao();
+            loadDanhSachThongBao();
+        }, 15000);
+
+        const currentPath = window.location.pathname.toLowerCase();
+        let matched = false;
+        document.querySelectorAll('.nav-sidebar .nav-link').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href !== '#' && href !== '/') {
+                const cleanHref = href.toLowerCase().split('?')[0];
+                if (currentPath === cleanHref || (cleanHref !== '/home/dashboard' && currentPath.startsWith(cleanHref))) {
+                    link.classList.add('active');
+                    matched = true;
+                }
+            }
+        });
+        
+        if (!matched && (currentPath.includes('/dashboard') || currentPath === '/')) {
+            const dashLink = document.querySelector('.nav-sidebar a[href*="Dashboard"]');
+            if (dashLink) dashLink.classList.add('active');
+        }
+
+        setTimeout(function () {
+            let alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function (alert) {
+                alert.style.transition = "opacity 0.5s ease";
+                alert.style.opacity = "0";
+                setTimeout(function () {
+                    alert.remove();
+                }, 500); 
+            });
+        }, 3500); 
+
+        // --- 3. XỬ LÝ OVERLAY KHI HOVER MỞ SIDEBAR ---
+        const body = document.body;
+        const sidebar = document.querySelector('.main-sidebar');
+        const overlay = document.getElementById('sidebar-custom-overlay');
+
+        if (sidebar && overlay) {
+            sidebar.addEventListener('mouseenter', function () {
+                // Chỉ hiện overlay khi sidebar đang ở trạng thái thu gọn
+                if (body.classList.contains('sidebar-collapse')) {
+                    overlay.classList.add('active');
+                }
+            });
+
+            sidebar.addEventListener('mouseleave', function () {
+                overlay.classList.remove('active');
+            });
+
+            // 3. Khi nhấn vào Overlay -> Đóng Sidebar
+            overlay.addEventListener('click', function () {
+                overlay.classList.remove('active');
+            });
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+﻿@{
+    ViewData["Title"] = "Đổi mật khẩu";
+}
+
+<!-- Nhúng thư viện FontAwesome để chắc chắn icon hiển thị -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+    /* 1. ÉP FONT TIMES NEW ROMAN CHO VĂN BẢN (KHÔNG ÁP DỤNG CHO ICON) */
+    body, h1, h2, h3, h4, h5, h6, p, span:not(.fas):not(.far):not(.fab), div, a, label, input, select, textarea, button {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+    
+    /* Bảo vệ font của Icon không bị ghi đè */
+    i, .fa, .fas, .far, .fab {
+        font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", "FontAwesome" !important;
+    }
+
+    body {
+        background-color: #f4f6f9;
+    }
+
+    /* 2. BỐ CỤC CARD CĂN GIỮA, KHẮC PHỤC KHOẢNG TRỐNG */
+    .pwd-card {
+        width: 100%;
+        max-width: 500px;
+        background-color: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin: 0 auto;
+    }
+
+    /* HEADER */
+    .pwd-header {
+        text-align: center;
+        padding: 25px 25px 15px;
+        background: #ffffff;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+
+    /* 3. ICON 3D ANIMATION */
+    .pwd-icon-wrapper {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        box-shadow: 
+            0 8px 15px rgba(2, 132, 199, 0.3),
+            inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .pwd-icon-wrapper i {
+        color: #ffffff !important;
+        font-size: 1.8rem;
+    }
+
+    @@keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-6px); }
+        100% { transform: translateY(0px); }
+    }
+
+    .pwd-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #0f172a;
+        margin-bottom: 5px;
+    }
+
+    .pwd-subtitle {
+        font-size: 1rem;
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+    /* BODY */
+    .pwd-body {
+        padding: 20px 25px 25px;
+    }
+
+    /* FORM GROUP */
+    .form-group-custom {
+        margin-bottom: 15px;
+    }
+
+    .form-label-custom {
+        font-weight: bold;
+        color: #334155;
+        font-size: 1rem;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    /* INPUT GROUP */
+    .input-group-custom {
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        background-color: #f8fafc;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-group-custom:focus-within {
+        background-color: #ffffff;
+        border-color: #0284c7;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .form-control-custom {
+        border: none;
+        background: transparent;
+        padding: 10px 12px;
+        height: 42px;
+        font-size: 1rem;
+        color: #0f172a;
+        box-shadow: none !important;
+        width: 100%;
+    }
+
+    .form-control-custom::placeholder {
+        color: #94a3b8;
+    }
+
+    .btn-toggle-pwd {
+        border: none;
+        background: transparent;
+        color: #94a3b8;
+        padding: 0 12px;
+        transition: color 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-toggle-pwd:hover {
+        color: #0f172a;
+    }
+
+    /* KHUNG YÊU CẦU MẬT KHẨU */
+    .password-requirements {
+        background-color: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-top: 8px;
+        margin-bottom: 15px;
+    }
+
+    .req-title {
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #64748b;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .req-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .req-item {
+        font-size: 0.95rem;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .req-item i {
+        font-size: 0.7rem;
+        color: #cbd5e1;
+    }
+
+    .req-item.valid {
+        color: #10b981;
+        font-weight: bold;
+    }
+
+    .req-item.valid i {
+        color: #10b981;
+    }
+
+    /* NÚT BẤM */
+    .pwd-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 15px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .btn-custom {
+        border-radius: 8px;
+        font-weight: bold;
+        padding: 0 20px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    /* RESPONSIVE */
+    @@media (max-width: 576px) {
+        .req-list { grid-template-columns: 1fr; }
+        .pwd-footer { flex-direction: column-reverse; }
+        .btn-custom { width: 100%; justify-content: center; }
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="pwd-card">
+                
+                <!-- HEADER -->
+                <div class="pwd-header">
+                    <div class="pwd-icon-wrapper">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h4 class="pwd-title">Đổi mật khẩu</h4>
+                    <p class="pwd-subtitle">Bảo vệ tài khoản của bạn bằng mật khẩu mạnh.</p>
+                </div>
+
+                <!-- BODY -->
+                <div class="pwd-body">
+                    <!-- THÔNG BÁO LỖI -->
+                    @if (ViewBag.Loi != null)
+                    {
+                        <div class="alert alert-danger border-0 shadow-sm mb-3" style="border-radius: 8px; font-size: 1rem; background-color: #fef2f2; color: #b91c1c; padding: 10px;">
+                            <i class="fas fa-exclamation-circle mr-2"></i> @ViewBag.Loi
+                        </div>
+                    }
+
+                    <!-- THÔNG BÁO THÀNH CÔNG -->
+                    @if (TempData["ThongBao"] != null)
+                    {
+                        <div class="alert alert-success border-0 shadow-sm mb-3" style="border-radius: 8px; font-size: 1rem; background-color: #f0fdf4; color: #15803d; padding: 10px;">
+                            <i class="fas fa-check-circle mr-2"></i> @TempData["ThongBao"]
+                        </div>
+                    }
+
+                    <form asp-action="DoiMatKhau" method="post" id="formDoiMatKhau">
+                        
+                        <!-- MẬT KHẨU HIỆN TẠI -->
+                        <div class="form-group-custom">
+                            <label class="form-label-custom">Mật khẩu hiện tại <span class="text-danger">*</span></label>
+                            <div class="input-group-custom">
+                                <input type="password" name="matKhauCu" id="matKhauCu" class="form-control form-control-custom" placeholder="Nhập mật khẩu hiện tại" required />
+                                <button type="button" class="btn-toggle-pwd" onclick="togglePassword('matKhauCu', this)" title="Hiện/Ẩn mật khẩu">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- MẬT KHẨU MỚI -->
+                        <div class="form-group-custom mb-1">
+                            <label class="form-label-custom">Mật khẩu mới <span class="text-danger">*</span></label>
+                            <div class="input-group-custom">
+                                <input type="password" name="matKhauMoi" id="matKhauMoi" class="form-control form-control-custom" placeholder="Nhập mật khẩu mới" required minlength="6" />
+                                <button type="button" class="btn-toggle-pwd" onclick="togglePassword('matKhauMoi', this)" title="Hiện/Ẩn mật khẩu">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- KHUNG YÊU CẦU MẬT KHẨU -->
+                        <div class="password-requirements">
+                            <div class="req-title">Yêu cầu bảo mật:</div>
+                            <ul class="req-list">
+                                <li class="req-item" id="req-length"><i class="fas fa-circle"></i> Ít nhất 6 ký tự</li>
+                                <li class="req-item" id="req-upper"><i class="fas fa-circle"></i> Có chữ hoa</li>
+                                <li class="req-item" id="req-lower"><i class="fas fa-circle"></i> Có chữ thường</li>
+                                <li class="req-item" id="req-number"><i class="fas fa-circle"></i> Có chữ số</li>
+                            </ul>
+                        </div>
+
+                        <!-- XÁC NHẬN MẬT KHẨU -->
+                        <div class="form-group-custom">
+                            <label class="form-label-custom">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
+                            <div class="input-group-custom">
+                                <input type="password" name="xacNhanMatKhau" id="xacNhanMatKhau" class="form-control form-control-custom" placeholder="Nhập lại mật khẩu mới" required minlength="6" />
+                                <button type="button" class="btn-toggle-pwd" onclick="togglePassword('xacNhanMatKhau', this)" title="Hiện/Ẩn mật khẩu">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- NÚT BẤM -->
+                        <div class="pwd-footer">
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-custom">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-custom" style="background-color: #0284c7; border-color: #0284c7;">
+                                <i class="fas fa-save"></i> Cập nhật mật khẩu
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePassword(inputId, btn) {
+            var input = document.getElementById(inputId);
+            var icon = btn.querySelector('i');
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = "password";
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        document.getElementById('matKhauMoi').addEventListener('input', function() {
+            var val = this.value;
+            toggleReqClass('req-length', val.length >= 6);
+            toggleReqClass('req-upper', /[A-Z]/.test(val));
+            toggleReqClass('req-lower', /[a-z]/.test(val));
+            toggleReqClass('req-number', /[0-9]/.test(val));
+        });
+
+        function toggleReqClass(elementId, isValid) {
+            var el = document.getElementById(elementId);
+            var icon = el.querySelector('i');
+            if (isValid) {
+                el.classList.add('valid');
+                icon.classList.remove('fa-circle');
+                icon.classList.add('fa-check-circle');
+            } else {
+                el.classList.remove('valid');
+                icon.classList.remove('fa-check-circle');
+                icon.classList.add('fa-circle');
+            }
+        }
+    </script>
+}

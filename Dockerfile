@@ -15,6 +15,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/out .
 
-# Quan trọng: Render sẽ tự inject biến PORT, không hardcode port ở đây
-# Lệnh khởi chạy ứng dụng, thay "TenDuAn.dll" bằng tên file .dll thực tế của bạn
-ENTRYPOINT ["dotnet", "RescuePets.dll"]
+# Thêm dòng này để chỉ định cổng lắng nghe
+ENV ASPNETCORE_HTTP_PORTS=10000
+
+# Lệnh khởi chạy ứng dụng (thay TenDuAn.dll bằng tên file .dll thực tế)
+ENTRYPOINT ["dotnet", "HeThongCuuHo.dll"]

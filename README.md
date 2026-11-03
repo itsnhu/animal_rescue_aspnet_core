@@ -25,4 +25,7 @@
 *   **Bản đồ:** Leaflet.js & OpenStreetMap
 *   **Thanh toán:** VietQR API
 *   **Cơ sở dữ liệu:** SQL Server (Entity Framework Core)
-
+*   
+## 🌐 Trải nghiệm
+Dự án đã được triển khai
+👉 **[BẤM VÀO ĐÂY ĐỂ TRẢI NGHIỆM HỆ THỐNG](http://animalrescue.somee.com/)** ****
